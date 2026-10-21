@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
 import "./globals.css";
@@ -91,6 +92,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-screen antialiased">
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <AppShell>{children}</AppShell>
+        <Script
+          id="cloudflare-web-analytics"
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          type="module"
+          strategy="afterInteractive"
+          data-cf-beacon={JSON.stringify({
+            token: "2ac9ca3f1c584683a86f43605bc9b296",
+          })}
+        />
       </body>
     </html>
   );

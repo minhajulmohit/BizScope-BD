@@ -67,6 +67,10 @@ npm run build
 
 ---
 
+## Web analytics
+
+Page-view measurement uses Cloudflare Web Analytics. The beacon is loaded once from `app/layout.tsx`, after the app shell and before the closing `</body>` tag. Cloudflare records traffic only for the hostname configured in its dashboard; requests from `localhost` are rejected by Cloudflare's CORS policy and do not affect the dashboard.
+
 ## Data sources
 
 ### Integrated automatically
@@ -210,7 +214,7 @@ Run against the live providers on **21 October 2026**:
 - `npm run build` — passed (Next.js production build, all routes generated).
 - Live endpoint checks — `/api/analytics` returned all 7 indicators, `/api/currency` returned a valid dollar–taka reference feed, `/api/datasets` returned catalog pages plus validated search/filter/pagination, and `/api/status` reported all three providers operational.
 - Page checks — `/`, `/economy`, `/trade`, `/currency`, `/data`, and `/sources` all returned `200`; an unknown route correctly returned `404`.
-- Browser checks — Playwright on the production build: no console or page errors, axe reported zero WCAG A/AA violations on all six pages, theme persistence and system-dark preference worked, the mobile drawer trapped focus and restored it on Escape, and the converter, economy filters, and dataset search all worked. A standard 390 px context reported a 390 px layout and document width; all six routes stayed at the viewport width with no horizontal panning at 360, 390, 414, and 768 px.
+- Browser checks - Playwright on the production build: no application console or page errors (the Cloudflare beacon's localhost CORS rejection is external and expected), axe reported zero WCAG A/AA violations on all six pages, theme persistence and system-dark preference worked, the mobile drawer trapped focus and restored it on Escape, and the converter, economy filters, and dataset search all worked. A standard 390 px context reported a 390 px layout and document width; all six routes stayed at the viewport width with no horizontal panning at 360, 390, 414, and 768 px.
 - BDT display checks — overview, economy, and trade showed taka values with the conversion rate and update date; the currency rate table showed taka per unit; the Sources page contained no internal endpoint or cache table.
 - One benign `net::ERR_ABORTED` appears for `/api/status` when a navigation cancels the previous page's in-flight health request; it is not a data or rendering failure.
 
