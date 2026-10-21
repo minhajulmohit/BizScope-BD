@@ -220,7 +220,7 @@ function MetricButton({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "min-w-0 rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "min-w-0 rounded-xl border px-3.5 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         selected
           ? "border-brand bg-brand-soft"
           : "border-line bg-surface hover:border-line-strong hover:bg-surface-muted/60",
@@ -228,7 +228,7 @@ function MetricButton({
     >
       <span
         className={cn(
-          "block truncate text-[10px] font-semibold uppercase tracking-[0.04em]",
+          "line-clamp-2 text-[12px] font-semibold leading-4 tracking-[0.01em]",
           selected ? "text-brand-strong" : "text-muted",
         )}
         title={indicator.shortName}
@@ -240,7 +240,7 @@ function MetricButton({
       </span>
       <span
         className={cn(
-          "mt-0.5 block text-[9px]",
+          "mt-0.5 block text-[11px]",
           selected ? "text-brand-strong" : "text-subtle",
         )}
       >
@@ -345,7 +345,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
           description={copy.selectDescription}
         />
         <div
-          className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7"
+          className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-3 lg:grid-cols-4"
           role="group"
           aria-label={copy.selectAria}
         >
@@ -376,7 +376,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   onClick={() => setChartType("line")}
                   aria-pressed={chartType === "line"}
                   className={cn(
-                    "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                    "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
                     chartType === "line"
                       ? "bg-surface text-foreground shadow-sm"
                       : "text-muted hover:text-foreground",
@@ -390,7 +390,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   onClick={() => setChartType("bar")}
                   aria-pressed={chartType === "bar"}
                   className={cn(
-                    "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                    "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
                     chartType === "bar"
                       ? "bg-surface text-foreground shadow-sm"
                       : "text-muted hover:text-foreground",
@@ -406,7 +406,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line px-5 py-3.5 sm:px-6">
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1.5">
-                <label htmlFor="from-year" className="text-[10px] font-medium text-subtle">
+                <label htmlFor="from-year" className="text-[11px] font-medium text-subtle">
                   {copy.from}
                 </label>
                 <select
@@ -416,7 +416,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                     const next = Number(event.target.value);
                     setRange({ from: next, to: next > toYear ? next : toYear });
                   }}
-                  className="h-8 rounded-md border border-line bg-surface px-2 text-[11px] font-medium text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  className="h-8 rounded-md border border-line bg-surface px-2 text-[12px] font-medium text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
                 >
                   {yearOptions.map((year) => (
                     <option key={year} value={year}>
@@ -425,7 +425,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   ))}
                 </select>
               </div>
-              <span className="text-[10px] text-subtle">{copy.to}</span>
+              <span className="text-[11px] text-subtle">{copy.to}</span>
               <div className="flex items-center gap-1.5">
                 <label htmlFor="to-year" className="sr-only">
                   {copy.toYear}
@@ -437,7 +437,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                     const next = Number(event.target.value);
                     setRange({ from: next < fromYear ? next : fromYear, to: next });
                   }}
-                  className="h-8 rounded-md border border-line bg-surface px-2 text-[11px] font-medium text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  className="h-8 rounded-md border border-line bg-surface px-2 text-[12px] font-medium text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
                 >
                   {yearOptions.map((year) => (
                     <option key={year} value={year}>
@@ -446,7 +446,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   ))}
                 </select>
               </div>
-              <span className="text-[10px] text-subtle">
+              <span className="text-[11px] text-subtle">
                 {copy.calendarYears(toYear - fromYear + 1)}
               </span>
             </div>
@@ -459,18 +459,6 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                 },
               ]}
             />
-          </div>
-
-          <div className="px-5 pt-4 sm:px-6">
-            <div className="rounded-lg border border-line bg-surface-muted/40 px-3 py-2">
-              <p className="text-[10px] leading-4 text-muted">
-                <span className="font-semibold text-foreground-soft">
-                  {copy.definitionLabel}
-                </span>{" "}
-                {definitionCopy.definition}
-                {selected.unit === "bdt" ? ` ${copy.bdtNote}` : ""}
-              </p>
-            </div>
           </div>
 
           {!hasAnyValue ? (
@@ -502,13 +490,13 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   />
                   <XAxis
                     dataKey="year"
-                    tick={{ fill: "var(--chart-axis)", fontSize: 10 }}
+                    tick={{ fill: "var(--chart-axis)", fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                     minTickGap={16}
                   />
                   <YAxis
-                    tick={{ fill: "var(--chart-axis)", fontSize: 10 }}
+                    tick={{ fill: "var(--chart-axis)", fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                     width={58}
@@ -555,7 +543,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
             <p>
               {copy.yAxis(selected.unitLabel, tableRows.length)}
             </p>
@@ -574,9 +562,9 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
             description={copy.aboutDescription}
           />
           <div className="space-y-4 p-5 sm:p-6">
-            <p className="text-[12px] leading-6 text-muted">{selected.definition}</p>
+            <p className="text-[13px] leading-6 text-muted">{selected.definition}</p>
 
-            <dl className="divide-y divide-line overflow-hidden rounded-lg border border-line text-[11px]">
+            <dl className="divide-y divide-line overflow-hidden rounded-lg border border-line text-[12px]">
               <div className="flex items-center justify-between gap-3 px-3 py-2">
                 <dt className="text-subtle">{copy.unit}</dt>
                 <dd className="text-right font-medium text-foreground">
@@ -615,7 +603,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
 
             <div className="flex flex-wrap items-center gap-2">
               <CadenceBadge cadence="periodic" label={copy.cadence} />
-              <SourceLink href={selected.source.sourceUrl} className="text-[10px]">
+              <SourceLink href={selected.source.sourceUrl} className="text-[11px]">
                 {copy.sourcePage}
               </SourceLink>
             </div>
@@ -628,7 +616,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
 
             <div className="mt-auto flex items-start gap-2 rounded-lg bg-surface-muted px-3 py-2.5">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-subtle" aria-hidden="true" />
-              <p className="text-[10px] leading-4 text-muted">
+              <p className="text-[11px] leading-4 text-muted">
                 {copy.note}
               </p>
             </div>
@@ -641,7 +629,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
           title={copy.tableTitle}
           description={copy.tableDescription(definitionCopy.shortName)}
           action={
-            <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
+            <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] text-muted">
               <Clock3 className="h-3 w-3" aria-hidden="true" />
               {copy.annual}
             </span>
@@ -653,12 +641,12 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
           aria-label={copy.tableAria}
           tabIndex={0}
         >
-          <table className="w-full min-w-[620px] text-left text-[12px]">
+          <table className="w-full min-w-[620px] text-left text-[13px]">
             <caption className="sr-only">
               {copy.tableCaption(selected.name)}
             </caption>
             <thead>
-              <tr className="border-b border-line bg-surface-muted/60 text-[10px] uppercase tracking-[0.08em] text-subtle">
+              <tr className="border-b border-line bg-surface-muted/60 text-[11px] uppercase tracking-[0.08em] text-subtle">
                 <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                   {copy.year}
                 </th>
@@ -696,7 +684,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                       <span className="inline-flex items-center gap-2">
                         {observation.year}
                         {selected.latest?.year === observation.year ? (
-                          <span className="rounded bg-brand-soft px-1 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-brand-strong">
+                          <span className="rounded bg-brand-soft px-1 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-brand-strong">
                             {copy.latest}
                           </span>
                         ) : null}
@@ -724,10 +712,10 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                     <td className="whitespace-nowrap px-4 py-2.5 text-right tabular text-muted">
                       {change}
                     </td>
-                    <td className="px-5 py-2.5 text-[11px] text-muted sm:px-6">
+                    <td className="px-5 py-2.5 text-[12px] text-muted sm:px-6">
                       <SourceLink
                         href={selected.source.sourceUrl}
-                        className="text-[11px]"
+                        className="text-[12px]"
                       >
                         {copy.sourceName}
                       </SourceLink>
@@ -738,7 +726,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
             </tbody>
           </table>
         </div>
-        <div className="border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+        <div className="border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
           {copy.tableNote}
         </div>
       </Panel>

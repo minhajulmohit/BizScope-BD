@@ -26,7 +26,7 @@ export function ChartLegend({
       {items.map((item) => (
         <li
           key={item.label}
-          className="inline-flex items-center gap-1.5 text-[11px] text-muted"
+          className="inline-flex items-center gap-1.5 text-[12px] text-muted"
         >
           <span
             className={cn(

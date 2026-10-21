@@ -23,7 +23,7 @@ export function DeltaChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-[11px] font-medium tabular text-muted",
+        "inline-flex items-center gap-1 text-[12px] font-medium tabular text-muted",
         className,
       )}
       aria-label={`${delta.amountLabel} ${copy.vs} ${delta.previousYear}`}

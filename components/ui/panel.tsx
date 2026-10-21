@@ -38,11 +38,11 @@ export function PanelHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="text-[15px] font-semibold leading-6 tracking-[-0.01em] text-foreground">
+        <h2 className="text-[16px] font-semibold leading-6 tracking-[-0.01em] text-foreground">
           {title}
         </h2>
         {description ? (
-          <p className="mt-0.5 max-w-2xl text-[12px] leading-5 text-muted">
+          <p className="mt-1 max-w-2xl text-[14px] leading-5 text-muted">
             {description}
           </p>
         ) : null}

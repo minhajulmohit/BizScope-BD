@@ -67,7 +67,7 @@ export function LatestObservations({
         title={copy.title}
         description={copy.description}
         action={
-          <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
+          <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] text-muted">
             {copy.available(
               analytics.summary.availableIndicators,
               analytics.summary.totalIndicators,
@@ -81,10 +81,10 @@ export function LatestObservations({
         aria-label={copy.tableLabel}
         tabIndex={0}
       >
-        <table className="w-full min-w-[620px] text-left text-[12px]">
+        <table className="w-full min-w-[620px] text-left text-[13px]">
           <caption className="sr-only">{copy.caption}</caption>
           <thead>
-            <tr className="border-b border-line bg-surface-muted/60 text-[10px] uppercase tracking-[0.08em] text-subtle">
+            <tr className="border-b border-line bg-surface-muted/60 text-[11px] uppercase tracking-[0.08em] text-subtle">
               <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                 {copy.indicator}
               </th>
@@ -137,7 +137,7 @@ export function LatestObservations({
                         indicator?.source.sourceUrl ??
                         `https://data.worldbank.org/indicator/${definition.code}?locations=BD`
                       }
-                      className="text-[11px]"
+                      className="text-[12px]"
                     >
                       World Bank
                     </SourceLink>
@@ -148,7 +148,7 @@ export function LatestObservations({
           </tbody>
         </table>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
         <p>{copy.footer}</p>
         <p>{inBdt ? copy.inBdt : copy.fallback}</p>
       </div>

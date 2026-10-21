@@ -77,13 +77,13 @@ export function SourceCard({
       <div className={cn("flex flex-1 flex-col gap-4 p-5 sm:p-6", compact && "gap-3")}>
         <div className="flex flex-wrap items-center gap-2">
           <CadenceBadge cadence={source.cadence} label={source.cadenceLabel} />
-          <span className="text-[10px] text-subtle">{source.integrationLabel}</span>
+          <span className="text-[11px] text-subtle">{source.integrationLabel}</span>
         </div>
 
-        <p className="text-[12px] leading-6 text-muted">{source.accessNote}</p>
+        <p className="text-[13px] leading-6 text-muted">{source.accessNote}</p>
 
         <div>
-          <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle">
             {copy.where}
           </h3>
           <ul className="mt-2 space-y-1.5">
@@ -92,7 +92,7 @@ export function SourceCard({
                 key={endpoint.url}
                 className="rounded-lg border border-line bg-background px-3 py-2"
               >
-                <SourceLink href={endpoint.url} className="text-[11px] font-medium">
+                <SourceLink href={endpoint.url} className="text-[12px] font-medium">
                   {endpoint.label}
                 </SourceLink>
               </li>
@@ -101,13 +101,13 @@ export function SourceCard({
         </div>
 
         <div className="rounded-lg border border-line bg-surface-muted/50 px-3 py-2.5">
-          <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle">
             {copy.updateNotes}
           </h3>
-          <p className="mt-1 text-[11px] leading-5 text-muted">{source.freshnessNote}</p>
+          <p className="mt-1 text-[12px] leading-5 text-muted">{source.freshnessNote}</p>
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-[10px]">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-[11px]">
           <span className="text-subtle">
             {copy.usage}{" "}
             {source.licenseUrl ? (

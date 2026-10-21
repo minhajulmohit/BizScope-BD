@@ -9,7 +9,6 @@ import {
 import { getAnalyticsData } from "@/lib/api/world-bank";
 import { getCurrencyData } from "@/lib/api/exchange-rates";
 import { convertIndicatorToBdt } from "@/lib/utils/display-currency";
-import type { MetricDelta } from "@/lib/api/types";
 import {
   buildTradeSeries,
   latestComparableTradeYear,
@@ -19,23 +18,19 @@ import {
   formatBdtCompact,
   formatBdtExact,
   formatPercent,
-  formatSigned,
   formatUsdCompact,
   formatUsdExact,
   formatUtcDate,
   formatUtcDateTime,
 } from "@/lib/utils/format";
-import { getIndicatorDelta } from "@/lib/utils/metrics";
 import { getLanguage } from "@/lib/i18n-server";
-import type { Language } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/page-header";
-import { DataNotice } from "@/components/ui/data-notice";
+import { DataNotesDisclosure } from "@/components/ui/data-notes-disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
 import { ErrorState } from "@/components/ui/states";
 import { RetryButton } from "@/components/ui/retry-button";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
-import { BdtConversionNotice } from "@/components/ui/bdt-conversion-notice";
 import { KpiCard } from "@/components/ui/kpi-card";
-import { Panel, PanelHeader } from "@/components/ui/panel";
 import { SourceLink } from "@/components/ui/source-link";
 import { TradeCharts } from "@/components/trade/trade-charts";
 
@@ -76,46 +71,6 @@ function formatMoneyCompact(value: number, inBdt: boolean): string {
 
 function formatMoneyExact(value: number, inBdt: boolean): string {
   return inBdt ? formatBdtExact(value) : formatUsdExact(value);
-}
-
-function moneyChangeDelta(
-  current: number,
-  previous: number,
-  previousYear: number,
-  inBdt: boolean,
-): MetricDelta | null {
-  const difference = current - previous;
-  if (!Number.isFinite(difference)) return null;
-
-  if (difference === 0) {
-    return { direction: "flat", amountLabel: inBdt ? "৳0" : "US$0", previousYear };
-  }
-
-  return {
-    direction: difference > 0 ? "up" : "down",
-    amountLabel: `${difference > 0 ? "+" : "\u2212"}${formatMoneyCompact(Math.abs(difference), inBdt)}`,
-    previousYear,
-  };
-}
-
-function ppChangeDelta(
-  current: number,
-  previous: number,
-  previousYear: number,
-  language: Language,
-): MetricDelta | null {
-  const difference = current - previous;
-  if (!Number.isFinite(difference)) return null;
-
-  return {
-    direction: difference === 0 ? "flat" : difference > 0 ? "up" : "down",
-    amountLabel: formatSigned(
-      difference,
-      1,
-      language === "bn" ? " শতাংশ পয়েন্ট" : " pp",
-    ),
-    previousYear,
-  };
 }
 
 const COPY = {
@@ -175,6 +130,8 @@ const COPY = {
     retrieved: (date: string) => `Retrieved ${date}`,
     bdtUnit: "BDT equivalents",
     usdUnit: "US dollars",
+    referenceTitle: "Definitions, sources & limitations",
+    referenceDescription: "What these numbers cover — and what they do not.",
     definitionsTitle: "Definitions & comparability",
     definitionsDescription: "What the chart does — and does not — measure.",
     exportsTerm: "Exports",
@@ -257,6 +214,8 @@ const COPY = {
     retrieved: (date: string) => `সংগৃহীত ${date}`,
     bdtUnit: "টাকার সমতুল্য",
     usdUnit: "মার্কিন ডলার",
+    referenceTitle: "সংজ্ঞা, উৎস ও সীমাবদ্ধতা",
+    referenceDescription: "এই সংখ্যাগুলো কী কভার করে—আর কী করে না।",
     definitionsTitle: "সংজ্ঞা ও তুলনাযোগ্যতা",
     definitionsDescription: "চার্ট কী মাপে—আর কী মাপে না।",
     exportsTerm: "রপ্তানি",
@@ -304,14 +263,6 @@ export default async function TradePage() {
   const latestExports = latestTradeObservation(series, "exports");
   const latestImports = latestTradeObservation(series, "imports");
   const latestBalance = latestComparableTradeYear(series);
-  const previousBalance =
-    latestBalance && series.find(
-      (row) => row.year === latestBalance.year - 1 && row.balance !== null,
-    );
-  const previousCoverage =
-    latestBalance && series.find(
-      (row) => row.year === latestBalance.year - 1 && row.coverageRatio !== null,
-    );
 
   const sourceUrl =
     exportsIndicator?.source.sourceUrl ??
@@ -339,7 +290,7 @@ export default async function TradePage() {
       >
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
           <CadenceBadge cadence="periodic" label={copy.badge} />
-          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[10px] text-muted">
+          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[11px] text-muted">
             {copy.latestYear(
               String(latestExports?.year ?? latestImports?.year ?? "\u2014"),
             )}
@@ -347,14 +298,13 @@ export default async function TradePage() {
         </div>
       </PageHeader>
 
-      <DataNotice title={copy.noticeTitle}>
-        {copy.noticeBody}
-      </DataNotice>
-
-      <BdtConversionNotice
+      <DataNotesDisclosure
+        annualTitle={copy.noticeTitle}
+        annualBody={copy.noticeBody}
         bdtPerUsd={currency.bdtRate}
         updatedAt={currency.lastUpdatedUtc}
         language={language}
+        methodologyLabel={copy.methodology}
       />
 
       {!exportsIndicator || !importsIndicator ? (
@@ -390,12 +340,7 @@ export default async function TradePage() {
             }
             sourceName={copy.sourceWdi}
             sourceUrl={sourceUrl}
-            cadence="periodic"
-            cadenceLabel={copy.badge}
             providerUpdatedAt={providerUpdated}
-            delta={
-              exportsIndicator ? getIndicatorDelta(exportsIndicator, language) : null
-            }
             icon={ArrowUpRight}
             tone="brand"
             unavailableMessage={copy.exportsUnavailable}
@@ -421,12 +366,7 @@ export default async function TradePage() {
             }
             sourceName={copy.sourceWdi}
             sourceUrl={sourceUrl}
-            cadence="periodic"
-            cadenceLabel={copy.badge}
             providerUpdatedAt={providerUpdated}
-            delta={
-              importsIndicator ? getIndicatorDelta(importsIndicator, language) : null
-            }
             icon={ArrowDownRight}
             tone="blue"
             unavailableMessage={copy.importsUnavailable}
@@ -454,21 +394,7 @@ export default async function TradePage() {
             }
             sourceName={copy.derivedSource}
             sourceUrl={sourceUrl}
-            cadence="periodic"
-            cadenceLabel={copy.derivedAnnual}
             providerUpdatedAt={providerUpdated}
-            delta={
-              latestBalance?.balance != null &&
-              previousBalance?.balance != null &&
-              latestBalance.year - previousBalance.year === 1
-                ? moneyChangeDelta(
-                    latestBalance.balance,
-                    previousBalance.balance,
-                    previousBalance.year,
-                    displaysInBdt,
-                  )
-                : null
-            }
             icon={Scale}
             tone="amber"
             unavailableMessage={copy.balanceUnavailable}
@@ -496,21 +422,7 @@ export default async function TradePage() {
             }
             sourceName={copy.derivedSource}
             sourceUrl={sourceUrl}
-            cadence="periodic"
-            cadenceLabel={copy.derivedAnnual}
             providerUpdatedAt={providerUpdated}
-            delta={
-              latestBalance?.coverageRatio != null &&
-              previousCoverage?.coverageRatio != null &&
-              latestBalance.year - previousCoverage.year === 1
-                ? ppChangeDelta(
-                    latestBalance.coverageRatio,
-                    previousCoverage.coverageRatio,
-                    previousCoverage.year,
-                    language,
-                  )
-                : null
-            }
             icon={Percent}
             tone="neutral"
             unavailableMessage={copy.coverageUnavailable}
@@ -526,18 +438,13 @@ export default async function TradePage() {
         bdtUpdatedAt={currency.lastUpdatedUtc}
       />
 
-      <Panel>
-        <PanelHeader
-          title={copy.tableTitle}
-          description={copy.tableDescription}
-          action={
-            <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
-              {copy.reportedYears(tradeYears)}
-            </span>
-          }
-        />
+      <Disclosure
+        summary={copy.tableTitle}
+        description={`${copy.tableDescription} · ${copy.reportedYears(tradeYears)}`}
+        contentClassName="p-0"
+      >
         {series.length === 0 ? (
-          <div className="px-5 py-10 text-center text-[12px] text-muted sm:px-6">
+          <div className="px-5 py-10 text-center text-[13px] text-muted sm:px-6">
             {copy.noData}
           </div>
         ) : (
@@ -549,10 +456,10 @@ export default async function TradePage() {
             )}
             tabIndex={0}
           >
-            <table className="w-full min-w-[760px] text-left text-[12px]">
+            <table className="w-full min-w-[760px] text-left text-[13px]">
               <caption className="sr-only">{copy.tableCaption}</caption>
               <thead>
-                <tr className="border-b border-line bg-surface-muted/60 text-[10px] uppercase tracking-[0.08em] text-subtle">
+                <tr className="border-b border-line bg-surface-muted/60 text-[11px] uppercase tracking-[0.08em] text-subtle">
                   <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                     {copy.year}
                   </th>
@@ -577,7 +484,7 @@ export default async function TradePage() {
                       <span className="inline-flex items-center gap-2">
                         {row.year}
                         {latestBalance?.year === row.year ? (
-                          <span className="rounded bg-brand-soft px-1 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-brand-strong">
+                          <span className="rounded bg-brand-soft px-1 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-brand-strong">
                             {copy.latestBalance}
                           </span>
                         ) : null}
@@ -612,7 +519,7 @@ export default async function TradePage() {
             </table>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
           <p>
             {copy.tableNote(
               displaysInBdt ? copy.takaEquivalents : copy.usdValues,
@@ -620,72 +527,81 @@ export default async function TradePage() {
           </p>
           <p>{copy.retrieved(formatUtcDateTime(lastRetrieved))}</p>
         </div>
-      </Panel>
+      </Disclosure>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel>
-          <PanelHeader
-            title={copy.definitionsTitle}
-            description={copy.definitionsDescription}
-          />
-          <div className="space-y-3 p-5 text-[12px] leading-6 text-muted sm:p-6">
-            <p>
-              <span className="font-semibold text-foreground">
-                {copy.exportsTerm}
-              </span>{" "}
-              {copy.exportsBody}{" "}
-              <span className="font-semibold text-foreground">
-                {copy.importsTerm}
-              </span>{" "}
-              {copy.importsBody} {copy.currencyBody}
+      <Disclosure
+        summary={copy.referenceTitle}
+        description={copy.referenceDescription}
+      >
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section>
+            <h3 className="text-[15px] font-semibold text-foreground">
+              {copy.definitionsTitle}
+            </h3>
+            <p className="mt-1 text-[13px] leading-5 text-muted">
+              {copy.definitionsDescription}
             </p>
-            <p>{copy.balanceBodyStart}</p>
-            <p>{copy.nominalBody}</p>
-            <div className="flex flex-wrap gap-4 pt-1">
-              <SourceLink href={sourceUrl} className="text-[11px]">
-                {copy.exportsIndicator}
-              </SourceLink>
-              <SourceLink
-                href="https://data.worldbank.org/indicator/NE.IMP.GNFS.CD?locations=BD"
-                className="text-[11px]"
-              >
-                {copy.importsIndicator}
-              </SourceLink>
-              <Link
-                href="/sources"
-                className="text-[11px] font-medium text-muted underline decoration-line-strong underline-offset-2 hover:text-foreground"
-              >
-                {copy.methodology}
-              </Link>
+            <div className="mt-3 space-y-3 text-[13px] leading-6 text-muted">
+              <p>
+                <span className="font-semibold text-foreground">
+                  {copy.exportsTerm}
+                </span>{" "}
+                {copy.exportsBody}{" "}
+                <span className="font-semibold text-foreground">
+                  {copy.importsTerm}
+                </span>{" "}
+                {copy.importsBody} {copy.currencyBody}
+              </p>
+              <p>{copy.balanceBodyStart}</p>
+              <p>{copy.nominalBody}</p>
+              <div className="flex flex-wrap gap-4 pt-1">
+                <SourceLink href={sourceUrl} className="text-[13px]">
+                  {copy.exportsIndicator}
+                </SourceLink>
+                <SourceLink
+                  href="https://data.worldbank.org/indicator/NE.IMP.GNFS.CD?locations=BD"
+                  className="text-[13px]"
+                >
+                  {copy.importsIndicator}
+                </SourceLink>
+                <Link
+                  href="/sources"
+                  className="text-[13px] font-medium text-muted underline decoration-line-strong underline-offset-2 hover:text-foreground"
+                >
+                  {copy.methodology}
+                </Link>
+              </div>
             </div>
-          </div>
-        </Panel>
+          </section>
 
-        <Panel>
-          <PanelHeader
-            title={copy.officialTitle}
-            description={copy.officialDescription}
-          />
-          <div className="space-y-3 p-5 text-[12px] leading-6 text-muted sm:p-6">
-            <p>{copy.officialBody}</p>
-            <p>{copy.updateSentence(formatUtcDate(providerUpdated))}</p>
-            <div className="flex flex-col gap-2 pt-1">
-              <SourceLink
-                href="https://bbs.gov.bd/site/page/58b1c0c8-34b9-45b5-954d-53a2737e7bb1"
-                className="text-[11px]"
-              >
-                {copy.bbsLink}
-              </SourceLink>
-              <SourceLink
-                href="https://www.bb.org.bd/econdata/nsdp/nsdp_bb.php"
-                className="text-[11px]"
-              >
-                {copy.bbLink}
-              </SourceLink>
+          <section className="border-t border-line pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+            <h3 className="text-[15px] font-semibold text-foreground">
+              {copy.officialTitle}
+            </h3>
+            <p className="mt-1 text-[13px] leading-5 text-muted">
+              {copy.officialDescription}
+            </p>
+            <div className="mt-3 space-y-3 text-[13px] leading-6 text-muted">
+              <p>{copy.officialBody}</p>
+              <p>{copy.updateSentence(formatUtcDate(providerUpdated))}</p>
+              <div className="flex flex-col gap-2 pt-1">
+                <SourceLink
+                  href="https://bbs.gov.bd/site/page/58b1c0c8-34b9-45b5-954d-53a2737e7bb1"
+                  className="text-[13px]"
+                >
+                  {copy.bbsLink}
+                </SourceLink>
+                <SourceLink
+                  href="https://www.bb.org.bd/econdata/nsdp/nsdp_bb.php"
+                  className="text-[13px]"
+                >
+                  {copy.bbLink}
+                </SourceLink>
+              </div>
             </div>
-          </div>
-        </Panel>
-      </div>
+          </section>
+        </div>
+      </Disclosure>
     </div>
   );
 }

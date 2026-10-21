@@ -10,8 +10,8 @@
   --surface-strong: #e3e9e2;
   --foreground: #0d1d29;
   --foreground-soft: #2f4350;
-  --muted: #5f7079;
-  --subtle: #78898f;
+  --muted: #55666f;
+  --subtle: #5f7079;
   --line: #dfe5dd;
   --line-strong: #c8d3c9;
   --brand: #087a55;
@@ -20,7 +20,7 @@
   --brand-contrast: #ffffff;
   --blue: #2d62d6;
   --blue-soft: #eaf0fc;
-  --amber: #a56806;
+  --amber: #8f5a05;
   --amber-soft: #fbf1dc;
   --danger: #b53a34;
   --danger-soft: #faecea;
@@ -174,12 +174,12 @@
 
   .eyebrow {
     color: var(--brand);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.14em;
-    line-height: 1.4;
-    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: none;
   }
 
   .tabular {
@@ -240,6 +240,11 @@
 }
 
 /* Bengali glyphs need a little more vertical room than the Latin display sizes. */
+html[lang="bn"] body {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
 html[lang="bn"] h1,
 html[lang="bn"] h2,
 html[lang="bn"] h3 {

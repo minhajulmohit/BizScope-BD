@@ -27,7 +27,7 @@ export function EmptyState({
         <Icon className="h-5 w-5" aria-hidden="true" />
       </span>
       <h3 className="mt-4 text-sm font-semibold text-foreground">{title}</h3>
-      <p className="mt-1.5 max-w-md text-[12px] leading-5 text-muted">
+      <p className="mt-1.5 max-w-md text-[14px] leading-6 text-muted">
         {description}
       </p>
       {action ? <div className="mt-4">{action}</div> : null}
@@ -63,7 +63,7 @@ export function ErrorState({
       />
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <p className="mt-1 text-[12px] leading-5 text-muted">{description}</p>
+        <p className="mt-1 text-[14px] leading-6 text-muted">{description}</p>
         {action ? <div className="mt-3">{action}</div> : null}
       </div>
     </div>

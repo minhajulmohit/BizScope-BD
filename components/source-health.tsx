@@ -154,14 +154,14 @@ export function SourceHealth() {
           <p className="text-sm font-semibold text-foreground">
             {copy.errorTitle}
           </p>
-          <p className="mt-1 text-[12px] leading-5 text-muted">
+          <p className="mt-1 text-[13px] leading-5 text-muted">
             {copy.errorBody}
           </p>
         </div>
         <button
           type="button"
           onClick={retry}
-          className="inline-flex items-center gap-1.5 self-start rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="inline-flex items-center gap-1.5 self-start rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
           <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
           {copy.retry}
@@ -173,7 +173,7 @@ export function SourceHealth() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5 sm:px-6">
-        <p className="text-[11px] text-muted" aria-live="polite">
+        <p className="text-[12px] text-muted" aria-live="polite">
           {copy.checked(
             formatUtcDateTime(data.generatedAt),
             data.providers.filter(
@@ -185,7 +185,7 @@ export function SourceHealth() {
         <button
           type="button"
           onClick={retry}
-          className="inline-flex items-center gap-1 rounded-md text-[11px] font-medium text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="inline-flex items-center gap-1 rounded-md text-[12px] font-medium text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
           <RotateCw className="h-3 w-3" aria-hidden="true" />
           {copy.recheck}
@@ -217,7 +217,7 @@ export function SourceHealth() {
                 </span>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[13px] font-semibold text-foreground">
+                    <p className="text-[14px] font-semibold text-foreground">
                       {providerName}
                     </p>
                     <CadenceBadge
@@ -225,10 +225,10 @@ export function SourceHealth() {
                       label={cadenceLabel}
                     />
                   </div>
-                  <p className="mt-1 text-[11px] leading-5 text-muted">
+                  <p className="mt-1 text-[12px] leading-5 text-muted">
                     {detail}
                   </p>
-                  <p className="mt-0.5 text-[10px] text-subtle">
+                  <p className="mt-0.5 text-[11px] text-subtle">
                     {copy.lastChecked(
                       formatUtcDateTime(provider.lastRetrievedAt),
                     )}
@@ -237,7 +237,7 @@ export function SourceHealth() {
               </div>
               <span
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 self-start rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] sm:self-center",
+                  "inline-flex shrink-0 items-center gap-1.5 self-start rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] sm:self-center",
                   health.badge,
                   health.text,
                 )}

@@ -1,25 +1,20 @@
 import type { LucideIcon } from "lucide-react";
 import { CalendarDays } from "lucide-react";
-import type { DataCadence, MetricDelta } from "@/lib/api/types";
 import type { Language } from "@/lib/i18n";
 import { cn } from "@/lib/utils/cn";
 import { formatUtcDate } from "@/lib/utils/format";
-import { CadenceBadge } from "@/components/ui/cadence-badge";
-import { DeltaChip } from "@/components/ui/delta-chip";
 import { SourceLink } from "@/components/ui/source-link";
 
 const COPY = {
   en: {
     unavailable: "Unavailable",
-    source: "Source",
-    sourceUpdated: "Source updated",
+    updated: "Updated",
     updateTimeUnavailable: "Update time unavailable",
     defaultUnavailable: "Not available from the source",
   },
   bn: {
     unavailable: "পাওয়া যাচ্ছে না",
-    source: "উৎস",
-    sourceUpdated: "উৎস হালনাগাদ",
+    updated: "হালনাগাদ",
     updateTimeUnavailable: "হালনাগাদের সময় পাওয়া যাচ্ছে না",
     defaultUnavailable: "উৎস থেকে পাওয়া যায়নি",
   },
@@ -42,10 +37,7 @@ export interface KpiCardProps {
   period: string;
   sourceName: string;
   sourceUrl: string;
-  cadence: DataCadence;
-  cadenceLabel: string;
   providerUpdatedAt: string | null;
-  delta?: MetricDelta | null;
   icon: LucideIcon;
   tone?: KpiTone;
   unavailableMessage?: string;
@@ -60,10 +52,7 @@ export function KpiCard({
   period,
   sourceName,
   sourceUrl,
-  cadence,
-  cadenceLabel,
   providerUpdatedAt,
-  delta,
   icon: Icon,
   tone = "brand",
   unavailableMessage,
@@ -83,16 +72,15 @@ export function KpiCard({
         >
           <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
         </span>
-        <CadenceBadge cadence={cadence} label={cadenceLabel} />
       </div>
 
-      <h3 className="mt-5 text-[12px] font-medium leading-5 text-muted">
+      <h3 className="mt-4 text-[14px] font-medium leading-5 text-muted">
         {label}
       </h3>
 
       {isAvailable ? (
         <p
-          className="mt-1 truncate text-[1.85rem] font-semibold leading-[1.15] tracking-[-0.045em] text-foreground tabular"
+          className="mt-1 truncate text-[2rem] font-semibold leading-[1.15] tracking-[-0.045em] text-foreground tabular"
           title={exactValue}
         >
           {value}
@@ -103,50 +91,34 @@ export function KpiCard({
         </p>
       )}
 
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[14px] text-muted">
         <span>{unit}</span>
         <span className="text-line-strong" aria-hidden="true">
-          /
+          ·
         </span>
         <span className="inline-flex items-center gap-1">
-          <CalendarDays className="h-3 w-3" aria-hidden="true" />
+          <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
           {period}
         </span>
       </div>
 
-      <div className="mt-2 min-h-5">
-        {isAvailable && delta ? <DeltaChip delta={delta} /> : null}
-        {!isAvailable ? (
-          <p className="text-[11px] leading-5 text-danger">
-            {unavailableMessage ?? copy.defaultUnavailable}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="mt-auto flex items-end justify-between gap-3 border-t border-line pt-3.5">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.09em] text-subtle">
-            {copy.source}
-          </p>
-          <SourceLink
-            href={sourceUrl}
-            className="mt-0.5 text-[11px] leading-4 text-foreground-soft"
-          >
-            {sourceName}
-          </SourceLink>
-        </div>
-        <p className="shrink-0 text-right text-[10px] leading-4 text-subtle">
-          {providerUpdatedAt ? (
-            <>
-              <span className="block font-semibold uppercase tracking-[0.09em]">
-                {copy.sourceUpdated}
-              </span>
-              {formatUtcDate(providerUpdatedAt)}
-            </>
-          ) : (
-            copy.updateTimeUnavailable
-          )}
+      {!isAvailable ? (
+        <p className="mt-2 text-[13px] leading-5 text-danger">
+          {unavailableMessage ?? copy.defaultUnavailable}
         </p>
+      ) : null}
+
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-line pt-3.5 text-[13px] leading-5">
+        <SourceLink href={sourceUrl} className="text-foreground-soft">
+          {sourceName}
+        </SourceLink>
+        {providerUpdatedAt ? (
+          <span className="text-subtle">
+            {copy.updated} {formatUtcDate(providerUpdatedAt)}
+          </span>
+        ) : (
+          <span className="text-subtle">{copy.updateTimeUnavailable}</span>
+        )}
       </div>
     </article>
   );

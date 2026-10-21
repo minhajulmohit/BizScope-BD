@@ -52,9 +52,9 @@ export function DataNotice({
         className={cn("mt-0.5 h-4 w-4 shrink-0", config.iconClass)}
         aria-hidden="true"
       />
-      <div className="min-w-0 text-[12px] leading-5 text-foreground-soft">
+      <div className="min-w-0 text-[14px] leading-6 text-foreground-soft">
         <p className="font-semibold text-foreground">{title}</p>
-        {children ? <div className="mt-0.5 text-muted">{children}</div> : null}
+        {children ? <div className="mt-1 text-muted">{children}</div> : null}
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ export default async function NotFound() {
         <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-brand-soft text-brand">
           <Compass className="h-5 w-5" aria-hidden="true" />
         </span>
-        <p className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-subtle">
+        <p className="mt-4 font-mono text-[12px] font-semibold uppercase tracking-[0.12em] text-subtle">
           {copy.eyebrow}
         </p>
         <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-foreground">

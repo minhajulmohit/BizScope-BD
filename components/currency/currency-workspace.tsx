@@ -178,7 +178,7 @@ function CurrencySelect({
     <div className="min-w-0">
       <label
         htmlFor={id}
-        className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle"
+        className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle"
       >
         {label}
       </label>
@@ -186,7 +186,7 @@ function CurrencySelect({
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-[12px] font-medium text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+        className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-[13px] font-medium text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
       >
         {codes.map((code) => (
           <option key={code} value={code}>
@@ -264,14 +264,14 @@ export function CurrencyWorkspace({
 
   return (
     <div className="space-y-4">
-      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.35fr)]">
-        <Panel className="relative overflow-hidden border-brand/25">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.85fr)]">
+        <Panel className="order-2 relative self-start overflow-hidden border-brand/25">
           <div className="absolute inset-x-0 top-0 h-[3px] bg-brand" aria-hidden="true" />
           <div className="p-5 pt-6 sm:p-6 sm:pt-7">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="eyebrow">{copy.eyebrow}</p>
-                <h2 className="mt-1 text-[13px] font-semibold text-foreground">
+                <h2 className="mt-1 text-[14px] font-semibold text-foreground">
                   {copy.headline}
                 </h2>
               </div>
@@ -284,18 +284,18 @@ export function CurrencyWorkspace({
               </span>
               <span className="text-sm font-semibold text-muted">{copy.bdt}</span>
             </div>
-            <p className="mt-2 text-[12px] leading-5 text-muted">
+            <p className="mt-2 text-[13px] leading-5 text-muted">
               {copy.rateSentence(
                 data.bdtRate !== null ? formatRate(data.bdtRate) : "\u2014",
               )}
             </p>
 
-            <dl className="mt-6 grid grid-cols-1 gap-3 border-t border-line pt-4 text-[10px] sm:grid-cols-2">
+            <dl className="mt-6 grid grid-cols-1 gap-3 border-t border-line pt-4 text-[11px] sm:grid-cols-2">
               <div>
                 <dt className="font-semibold uppercase tracking-[0.07em] text-subtle">
                   {copy.rateUpdated}
                 </dt>
-                <dd className="mt-1 text-[11px] font-medium leading-4 text-foreground-soft">
+                <dd className="mt-1 text-[12px] font-medium leading-4 text-foreground-soft">
                   {formatUtcDateTime(data.lastUpdatedUtc)}
                 </dd>
               </div>
@@ -303,7 +303,7 @@ export function CurrencyWorkspace({
                 <dt className="font-semibold uppercase tracking-[0.07em] text-subtle">
                   {copy.nextUpdate}
                 </dt>
-                <dd className="mt-1 text-[11px] font-medium leading-4 text-foreground-soft">
+                <dd className="mt-1 text-[12px] font-medium leading-4 text-foreground-soft">
                   {formatUtcDateTime(data.nextUpdateUtc)}
                 </dd>
               </div>
@@ -311,7 +311,7 @@ export function CurrencyWorkspace({
                 <dt className="font-semibold uppercase tracking-[0.07em] text-subtle">
                   {copy.checkedBy}
                 </dt>
-                <dd className="mt-1 text-[11px] font-medium leading-4 text-foreground-soft">
+                <dd className="mt-1 text-[12px] font-medium leading-4 text-foreground-soft">
                   {formatUtcDateTime(data.retrievedAt)}
                 </dd>
               </div>
@@ -319,7 +319,7 @@ export function CurrencyWorkspace({
                 <dt className="font-semibold uppercase tracking-[0.07em] text-subtle">
                   {copy.baseCurrency}
                 </dt>
-                <dd className="mt-1 text-[11px] font-medium leading-4 text-foreground-soft">
+                <dd className="mt-1 text-[12px] font-medium leading-4 text-foreground-soft">
                   {copy.baseValue}
                 </dd>
               </div>
@@ -327,11 +327,11 @@ export function CurrencyWorkspace({
           </div>
 
           <div className="border-t border-line bg-surface-muted/60 px-5 py-3.5 sm:px-6">
-            <p className="text-[10px] leading-4 text-muted">{copy.disclaimer}</p>
+            <p className="text-[11px] leading-4 text-muted">{copy.disclaimer}</p>
             <div className="mt-1.5">
               <SourceLink
                 href={data.source.homepageUrl}
-                className="text-[10px] text-muted"
+                className="text-[11px] text-muted"
               >
                 {copy.sourceCredit.replace("{provider}", data.source.provider)}
               </SourceLink>
@@ -339,12 +339,12 @@ export function CurrencyWorkspace({
           </div>
         </Panel>
 
-        <Panel className="min-w-0">
+        <Panel className="order-1 min-w-0">
           <PanelHeader
             title={copy.converterTitle}
             description={copy.converterDescription}
             action={
-              <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
+              <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] text-muted">
                 <RefreshCw className="h-3 w-3" aria-hidden="true" />
                 {copy.currencies(data.rates.length)}
               </span>
@@ -354,7 +354,7 @@ export function CurrencyWorkspace({
             <div>
               <label
                 htmlFor="converter-amount"
-                className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle"
+                className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle"
               >
                 {copy.amount}
               </label>
@@ -378,7 +378,7 @@ export function CurrencyWorkspace({
               <p
                 id="converter-amount-help"
                 className={cn(
-                  "mt-1.5 text-[10px] leading-4",
+                  "mt-1.5 text-[11px] leading-4",
                   amountValid ? "text-subtle" : "text-danger",
                 )}
                 role={!amountValid ? "alert" : undefined}
@@ -421,7 +421,7 @@ export function CurrencyWorkspace({
               className="rounded-xl border border-line bg-surface-muted/50 p-4"
               aria-live="polite"
             >
-              <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle">
                 <CircleDollarSign className="h-3.5 w-3.5" aria-hidden="true" />
                 {copy.convertedAmount}
               </div>
@@ -431,7 +431,7 @@ export function CurrencyWorkspace({
                     {convertedFormatter(convertedValue)}{" "}
                     <span className="text-sm font-semibold text-muted">{toCode}</span>
                   </p>
-                  <p className="mt-1.5 text-[11px] text-muted">
+                  <p className="mt-1.5 text-[12px] text-muted">
                     {copy.conversionSentence(
                       convertedFormatter(numericAmount),
                       fromCode,
@@ -449,7 +449,7 @@ export function CurrencyWorkspace({
               )}
             </div>
 
-            <p className="text-[10px] leading-4 text-subtle">
+            <p className="text-[11px] leading-4 text-subtle">
               {copy.converterNote}
             </p>
           </div>
@@ -461,7 +461,7 @@ export function CurrencyWorkspace({
           title={copy.rateTableTitle}
           description={copy.rateTableDescription}
           action={
-            <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
+            <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] text-muted">
               <Clock3 className="h-3 w-3" aria-hidden="true" />
               {formatUtcDateTime(data.lastUpdatedUtc)}
             </span>
@@ -482,10 +482,10 @@ export function CurrencyWorkspace({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={copy.searchPlaceholder}
-              className="h-8 w-full rounded-md border border-line bg-surface pl-8 pr-2.5 text-[11px] text-foreground placeholder:text-subtle focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
+              className="h-8 w-full rounded-md border border-line bg-surface pl-8 pr-2.5 text-[12px] text-foreground placeholder:text-subtle focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
             />
           </div>
-          <p className="text-[10px] text-subtle" aria-live="polite">
+          <p className="text-[11px] text-subtle" aria-live="polite">
             {copy.showing(filteredRates.length, data.rates.length)}
           </p>
         </div>
@@ -502,10 +502,10 @@ export function CurrencyWorkspace({
             aria-label={copy.tableAria}
             tabIndex={0}
           >
-            <table className="w-full min-w-[460px] text-left text-[12px]">
+            <table className="w-full min-w-[460px] text-left text-[13px]">
               <caption className="sr-only">{copy.tableCaption}</caption>
               <thead className="sticky top-0 z-10 bg-surface-muted">
-                <tr className="border-b border-line text-[10px] uppercase tracking-[0.08em] text-subtle">
+                <tr className="border-b border-line text-[11px] uppercase tracking-[0.08em] text-subtle">
                   <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                     {copy.currency}
                   </th>
@@ -534,16 +534,16 @@ export function CurrencyWorkspace({
                       )}
                     >
                       <td className="px-5 py-2.5 sm:px-6">
-                        <span className="block text-[12px] font-medium text-foreground">
+                        <span className="block text-[13px] font-medium text-foreground">
                           {currencyNames[quote.code] ?? quote.code}
                         </span>
                         {isBdt ? (
-                          <span className="text-[9px] font-semibold uppercase tracking-[0.06em] text-brand-strong">
+                          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-strong">
                             {copy.bangladeshiTaka}
                           </span>
                         ) : null}
                       </td>
-                      <td className="px-4 py-2.5 font-mono text-[10px] font-medium text-muted">
+                      <td className="px-4 py-2.5 font-mono text-[11px] font-medium text-muted">
                         {quote.code}
                       </td>
                       <td className="whitespace-nowrap px-5 py-2.5 text-right font-medium tabular text-foreground sm:px-6">
@@ -556,18 +556,18 @@ export function CurrencyWorkspace({
             </table>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
           <p>{copy.footer}</p>
           <div className="flex items-center gap-3">
             <SourceLink
               href={data.source.documentationUrl}
-              className="text-[10px] text-muted"
+              className="text-[11px] text-muted"
             >
               {copy.aboutSource}
             </SourceLink>
             <SourceLink
               href={data.source.termsUrl}
-              className="text-[10px] text-muted"
+              className="text-[11px] text-muted"
             >
               {copy.terms}
             </SourceLink>

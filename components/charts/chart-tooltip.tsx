@@ -38,11 +38,11 @@ export function ChartTooltip({
     <div
       role="tooltip"
       className={cn(
-        "min-w-[170px] max-w-[260px] rounded-lg border border-line bg-surface p-3 text-[12px] shadow-lg",
+        "min-w-[170px] max-w-[260px] rounded-lg border border-line bg-surface p-3 text-[13px] shadow-lg",
         className,
       )}
     >
-      <p className="mb-2 border-b border-line pb-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
+      <p className="mb-2 border-b border-line pb-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle">
         {formatLabel
           ? formatLabel(label)
           : label !== undefined

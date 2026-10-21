@@ -35,7 +35,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       onClick={switchLanguage}
       disabled={isPending}
       className={cn(
-        "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-2 text-[10px] font-semibold text-muted transition-colors hover:border-line-strong hover:text-foreground disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-2.5 sm:text-[11px]",
+        "inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 text-[13px] font-semibold text-muted transition-colors hover:border-line-strong hover:text-foreground disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-3",
         className,
       )}
       aria-label={copy.languageSwitchAria}
@@ -46,8 +46,7 @@ export function LanguageToggle({ className }: { className?: string }) {
         className={cn("h-[15px] w-[15px] shrink-0", isPending && "animate-pulse")}
         aria-hidden="true"
       />
-      <span className="sm:hidden">{copy.languageShortLabel}</span>
-      <span className="hidden sm:inline">{copy.languageSwitchLabel}</span>
+      <span>{copy.languageSwitchLabel}</span>
     </button>
   );
 }

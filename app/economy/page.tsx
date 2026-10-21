@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getAnalyticsData } from "@/lib/api/world-bank";
 import { getCurrencyData } from "@/lib/api/exchange-rates";
 import { convertAnalyticsToBdt } from "@/lib/utils/display-currency";
@@ -7,8 +6,7 @@ import { INDICATOR_ORDER, localizeIndicator } from "@/lib/indicator-catalog";
 import { getLanguage } from "@/lib/i18n-server";
 import type { AnalyticsData } from "@/lib/api/types";
 import { PageHeader } from "@/components/ui/page-header";
-import { BdtConversionNotice } from "@/components/ui/bdt-conversion-notice";
-import { DataNotice } from "@/components/ui/data-notice";
+import { DataNotesDisclosure } from "@/components/ui/data-notes-disclosure";
 import { ErrorState } from "@/components/ui/states";
 import { RetryButton } from "@/components/ui/retry-button";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
@@ -111,27 +109,19 @@ export default async function EconomyPage() {
       >
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
           <CadenceBadge cadence="periodic" label={copy.badge} />
-          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[10px] text-muted">
+          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[11px] text-muted">
             {copy.latest(String(analytics.summary.latestObservationYear ?? "\u2014"))}
           </span>
         </div>
       </PageHeader>
 
-      <DataNotice title={copy.noticeTitle}>
-        {copy.noticeBody}{" "}
-        <Link
-          href="/sources"
-          className="font-medium text-foreground-soft underline underline-offset-2 hover:text-foreground"
-        >
-          {copy.methodology}
-        </Link>
-        {language === "bn" ? "।" : "."}
-      </DataNotice>
-
-      <BdtConversionNotice
+      <DataNotesDisclosure
+        annualTitle={copy.noticeTitle}
+        annualBody={copy.noticeBody}
         bdtPerUsd={currency.bdtRate}
         updatedAt={currency.lastUpdatedUtc}
         language={language}
+        methodologyLabel={copy.methodology}
       />
 
       {analytics.status !== "ok" ? (

@@ -5,12 +5,11 @@ import { formatUtcDate, getCurrencyName } from "@/lib/utils/format";
 import { getLanguage } from "@/lib/i18n-server";
 import { PageHeader } from "@/components/ui/page-header";
 import { DataNotice } from "@/components/ui/data-notice";
+import { Disclosure } from "@/components/ui/disclosure";
 import { ErrorState } from "@/components/ui/states";
 import { RetryButton } from "@/components/ui/retry-button";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
-import { Panel, PanelHeader } from "@/components/ui/panel";
 import { SourceLink } from "@/components/ui/source-link";
-import { Badge } from "@/components/ui/badge";
 import { CurrencyWorkspace } from "@/components/currency/currency-workspace";
 
 export const revalidate = 1800;
@@ -52,6 +51,8 @@ const COPY = {
       "A currency converter and taka-based reference-rate table using a third-party daily update. These are indicative reference rates — not Bangladesh Bank's official buying or selling rates.",
     dailyBadge: "Daily third-party reference",
     updated: (date: string) => `Updated · ${date}`,
+    ratesNotesTitle: "About these rates",
+    ratesNotesDescription: "Source, limitations, and why there is no history chart",
     noticeTitle: "Third-party reference data, not an official bank rate.",
     noticeBody:
       "ExchangeRate-API is an independent currency service. Its values can differ from Bangladesh Bank's official rates and are not suitable for settlement, accounting, or regulatory decisions. We check that today's rates are complete and numeric before showing them.",
@@ -85,6 +86,8 @@ const COPY = {
       "তৃতীয় পক্ষের দৈনিক হালনাগাদ ব্যবহার করা একটি মুদ্রা কনভার্টার এবং টাকাভিত্তিক রেফারেন্স হারের টেবিল। এগুলো নির্দেশক রেফারেন্স হার—বাংলাদেশ ব্যাংকের সরকারি ক্রয় বা বিক্রয় হার নয়।",
     dailyBadge: "দৈনিক তৃতীয় পক্ষের রেফারেন্স",
     updated: (date: string) => `হালনাগাদ · ${date}`,
+    ratesNotesTitle: "এই হারগুলো সম্পর্কে",
+    ratesNotesDescription: "উৎস, সীমাবদ্ধতা এবং ইতিহাস চার্ট না থাকার কারণ",
     noticeTitle: "তৃতীয় পক্ষের রেফারেন্স ডেটা, সরকারি ব্যাংক হার নয়।",
     noticeBody:
       "ExchangeRate-API একটি স্বাধীন মুদ্রা সেবা। এর মান বাংলাদেশ ব্যাংকের সরকারি হারের চেয়ে ভিন্ন হতে পারে এবং নিষ্পত্তি, হিসাবরক্ষণ বা নিয়ন্ত্রক সিদ্ধান্তের জন্য উপযুক্ত নয়। দেখানোর আগে আমরা যাচাই করি যে আজকের হারগুলো সম্পূর্ণ ও সংখ্যায় সঠিক।",
@@ -130,18 +133,11 @@ export default async function CurrencyPage() {
       >
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
           <CadenceBadge cadence="daily" label={copy.dailyBadge} />
-          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[10px] text-muted">
+          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[11px] text-muted">
             {copy.updated(formatUtcDate(currency.lastUpdatedUtc))}
           </span>
         </div>
       </PageHeader>
-
-      <DataNotice
-        tone="warning"
-        title={copy.noticeTitle}
-      >
-        {copy.noticeBody}
-      </DataNotice>
 
       {currency.status === "error" ? (
         <ErrorState
@@ -153,27 +149,35 @@ export default async function CurrencyPage() {
         <CurrencyWorkspace data={currency} currencyNames={currencyNames} />
       )}
 
-      <DataNotice tone="info" title={copy.historyTitle}>
-        {copy.historyBody}
-      </DataNotice>
+      <Disclosure
+        summary={copy.ratesNotesTitle}
+        description={copy.ratesNotesDescription}
+      >
+        <div className="space-y-3">
+          <DataNotice tone="warning" title={copy.noticeTitle}>
+            {copy.noticeBody}
+          </DataNotice>
+          <DataNotice tone="info" title={copy.historyTitle}>
+            {copy.historyBody}
+          </DataNotice>
+        </div>
+      </Disclosure>
 
-      <Panel>
-        <PanelHeader
-          title={copy.officialTitle}
-          description={copy.officialDescription}
-          action={<Badge tone="outline">{copy.officialLink}</Badge>}
-        />
-        <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.9fr)]">
-          <div className="space-y-3 text-[12px] leading-6 text-muted">
+      <Disclosure
+        summary={copy.officialTitle}
+        description={copy.officialDescription}
+      >
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.9fr)]">
+          <div className="space-y-3 text-[13px] leading-6 text-muted">
             <div className="flex items-center gap-2">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-surface-muted text-muted">
                 <Landmark className="h-4 w-4" aria-hidden="true" />
               </span>
               <div>
-                <p className="text-[13px] font-semibold text-foreground">
+                <p className="text-[14px] font-semibold text-foreground">
                   {copy.bankName}
                 </p>
-                <p className="text-[10px] text-subtle">
+                <p className="text-[11px] text-subtle">
                   {copy.bankRole}
                 </p>
               </div>
@@ -184,28 +188,28 @@ export default async function CurrencyPage() {
           <div className="flex flex-col gap-3 rounded-xl border border-line bg-background p-4">
             <SourceLink
               href="https://www.bb.org.bd/en/index.php/econdata/exchangerate"
-              className="text-[12px] font-medium"
+              className="text-[13px] font-medium"
             >
               {copy.exchangeRates}
             </SourceLink>
             <SourceLink
               href="https://www.bb.org.bd/econdata/nsdp/nsdp_bb.php"
-              className="text-[12px] font-medium"
+              className="text-[13px] font-medium"
             >
               {copy.nsdp}
             </SourceLink>
             <SourceLink
               href="https://www.bb.org.bd/en/index.php/econdata/index"
-              className="text-[12px] font-medium"
+              className="text-[13px] font-medium"
             >
               {copy.openData}
             </SourceLink>
-            <p className="mt-1 border-t border-line pt-2 text-[10px] leading-4 text-subtle">
+            <p className="mt-1 border-t border-line pt-2 text-[11px] leading-4 text-subtle">
               {copy.linkNote}
             </p>
           </div>
         </div>
-      </Panel>
+      </Disclosure>
     </div>
   );
 }

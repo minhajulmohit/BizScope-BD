@@ -38,7 +38,7 @@ const CHART_MARGIN = { top: 10, right: 10, left: -4, bottom: 0 };
 const GRID_COLOR = "var(--chart-grid)";
 const AXIS_COLOR = "var(--chart-axis)";
 
-const axisTick = { fill: AXIS_COLOR, fontSize: 10 } as const;
+const axisTick = { fill: AXIS_COLOR, fontSize: 11 } as const;
 
 const COPY = {
   en: {
@@ -169,7 +169,7 @@ function ChartSource({
   const copy = COPY[useLanguage()];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
       <p>{note}</p>
       <p>
         <SourceLink
@@ -228,7 +228,7 @@ export function EconomicPerformanceChart({
         title={copy.economicTitle}
         description={copy.economicDescription}
         action={
-          <span className="inline-flex rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] font-medium text-muted">
+          <span className="inline-flex rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] font-medium text-muted">
             {latestYearLabel(language, growth, inflation)}
           </span>
         }
@@ -252,7 +252,7 @@ export function EconomicPerformanceChart({
                 },
               ]}
             />
-            <p className="text-[10px] text-subtle">{copy.annualObservations}</p>
+            <p className="text-[11px] text-subtle">{copy.annualObservations}</p>
           </div>
           <div
             className="h-[300px] w-full px-2 pb-2 pt-3 sm:h-[320px] sm:px-3"
@@ -362,7 +362,7 @@ export function TradeFlowsChart({
         title={copy.tradeTitle}
         description={inBdt ? copy.tradeDescriptionBdt : copy.tradeDescriptionUsd}
         action={
-          <span className="inline-flex rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] font-medium text-muted">
+          <span className="inline-flex rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] font-medium text-muted">
             {latestYearLabel(language, exportsIndicator, importsIndicator)}
           </span>
         }
@@ -465,7 +465,7 @@ export function GdpGrowthTrendChart({
         description={copy.gdpDescription}
         action={
           latest ? (
-            <span className="font-mono text-[11px] font-semibold text-brand-strong">
+            <span className="font-mono text-[12px] font-semibold text-brand-strong">
               {formatPercent(latest.value, 2)} · {latest.year}
             </span>
           ) : null
@@ -545,7 +545,7 @@ export function InflationTrendChart({
         description={copy.inflationDescription}
         action={
           latest ? (
-            <span className="font-mono text-[11px] font-semibold text-amber">
+            <span className="font-mono text-[12px] font-semibold text-amber">
               {formatPercent(latest.value, 2)} · {latest.year}
             </span>
           ) : null

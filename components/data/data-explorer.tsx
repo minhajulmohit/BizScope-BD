@@ -185,7 +185,7 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
     <article className="flex h-full min-w-0 flex-col rounded-card border border-line bg-surface p-5 shadow-card transition-colors hover:border-line-strong">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <Badge tone="blue">{dataset.category}</Badge>
-        <span className="font-mono text-[9px] font-medium uppercase tracking-[0.05em] text-subtle">
+        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.05em] text-subtle">
           {dataset.formats.length > 0
             ? dataset.formats.join(" · ")
             : copy.formatNotListed}
@@ -198,7 +198,7 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
       >
         <span className="line-clamp-2">{dataset.title}</span>
       </h3>
-      <p className="mt-2 line-clamp-3 text-[11px] leading-5 text-muted">
+      <p className="mt-2 line-clamp-3 text-[12px] leading-5 text-muted">
         {dataset.description || copy.noDescription}
       </p>
 
@@ -207,21 +207,21 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
           {visibleTags.map((tag) => (
             <span
               key={tag}
-              className="max-w-[180px] truncate rounded bg-surface-muted px-1.5 py-0.5 text-[9px] text-subtle"
+              className="max-w-[180px] truncate rounded bg-surface-muted px-1.5 py-0.5 text-[11px] text-subtle"
               title={tag}
             >
               {tag}
             </span>
           ))}
           {dataset.tags.length > visibleTags.length ? (
-            <span className="rounded px-1 py-0.5 text-[9px] text-subtle">
+            <span className="rounded px-1 py-0.5 text-[11px] text-subtle">
               +{dataset.tags.length - visibleTags.length}
             </span>
           ) : null}
         </div>
       ) : null}
 
-      <dl className="mt-4 space-y-1.5 border-t border-line pt-3 text-[10px] leading-4">
+      <dl className="mt-4 space-y-1.5 border-t border-line pt-3 text-[11px] leading-4">
         <div className="flex items-start justify-between gap-3">
           <dt className="shrink-0 text-subtle">{copy.publisher}</dt>
           <dd
@@ -245,7 +245,7 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
         </div>
       </dl>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] text-subtle">
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-subtle">
         {dataset.downloads !== null ? (
           <span className="inline-flex items-center gap-1">
             <Download className="h-2.5 w-2.5" aria-hidden="true" />
@@ -261,11 +261,11 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
       </div>
 
       <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line pt-3">
-        <SourceLink href={dataset.catalogUrl} className="text-[10px] font-medium">
+        <SourceLink href={dataset.catalogUrl} className="text-[11px] font-medium">
           {copy.catalogRecord}
         </SourceLink>
         {dataset.sourceUrl ? (
-          <SourceLink href={dataset.sourceUrl} className="text-[10px]">
+          <SourceLink href={dataset.sourceUrl} className="text-[11px]">
             {copy.originalSource}
           </SourceLink>
         ) : null}
@@ -420,7 +420,7 @@ export function DataExplorer() {
               <div key={item.label} className="min-w-0 p-4">
                 <div className="flex items-center gap-1.5 text-subtle">
                   <Icon className="h-3 w-3" aria-hidden="true" />
-                  <p className="truncate text-[9px] font-semibold uppercase tracking-[0.08em]">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em]">
                     {item.label}
                   </p>
                 </div>
@@ -431,7 +431,7 @@ export function DataExplorer() {
             );
           })}
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-surface-muted/40 px-4 py-2 text-[9px] text-subtle">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-surface-muted/40 px-4 py-2 text-[11px] text-subtle">
           <p>{copy.publicCatalogNote}</p>
           <p>
             {copy.retrieved(
@@ -446,7 +446,7 @@ export function DataExplorer() {
           <div className="min-w-0">
             <label
               htmlFor="dataset-search"
-              className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle"
+              className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle"
             >
               {copy.searchCatalog}
             </label>
@@ -461,7 +461,7 @@ export function DataExplorer() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={copy.searchPlaceholder}
-                className="h-10 w-full rounded-lg border border-line bg-surface pl-9 pr-9 text-[12px] text-foreground placeholder:text-subtle focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
+                className="h-10 w-full rounded-lg border border-line bg-surface pl-9 pr-9 text-[13px] text-foreground placeholder:text-subtle focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
               />
               {query ? (
                 <button
@@ -479,7 +479,7 @@ export function DataExplorer() {
           <div className="min-w-0">
             <label
               htmlFor="dataset-category"
-              className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle"
+              className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-subtle"
             >
               {copy.category}
             </label>
@@ -490,7 +490,7 @@ export function DataExplorer() {
                 setCategory(event.target.value);
                 setPage(1);
               }}
-              className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-[12px] text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
+              className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-[13px] text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
             >
               <option value="">{copy.allCategories}</option>
               {categoryOptions.map((option) => (
@@ -507,7 +507,7 @@ export function DataExplorer() {
               type="button"
               onClick={clearFilters}
               disabled={!hasFilters}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[11px] font-medium text-muted transition-colors hover:border-line-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[12px] font-medium text-muted transition-colors hover:border-line-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <X className="h-3.5 w-3.5" aria-hidden="true" />
               {copy.clear}
@@ -519,7 +519,7 @@ export function DataExplorer() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">{copy.resultsEyebrow}</p>
-          <p className="mt-1 text-[12px] text-muted" aria-live="polite">
+          <p className="mt-1 text-[13px] text-muted" aria-live="polite">
             {loading
               ? copy.loading
               : data
@@ -528,7 +528,7 @@ export function DataExplorer() {
           </p>
         </div>
         {data && data.totalPages > 0 ? (
-          <p className="text-[10px] text-subtle">
+          <p className="text-[11px] text-subtle">
             {copy.pageInfo(data.page, data.totalPages)}
           </p>
         ) : null}
@@ -549,7 +549,7 @@ export function DataExplorer() {
               <button
                 type="button"
                 onClick={retry}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               >
                 <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
                 {copy.retryCatalog}
@@ -573,7 +573,7 @@ export function DataExplorer() {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                  className="rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 >
                   {copy.clearFilters}
                 </button>
@@ -598,7 +598,7 @@ export function DataExplorer() {
                 type="button"
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
                 disabled={data.page <= 1 || loading}
-                className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-muted hover:bg-surface-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[12px] font-medium text-muted hover:bg-surface-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 {copy.previous}
@@ -612,7 +612,7 @@ export function DataExplorer() {
                     onClick={() => setPage(pageNumber)}
                     aria-current={pageNumber === data.page ? "page" : undefined}
                     className={cn(
-                      "grid h-7 min-w-7 place-items-center rounded-md px-2 text-[11px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                      "grid h-7 min-w-7 place-items-center rounded-md px-2 text-[12px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
                       pageNumber === data.page
                         ? "bg-brand text-brand-contrast"
                         : "text-muted hover:bg-surface-muted hover:text-foreground",
@@ -629,7 +629,7 @@ export function DataExplorer() {
                   setPage((current) => Math.min(data.totalPages, current + 1))
                 }
                 disabled={data.page >= data.totalPages || loading}
-                className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-muted hover:bg-surface-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[12px] font-medium text-muted hover:bg-surface-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 {copy.next}
                 <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -639,18 +639,18 @@ export function DataExplorer() {
         </>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface-muted/40 px-4 py-3 text-[10px] leading-4 text-subtle">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface-muted/40 px-4 py-3 text-[11px] leading-4 text-subtle">
         <p className="inline-flex items-center gap-1.5">
           <CalendarDays className="h-3 w-3" aria-hidden="true" />
           {copy.footerNote}
         </p>
         <div className="flex items-center gap-3">
-          <SourceLink href="https://opendatabd.com/" className="text-[10px] text-muted">
+          <SourceLink href="https://opendatabd.com/" className="text-[11px] text-muted">
             OpenDataBD
           </SourceLink>
           <SourceLink
             href="https://www.opendatabd.com/api-docs"
-            className="text-[10px] text-muted"
+            className="text-[11px] text-muted"
           >
             {copy.catalogHelp}
           </SourceLink>
@@ -658,7 +658,7 @@ export function DataExplorer() {
             href="https://opendatabd.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[10px] text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-1 text-[11px] text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
           >
             {copy.visitCatalog}
             <ExternalLink className="h-2.5 w-2.5" aria-hidden="true" />
@@ -669,7 +669,7 @@ export function DataExplorer() {
         </div>
       </div>
 
-      <p className="text-[9px] leading-4 text-subtle">{copy.disclaimer}</p>
+      <p className="text-[11px] leading-4 text-subtle">{copy.disclaimer}</p>
     </div>
   );
 }

@@ -413,7 +413,7 @@ export default async function SourcesPage() {
 
       <nav
         aria-label={copy.navAria}
-        className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border border-line bg-surface px-4 py-3 text-[11px]"
+        className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border border-line bg-surface px-4 py-3 text-[12px]"
       >
         {[
           ["#freshness", copy.nav.freshness],
@@ -453,13 +453,13 @@ export default async function SourcesPage() {
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-surface-muted text-muted">
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </span>
-                <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.09em] text-subtle">
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-subtle">
                   {tier.label}
                 </p>
-                <h3 className="mt-0.5 text-[12px] font-semibold text-foreground">
+                <h3 className="mt-0.5 text-[13px] font-semibold text-foreground">
                   {tier.title}
                 </h3>
-                <p className="mt-1.5 text-[10px] leading-4 text-muted">
+                <p className="mt-1.5 text-[11px] leading-4 text-muted">
                   {tier.description}
                 </p>
               </div>
@@ -474,7 +474,7 @@ export default async function SourcesPage() {
             title={copy.healthTitle}
             description={copy.healthDescription}
             action={
-              <span className="inline-flex items-center gap-1 text-[10px] text-subtle">
+              <span className="inline-flex items-center gap-1 text-[11px] text-subtle">
                 <Clock3 className="h-3 w-3" aria-hidden="true" />
                 {copy.checkedEvery}
               </span>
@@ -492,7 +492,7 @@ export default async function SourcesPage() {
               {copy.providersTitle}
             </h2>
           </div>
-          <p className="max-w-md text-[10px] leading-4 text-subtle sm:text-right">
+          <p className="max-w-md text-[11px] leading-4 text-subtle sm:text-right">
             {copy.providersDescription}
           </p>
         </div>
@@ -509,7 +509,7 @@ export default async function SourcesPage() {
           <h2 className="mt-1 text-lg font-semibold tracking-[-0.02em] text-foreground">
             {copy.officialTitle}
           </h2>
-          <p className="mt-1 max-w-3xl text-[11px] leading-5 text-muted">
+          <p className="mt-1 max-w-3xl text-[12px] leading-5 text-muted">
             {copy.officialDescription}
           </p>
         </div>
@@ -531,7 +531,7 @@ export default async function SourcesPage() {
             title={copy.indicatorsTitle}
             description={copy.indicatorsDescription}
             action={
-              <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
+              <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] text-muted">
                 {copy.available(
                   analytics.summary.availableIndicators,
                   analytics.summary.totalIndicators,
@@ -545,10 +545,10 @@ export default async function SourcesPage() {
             aria-label={copy.indicatorTableAria}
             tabIndex={0}
           >
-            <table className="w-full min-w-[760px] text-left text-[11px]">
+            <table className="w-full min-w-[760px] text-left text-[12px]">
               <caption className="sr-only">{copy.indicatorCaption}</caption>
               <thead>
-                <tr className="border-b border-line bg-surface-muted/60 text-[9px] uppercase tracking-[0.08em] text-subtle">
+                <tr className="border-b border-line bg-surface-muted/60 text-[11px] uppercase tracking-[0.08em] text-subtle">
                   <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                     {copy.indicator}
                   </th>
@@ -604,7 +604,7 @@ export default async function SourcesPage() {
                             indicator?.source.sourceUrl ??
                             `https://data.worldbank.org/indicator/${rawDefinition.code}?locations=BD`
                           }
-                          className="text-[10px]"
+                          className="text-[11px]"
                         >
                           {copy.worldBank}
                         </SourceLink>
@@ -615,7 +615,7 @@ export default async function SourcesPage() {
               </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] text-subtle sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] text-subtle sm:px-6">
             <p>
               {copy.lastUpdated(
                 formatUtcDate(analytics.summary.lastProviderUpdate),
@@ -643,10 +643,10 @@ export default async function SourcesPage() {
             aria-label={copy.cacheTableAria}
             tabIndex={0}
           >
-            <table className="w-full min-w-[720px] text-left text-[11px]">
+            <table className="w-full min-w-[720px] text-left text-[12px]">
               <caption className="sr-only">{copy.cacheCaption}</caption>
               <thead>
-                <tr className="border-b border-line bg-surface-muted/60 text-[9px] uppercase tracking-[0.08em] text-subtle">
+                <tr className="border-b border-line bg-surface-muted/60 text-[11px] uppercase tracking-[0.08em] text-subtle">
                   <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                     {copy.cacheSource}
                   </th>
@@ -672,7 +672,7 @@ export default async function SourcesPage() {
                     </th>
                     <td className="px-4 py-3 text-muted">{row.frequency}</td>
                     <td className="px-4 py-3 text-muted">{row.appCache}</td>
-                    <td className="px-5 py-3 text-[10px] text-subtle sm:px-6">
+                    <td className="px-5 py-3 text-[11px] text-subtle sm:px-6">
                       {row.note}
                     </td>
                   </tr>
@@ -680,7 +680,7 @@ export default async function SourcesPage() {
               </tbody>
             </table>
           </div>
-          <div className="border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+          <div className="border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
             {copy.cacheNote}
           </div>
         </Panel>
@@ -693,14 +693,14 @@ export default async function SourcesPage() {
               title={copy.licensingTitle}
               description={copy.licensingDescription}
             />
-            <div className="space-y-4 p-5 text-[11px] leading-5 text-muted sm:p-6">
+            <div className="space-y-4 p-5 text-[12px] leading-5 text-muted sm:p-6">
               <div>
                 <p className="font-semibold text-foreground">World Bank</p>
                 <p className="mt-0.5">
                   {copy.worldBankLicense}{" "}
                   <SourceLink
                     href="https://datacatalog.worldbank.org/public-licenses"
-                    className="text-[10px]"
+                    className="text-[11px]"
                   >
                     {copy.licenceLink}
                   </SourceLink>
@@ -712,7 +712,7 @@ export default async function SourcesPage() {
                   {copy.exchangeLicense}{" "}
                   <SourceLink
                     href="https://www.exchangerate-api.com/terms"
-                    className="text-[10px]"
+                    className="text-[11px]"
                   >
                     {copy.termsLink}
                   </SourceLink>
@@ -736,7 +736,7 @@ export default async function SourcesPage() {
               title={copy.verificationTitle}
               description={copy.verificationDescription}
             />
-            <div className="space-y-3 p-5 text-[11px] leading-5 text-muted sm:p-6">
+            <div className="space-y-3 p-5 text-[12px] leading-5 text-muted sm:p-6">
               {copy.verificationPoints.map((point, index) => (
                 <p key={point} className="flex gap-2">
                   <span
@@ -750,7 +750,7 @@ export default async function SourcesPage() {
                   <span>{point}</span>
                 </p>
               ))}
-              <div className="rounded-lg border border-line bg-surface-muted/60 px-3 py-2.5 text-[10px] leading-4">
+              <div className="rounded-lg border border-line bg-surface-muted/60 px-3 py-2.5 text-[11px] leading-4">
                 <span className="inline-flex items-center gap-1 font-semibold text-foreground">
                   <Info className="h-3 w-3" aria-hidden="true" />
                   {copy.readClearly}
@@ -774,7 +774,7 @@ export default async function SourcesPage() {
               />
             }
           />
-          <ul className="grid gap-x-8 gap-y-3 p-5 text-[11px] leading-5 text-muted sm:p-6 lg:grid-cols-2">
+          <ul className="grid gap-x-8 gap-y-3 p-5 text-[12px] leading-5 text-muted sm:p-6 lg:grid-cols-2">
             {copy.limitations.map((limitation) => (
               <li key={limitation} className="flex gap-2">
                 <span
@@ -785,7 +785,7 @@ export default async function SourcesPage() {
               </li>
             ))}
           </ul>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-3 text-[10px] text-subtle sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-3 text-[11px] text-subtle sm:px-6">
             <p>{copy.questions}</p>
             <Link
               href="/"

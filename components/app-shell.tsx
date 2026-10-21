@@ -37,31 +37,13 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-interface NavGroup {
-  key: "dashboard" | "analysis" | "explore";
-  items: NavItem[];
-}
-
-const NAV_GROUPS: NavGroup[] = [
-  {
-    key: "dashboard",
-    items: [{ href: "/", key: "overview", icon: LayoutDashboard }],
-  },
-  {
-    key: "analysis",
-    items: [
-      { href: "/economy", key: "economy", icon: ChartNoAxesCombined },
-      { href: "/trade", key: "trade", icon: ArrowLeftRight },
-      { href: "/currency", key: "currency", icon: CircleDollarSign },
-    ],
-  },
-  {
-    key: "explore",
-    items: [
-      { href: "/data", key: "data", icon: Database },
-      { href: "/sources", key: "sources", icon: BookOpenText },
-    ],
-  },
+const NAV_ITEMS: NavItem[] = [
+  { href: "/", key: "overview", icon: LayoutDashboard },
+  { href: "/economy", key: "economy", icon: ChartNoAxesCombined },
+  { href: "/trade", key: "trade", icon: ArrowLeftRight },
+  { href: "/currency", key: "currency", icon: CircleDollarSign },
+  { href: "/data", key: "data", icon: Database },
+  { href: "/sources", key: "sources", icon: BookOpenText },
 ];
 
 const PAGE_KEYS: Record<string, NavKey> = {
@@ -76,59 +58,45 @@ const PAGE_KEYS: Record<string, NavKey> = {
 const COPY = {
   en: {
     navAria: "Primary navigation",
-    groups: {
-      dashboard: "Dashboard",
-      analysis: "Analysis",
-      explore: "Explore",
-    },
     items: {
       overview: "Overview",
-      economy: "Economic analytics",
-      trade: "Trade analytics",
-      currency: "Currency & rates",
-      data: "Data explorer",
-      sources: "Sources & methodology",
+      economy: "Economy",
+      trade: "Trade",
+      currency: "Dollar rate",
+      data: "Datasets",
+      sources: "Sources",
     },
-    workspaces: "Workspace",
-    breadcrumb: "Breadcrumb",
+    breadcrumb: "Current page",
     skip: "Skip to content",
     openMenu: "Open navigation menu",
     closeMenu: "Close navigation menu",
     siteNavigation: "Site navigation",
     footerTitle: "Data, with context",
     footerDescription:
-      "Annual official statistics and a daily third-party currency reference. Nothing here is presented as real-time.",
+      "Official annual statistics plus a daily reference rate. No real-time claims.",
     methodology: "Read the methodology",
-    footerDisclaimer: "Public data. Not financial or investment advice.",
     tagline: "See Bangladesh Through Data.",
     footerNote: "Public data, clearly sourced. Not financial or investment advice.",
   },
   bn: {
     navAria: "প্রধান নেভিগেশন",
-    groups: {
-      dashboard: "ড্যাশবোর্ড",
-      analysis: "বিশ্লেষণ",
-      explore: "অন্বেষণ",
-    },
     items: {
-      overview: "সারসংক্ষেপ",
-      economy: "অর্থনৈতিক বিশ্লেষণ",
-      trade: "বাণিজ্য বিশ্লেষণ",
-      currency: "মুদ্রা ও বিনিময় হার",
-      data: "ডেটা এক্সপ্লোরার",
-      sources: "উৎস ও পদ্ধতি",
+      overview: "এক নজরে",
+      economy: "অর্থনীতি",
+      trade: "বাণিজ্য",
+      currency: "ডলার রেট",
+      data: "ডেটাসেট",
+      sources: "উৎস",
     },
-    workspaces: "ওয়ার্কস্পেস",
-    breadcrumb: "ব্রেডক্রাম্ব",
+    breadcrumb: "বর্তমান পেজ",
     skip: "মূল কনটেন্টে যান",
     openMenu: "নেভিগেশন মেনু খুলুন",
     closeMenu: "নেভিগেশন মেনু বন্ধ করুন",
     siteNavigation: "সাইট নেভিগেশন",
     footerTitle: "প্রেক্ষাপটসহ ডেটা",
     footerDescription:
-      "বার্ষিক সরকারি পরিসংখ্যান এবং একটি দৈনিক তৃতীয় পক্ষের মুদ্রা রেফারেন্স। এখানে কোনো কিছু রিয়েল-টাইম হিসেবে উপস্থাপন করা হয় না।",
+      "সরকারি বার্ষিক পরিসংখ্যান এবং একটি দৈনিক রেফারেন্স হার। রিয়েল-টাইম দাবি নয়।",
     methodology: "পদ্ধতি পড়ুন",
-    footerDisclaimer: "সর্বজনীন ডেটা। এটি আর্থিক বা বিনিয়োগ পরামর্শ নয়।",
     tagline: "ডেটার মাধ্যমে বাংলাদেশকে দেখুন।",
     footerNote: "স্পষ্ট উৎসসহ সর্বজনীন ডেটা। এটি আর্থিক বা বিনিয়োগ পরামর্শ নয়।",
   },
@@ -145,52 +113,43 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <nav aria-label={copy.navAria} className="flex-1 overflow-y-auto px-3 py-5">
-      <div className="space-y-6">
-        {NAV_GROUPS.map((group) => (
-          <div key={group.key}>
-            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-subtle">
-              {copy.groups[group.key]}
-            </p>
-            <ul className="space-y-1">
-              {group.items.map((item) => {
-                const active = isActive(pathname, item.href);
-                const Icon = item.icon;
+      <ul className="space-y-1">
+        {NAV_ITEMS.map((item) => {
+          const active = isActive(pathname, item.href);
+          const Icon = item.icon;
 
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      onClick={onNavigate}
-                      aria-current={active ? "page" : undefined}
-                      className={cn(
-                        "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                        active
-                          ? "bg-brand-soft text-brand-strong"
-                          : "text-muted hover:bg-surface-muted hover:text-foreground",
-                      )}
-                    >
-                      {active ? (
-                        <span
-                          className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-brand"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                      <Icon
-                        className={cn(
-                          "h-[17px] w-[17px] shrink-0",
-                          active ? "text-brand" : "text-subtle",
-                        )}
-                        aria-hidden="true"
-                      />
-                      <span>{copy.items[item.key]}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                onClick={onNavigate}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+                  active
+                    ? "bg-brand-soft text-brand-strong"
+                    : "text-muted hover:bg-surface-muted hover:text-foreground",
+                )}
+              >
+                {active ? (
+                  <span
+                    className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-brand"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <Icon
+                  className={cn(
+                    "h-[18px] w-[18px] shrink-0",
+                    active ? "text-brand" : "text-subtle",
+                  )}
+                  aria-hidden="true"
+                />
+                <span>{copy.items[item.key]}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }
@@ -200,28 +159,23 @@ function SidebarFooter() {
   const copy = COPY[language];
 
   return (
-    <div className="border-t border-line p-4">
-      <div className="rounded-xl border border-line bg-background p-3.5">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground-soft">
-            {copy.footerTitle}
-          </p>
-        </div>
-        <p className="mt-1.5 text-[11px] leading-[1.6] text-muted">
-          {copy.footerDescription}
+    <div className="border-t border-line p-5">
+      <div className="flex items-center gap-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
+        <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-foreground-soft">
+          {copy.footerTitle}
         </p>
-        <Link
-          href="/sources"
-          className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-brand-strong hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          {copy.methodology}
-          <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        </Link>
       </div>
-      <p className="mt-3 px-1 text-[9px] leading-4 text-subtle">
-        {copy.footerDisclaimer}
+      <p className="mt-1.5 text-[13px] leading-5 text-muted">
+        {copy.footerDescription}
       </p>
+      <Link
+        href="/sources"
+        className="mt-2.5 inline-flex items-center gap-1 text-[13px] font-semibold text-brand-strong hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        {copy.methodology}
+        <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+      </Link>
     </div>
   );
 }
@@ -316,7 +270,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ref={menuButtonRef}
                 type="button"
                 onClick={() => setDrawerOpen(true)}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-line bg-surface text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:hidden"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line bg-surface text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:hidden"
                 aria-label={copy.openMenu}
                 aria-expanded={drawerOpen}
                 aria-controls="mobile-navigation"
@@ -330,10 +284,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <nav
                 aria-label={copy.breadcrumb}
-                className="hidden min-w-0 items-center gap-2 text-[12px] lg:flex"
+                className="hidden min-w-0 items-center gap-2 text-[14px] lg:flex"
               >
-                <span className="text-muted">{copy.workspaces}</span>
-                <ChevronRight className="h-3 w-3 text-subtle" aria-hidden="true" />
+                <span className="text-muted">BizScope BD</span>
+                <ChevronRight className="h-3.5 w-3.5 text-subtle" aria-hidden="true" />
                 <span className="truncate font-medium text-foreground">
                   {currentTitle}
                 </span>
@@ -353,7 +307,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <main id="main-content" className="page-container py-6 sm:py-8 lg:py-9">
           {children}
-          <footer className="mt-12 flex flex-col gap-2 border-t border-line py-5 text-[11px] leading-5 text-subtle sm:flex-row sm:items-center sm:justify-between">
+          <footer className="mt-12 flex flex-col gap-2 border-t border-line py-5 text-[12px] leading-5 text-subtle sm:flex-row sm:items-center sm:justify-between">
             <p>
               <span className="font-semibold text-foreground-soft">BizScope BD</span>
               {" · "}
@@ -386,7 +340,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ref={closeButtonRef}
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-line text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 aria-label={copy.closeMenu}
               >
                 <X className="h-[18px] w-[18px]" aria-hidden="true" />

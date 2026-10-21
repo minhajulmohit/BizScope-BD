@@ -28,7 +28,7 @@ import { ChartEmpty } from "@/components/charts/chart-empty";
 import { useLanguage } from "@/components/language-provider";
 
 const MARGIN = { top: 10, right: 10, left: -2, bottom: 0 };
-const AXIS_TICK = { fill: "var(--chart-axis)", fontSize: 10 } as const;
+const AXIS_TICK = { fill: "var(--chart-axis)", fontSize: 11 } as const;
 
 const COPY = {
   en: {
@@ -38,7 +38,7 @@ const COPY = {
     conversionUsd:
       "Shown in the source currency because the taka reference rate is unavailable.",
     flowsTitle: "Exports vs imports over time",
-    flowsDescription: (note: string) => `Goods and services. ${note}`,
+    flowsDescription: "Annual goods and services exports and imports.",
     annualPeriods: (count: number) => `${count} annual periods`,
     noTrade: "No World Bank trade observations are available.",
     exports: "Exports of goods & services",
@@ -49,8 +49,7 @@ const COPY = {
       `Annual trade flows · ${String(label ?? "")}`,
     flowsNote: "Goods and services only — not merchandise-only customs trade.",
     balanceTitle: "Trade balance",
-    balanceDescription: (note: string) =>
-      `Exports minus imports, same definition and period. ${note}`,
+    balanceDescription: "Exports minus imports for the same year.",
     comparableYears: (count: number) => `${count} comparable years`,
     balanceEmptyTitle: "Balance cannot be calculated",
     balanceEmptyDescription:
@@ -75,7 +74,7 @@ const COPY = {
     conversionUsd:
       "টাকার রেফারেন্স হার পাওয়া যায়নি, তাই উৎসের মুদ্রায় দেখানো হচ্ছে।",
     flowsTitle: "সময়ের সঙ্গে রপ্তানি বনাম আমদানি",
-    flowsDescription: (note: string) => `পণ্য ও সেবা। ${note}`,
+    flowsDescription: "বার্ষিক পণ্য ও সেবা রপ্তানি ও আমদানি।",
     annualPeriods: (count: number) => `${count}টি বার্ষিক সময়কাল`,
     noTrade: "বিশ্বব্যাংকের কোনো বাণিজ্য পর্যবেক্ষণ পাওয়া যাচ্ছে না।",
     exports: "পণ্য ও সেবা রপ্তানি",
@@ -87,8 +86,7 @@ const COPY = {
     flowsNote:
       "শুধু পণ্য ও সেবা—শুধু পণ্যের কাস্টমস বাণিজ্য নয়।",
     balanceTitle: "বাণিজ্য ভারসাম্য",
-    balanceDescription: (note: string) =>
-      `রপ্তানি থেকে আমদানি বাদ, একই সংজ্ঞা ও সময়কালে। ${note}`,
+    balanceDescription: "একই বছরের রপ্তানি থেকে আমদানি বাদ।",
     comparableYears: (count: number) => `${count}টি তুলনাযোগ্য বছর`,
     balanceEmptyTitle: "ভারসাম্য হিসাব করা যাচ্ছে না",
     balanceEmptyDescription:
@@ -118,7 +116,7 @@ function ChartSourceFooter({
   const copy = COPY[useLanguage()];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[11px] leading-4 text-subtle sm:px-6">
       <p>{note}</p>
       <p>
         <SourceLink
@@ -168,9 +166,9 @@ export function TradeCharts({
       <Panel className="flex min-w-0 flex-col xl:col-span-2">
         <PanelHeader
           title={copy.flowsTitle}
-          description={copy.flowsDescription(conversionNote)}
+          description={copy.flowsDescription}
           action={
-            <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
+            <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] text-muted">
               {copy.annualPeriods(series.length)}
             </span>
           }
@@ -241,7 +239,7 @@ export function TradeCharts({
             <div className="mt-auto">
               <ChartSourceFooter
                 providerUpdated={providerUpdated}
-                note={copy.flowsNote}
+                note={`${copy.flowsNote} ${conversionNote}`}
               />
             </div>
           </>
@@ -251,10 +249,10 @@ export function TradeCharts({
       <Panel className="flex min-w-0 flex-col">
         <PanelHeader
           title={copy.balanceTitle}
-          description={copy.balanceDescription(conversionNote)}
+          description={copy.balanceDescription}
           action={
             hasBalance ? (
-              <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
+              <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[11px] text-muted">
                 {copy.comparableYears(comparable.length)}
               </span>
             ) : null
@@ -340,7 +338,7 @@ export function TradeCharts({
             <div className="mt-auto">
               <ChartSourceFooter
                 providerUpdated={providerUpdated}
-                note={copy.balanceNote}
+                note={`${copy.balanceNote} ${conversionNote}`}
               />
             </div>
           </>

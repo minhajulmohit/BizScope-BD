@@ -17,7 +17,7 @@ const COPY = {
     checking: "Checking sources",
     unavailable: "Status unavailable",
     responding: (count: number, total: number) =>
-      `${count}/${total} sources responding`,
+      count === total ? "All sources online" : `${count}/${total} sources responding`,
     degraded: "Sources degraded",
     offline: "Sources unavailable",
     title: "View source health and methodology",
@@ -26,7 +26,7 @@ const COPY = {
     checking: "উৎস যাচাই হচ্ছে",
     unavailable: "স্ট্যাটাস পাওয়া যাচ্ছে না",
     responding: (count: number, total: number) =>
-      `${total}টির মধ্যে ${count}টি উৎস সাড়া দিচ্ছে`,
+      count === total ? "সব উৎস চালু" : `${total}টির মধ্যে ${count}টি উৎস সাড়া দিচ্ছে`,
     degraded: "উৎসগুলো সীমিতভাবে কাজ করছে",
     offline: "উৎসগুলো অনুপলব্ধ",
     title: "উৎসের অবস্থা ও পদ্ধতি দেখুন",
@@ -55,7 +55,7 @@ export function SourceStatusPill() {
     <Link
       href="/sources"
       title={copy.title}
-      className="inline-flex h-9 items-center gap-2 rounded-lg border border-line bg-surface px-2.5 text-[11px] font-medium text-muted transition-colors hover:border-line-strong hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="inline-flex h-10 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-[13px] font-medium text-muted transition-colors hover:border-line-strong hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-live="polite"
     >
       <span className="relative flex h-2 w-2 shrink-0">

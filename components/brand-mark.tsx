@@ -57,11 +57,11 @@ export function BrandMark({
         </svg>
       </span>
       <span className="flex min-w-0 flex-col">
-        <span className="text-[17px] font-semibold leading-tight tracking-[-0.035em] text-foreground">
+        <span className="whitespace-nowrap text-[15px] font-semibold leading-tight tracking-[-0.035em] text-foreground sm:text-[17px]">
           BizScope <span className="text-brand">BD</span>
         </span>
         {!compact ? (
-          <span className="mt-0.5 text-[10px] font-medium uppercase leading-tight tracking-[0.13em] text-subtle">
+          <span className="mt-0.5 text-[11px] font-medium uppercase leading-tight tracking-[0.13em] text-subtle">
             {TAGLINE[language]}
           </span>
         ) : null}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { DataNotice } from "@/components/ui/data-notice";
+import { Disclosure } from "@/components/ui/disclosure";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
 import { DataExplorer } from "@/components/data/data-explorer";
 import { getLanguage } from "@/lib/i18n-server";
@@ -41,6 +42,8 @@ const COPY: Record<Language, {
   description: string;
   badge: string;
   freeCatalog: string;
+  aboutTitle: string;
+  aboutDescription: string;
   noticeTitle: string;
   noticeBody: string;
 }> = {
@@ -51,6 +54,8 @@ const COPY: Record<Language, {
       "Search Bangladesh's public dataset catalog. Browse titles, categories, formats, publishers, and licences — then follow the link to the original source.",
     badge: "OpenDataBD catalog",
     freeCatalog: "Free public catalog",
+    aboutTitle: "About this catalog",
+    aboutDescription: "Source, access, and reuse conditions",
     noticeTitle: "Catalog metadata, not a data download service.",
     noticeBody:
       "BizScope BD searches OpenDataBD's public catalog. Dataset files may require sign-in and are never proxied or downloaded by this app. Always check the licence and access conditions on the original record before reusing a dataset.",
@@ -62,6 +67,8 @@ const COPY: Record<Language, {
       "বাংলাদেশের সর্বজনীন ডেটাসেট ক্যাটালগ খুঁজুন। শিরোনাম, বিভাগ, ফরম্যাট, প্রকাশক ও লাইসেন্স দেখুন—তারপর মূল উৎসের লিংকে যান।",
     badge: "OpenDataBD ক্যাটালগ",
     freeCatalog: "বিনামূল্যের সর্বজনীন ক্যাটালগ",
+    aboutTitle: "এই ক্যাটালগ সম্পর্কে",
+    aboutDescription: "উৎস, অ্যাক্সেস ও পুনর্ব্যবহারের শর্ত",
     noticeTitle: "ক্যাটালগের মেটাডেটা, কোনো ডেটা ডাউনলোড সেবা নয়।",
     noticeBody:
       "BizScope BD OpenDataBD-র সর্বজনীন ক্যাটালগে খোঁজে। ডেটাসেট ফাইল খুলতে সাইন-ইন লাগতে পারে এবং এই অ্যাপ কখনো ফাইল প্রক্সি বা ডাউনলোড করে না। ডেটাসেট আবার ব্যবহারের আগে মূল রেকর্ডে লাইসেন্স ও অ্যাক্সেসের শর্ত দেখুন।",
@@ -81,15 +88,20 @@ export default async function DataPage() {
       >
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
           <CadenceBadge cadence="catalog" label={copy.badge} />
-          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[10px] text-muted">
+          <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[11px] text-muted">
             {copy.freeCatalog}
           </span>
         </div>
       </PageHeader>
 
-      <DataNotice title={copy.noticeTitle}>{copy.noticeBody}</DataNotice>
-
       <DataExplorer />
+
+      <Disclosure
+        summary={copy.aboutTitle}
+        description={copy.aboutDescription}
+      >
+        <DataNotice title={copy.noticeTitle}>{copy.noticeBody}</DataNotice>
+      </Disclosure>
     </div>
   );
 }

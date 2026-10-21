@@ -176,26 +176,26 @@ export function SourceSummary({
               />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                  <p className="text-[12px] font-semibold text-foreground">
+                  <p className="text-[13px] font-semibold text-foreground">
                     {row.name}
                   </p>
                   <span
                     className={cn(
-                      "text-[9px] font-semibold uppercase tracking-[0.06em]",
+                      "text-[11px] font-semibold uppercase tracking-[0.06em]",
                       config.text,
                     )}
                   >
                     {config.label[language]}
                   </span>
                 </div>
-                <p className="text-[10px] text-subtle">{row.role}</p>
+                <p className="text-[11px] text-subtle">{row.role}</p>
                 <div className="mt-0.5 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[10px] text-muted">{row.detail}</p>
+                  <p className="text-[11px] text-muted">{row.detail}</p>
                   <a
                     href={row.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-sm text-[10px] text-subtle hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                    className="inline-flex items-center gap-1 rounded-sm text-[11px] text-subtle hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   >
                     {copy.source}
                     <ExternalLink className="h-2.5 w-2.5" aria-hidden="true" />
@@ -210,10 +210,10 @@ export function SourceSummary({
         })}
       </ul>
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-line px-5 py-3 sm:px-6">
-        <p className="text-[10px] text-subtle">{copy.noRealtime}</p>
+        <p className="text-[11px] text-subtle">{copy.noRealtime}</p>
         <Link
           href="/sources"
-          className="inline-flex items-center gap-1 text-[10px] font-semibold text-brand-strong hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-strong hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
           {copy.methodology}
           <ArrowRight className="h-3 w-3" aria-hidden="true" />
