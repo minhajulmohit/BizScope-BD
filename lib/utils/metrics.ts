@@ -4,6 +4,7 @@ import type {
   MetricDelta,
   MetricUnit,
 } from "@/lib/api/types";
+import type { Language } from "@/lib/i18n";
 import { formatPercent, formatSigned } from "@/lib/utils/format";
 
 /**
@@ -13,6 +14,7 @@ import { formatPercent, formatSigned } from "@/lib/utils/format";
  */
 export function getIndicatorDelta(
   indicator: EconomicIndicator,
+  language: Language = "en",
 ): MetricDelta | null {
   const { latest, previous } = indicator;
   if (!latest || !previous) return null;
@@ -30,7 +32,11 @@ export function getIndicatorDelta(
   if (indicator.unit === "percent") {
     return {
       direction: difference > 0 ? "up" : "down",
-      amountLabel: formatSigned(difference, 1, " pp"),
+      amountLabel: formatSigned(
+        difference,
+        1,
+        language === "bn" ? " শতাংশ পয়েন্ট" : " pp",
+      ),
       previousYear: previous.year,
     };
   }
@@ -49,12 +55,17 @@ export function getObservationChangeLabel(
   unit: MetricUnit,
   current: number | null,
   previous: number | null,
+  language: Language = "en",
 ): string {
   if (current === null || previous === null) return "\u2014";
 
   const difference = current - previous;
   if (unit === "percent") {
-    return formatSigned(difference, 1, " pp");
+    return formatSigned(
+      difference,
+      1,
+      language === "bn" ? " শতাংশ পয়েন্ট" : " pp",
+    );
   }
   if (previous === 0) return "\u2014";
   return formatSigned((difference / previous) * 100, 1, "%");

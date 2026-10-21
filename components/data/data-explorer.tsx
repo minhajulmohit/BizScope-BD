@@ -27,8 +27,117 @@ import { Badge } from "@/components/ui/badge";
 import { SourceLink } from "@/components/ui/source-link";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/components/language-provider";
 
 const PAGE_LIMIT = 12;
+
+const COPY = {
+  en: {
+    formatNotListed: "Format not listed",
+    noDescription: "No description provided in the public catalog.",
+    publisher: "Publisher / source",
+    licence: "Licence",
+    catalogUpdated: "Catalog updated",
+    notSpecified: "Not specified",
+    downloads: (count: string) => `${count} downloads`,
+    views: (count: string) => `${count} views`,
+    catalogRecord: "Catalog record",
+    originalSource: "Original source",
+    statsAria: "OpenDataBD catalog statistics",
+    catalogDatasets: "Catalog datasets",
+    contributors: "Contributors",
+    recordedDownloads: "Recorded downloads",
+    categories: "Categories",
+    publicCatalogNote: "Public catalog · metadata only · files may require sign-in",
+    retrieved: (date: string) => `Retrieved ${date}`,
+    searchCatalog: "Search catalog",
+    searchPlaceholder: "Search dataset titles",
+    clearSearch: "Clear search",
+    category: "Category",
+    allCategories: "All categories",
+    clear: "Clear",
+    resultsEyebrow: "Catalog results",
+    loading: "Loading public datasets…",
+    datasetCount: (count: string, filtered: boolean) =>
+      `${count} ${count === "1" ? "dataset" : "datasets"}${filtered ? " matching your filters" : " in the public catalog"}`,
+    noResponse: "No catalog response yet",
+    pageInfo: (page: number, total: number) =>
+      `Page ${page} of ${total} · ${PAGE_LIMIT} per page`,
+    errorTitle: "The dataset catalog could not be loaded",
+    errorDescription:
+      "OpenDataBD's public catalog may be temporarily unavailable, or the response was incomplete. No placeholder datasets are shown.",
+    retryCatalog: "Retry catalog",
+    noMatchTitle: "No datasets match these filters",
+    emptyTitle: "The catalog is empty",
+    noMatchDescription:
+      "Try a broader title search or choose a different category. An empty result does not imply that official data on the topic does not exist.",
+    emptyDescription:
+      "OpenDataBD's public catalog currently returns no published datasets. Check back later or use the official source directory.",
+    clearFilters: "Clear filters",
+    pagination: "Dataset pagination",
+    previous: "Previous",
+    next: "Next",
+    footerNote:
+      "Catalog metadata changes over time; dataset licences and access conditions vary by record.",
+    catalogHelp: "Catalog help",
+    visitCatalog: "Visit catalog",
+    disclaimer:
+      "Data Explorer shows catalog metadata only. BizScope BD does not bypass authentication or download restrictions for dataset files.",
+  },
+  bn: {
+    formatNotListed: "ফরম্যাট উল্লেখ নেই",
+    noDescription: "সর্বজনীন ক্যাটালগে কোনো বিবরণ দেওয়া নেই।",
+    publisher: "প্রকাশক / উৎস",
+    licence: "লাইসেন্স",
+    catalogUpdated: "ক্যাটালগ হালনাগাদ",
+    notSpecified: "উল্লেখ নেই",
+    downloads: (count: string) => `${count}টি ডাউনলোড`,
+    views: (count: string) => `${count}টি ভিউ`,
+    catalogRecord: "ক্যাটালগ রেকর্ড",
+    originalSource: "মূল উৎস",
+    statsAria: "OpenDataBD ক্যাটালগের পরিসংখ্যান",
+    catalogDatasets: "ক্যাটালগে ডেটাসেট",
+    contributors: "অবদানকারী",
+    recordedDownloads: "রেকর্ড করা ডাউনলোড",
+    categories: "বিভাগ",
+    publicCatalogNote:
+      "সর্বজনীন ক্যাটালগ · কেবল মেটাডেটা · ফাইল খুলতে সাইন-ইন লাগতে পারে",
+    retrieved: (date: string) => `সংগৃহীত ${date}`,
+    searchCatalog: "ক্যাটালগ খুঁজুন",
+    searchPlaceholder: "ডেটাসেটের শিরোনাম খুঁজুন",
+    clearSearch: "খোঁজা মুছুন",
+    category: "বিভাগ",
+    allCategories: "সব বিভাগ",
+    clear: "মুছুন",
+    resultsEyebrow: "ক্যাটালগের ফলাফল",
+    loading: "সর্বজনীন ডেটাসেট লোড হচ্ছে…",
+    datasetCount: (count: string, filtered: boolean) =>
+      `${count}টি ডেটাসেট${filtered ? " আপনার ফিল্টারের সঙ্গে মিলেছে" : " সর্বজনীন ক্যাটালগে আছে"}`,
+    noResponse: "ক্যাটালগ থেকে এখনো কোনো উত্তর আসেনি",
+    pageInfo: (page: number, total: number) =>
+      `পৃষ্ঠা ${page}/${total} · প্রতি পৃষ্ঠায় ${PAGE_LIMIT}টি`,
+    errorTitle: "ডেটাসেট ক্যাটালগ লোড করা যায়নি",
+    errorDescription:
+      "OpenDataBD-র সর্বজনীন ক্যাটালগ সাময়িকভাবে অনুপলব্ধ থাকতে পারে, অথবা উত্তরটি অসম্পূর্ণ ছিল। কোনো প্লেসহোল্ডার ডেটাসেট দেখানো হচ্ছে না।",
+    retryCatalog: "ক্যাটালগ আবার চেষ্টা করুন",
+    noMatchTitle: "এই ফিল্টারে কোনো ডেটাসেট মেলেনি",
+    emptyTitle: "ক্যাটালগ খালি",
+    noMatchDescription:
+      "আরও বিস্তৃত শিরোনামে খুঁজুন বা অন্য বিভাগ বাছুন। খালি ফলাফল মানে এই নয় যে বিষয়টির সরকারি ডেটা নেই।",
+    emptyDescription:
+      "OpenDataBD-র সর্বজনীন ক্যাটালগে এখন কোনো প্রকাশিত ডেটাসেট নেই। পরে আবার দেখুন বা সরকারি উৎসের তালিকা ব্যবহার করুন।",
+    clearFilters: "ফিল্টার মুছুন",
+    pagination: "ডেটাসেট পেজিনেশন",
+    previous: "আগের",
+    next: "পরের",
+    footerNote:
+      "ক্যাটালগের মেটাডেটা সময়ের সঙ্গে বদলায়; ডেটাসেটের লাইসেন্স ও অ্যাক্সেসের শর্ত রেকর্ডভেদে ভিন্ন।",
+    catalogHelp: "ক্যাটালগ সহায়তা",
+    visitCatalog: "ক্যাটালগে যান",
+    disclaimer:
+      "ডেটা এক্সপ্লোরার কেবল ক্যাটালগের মেটাডেটা দেখায়। BizScope BD ডেটাসেট ফাইলের জন্য প্রমাণীকরণ বা ডাউনলোডের সীমা এড়িয়ে যায় না।",
+  },
+};
 
 function isDatasetRecord(value: unknown): value is DatasetRecord {
   if (typeof value !== "object" || value === null) return false;
@@ -68,6 +177,8 @@ function pageWindow(current: number, total: number): number[] {
 }
 
 function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
+  const language = useLanguage();
+  const copy = COPY[language];
   const visibleTags = dataset.tags.slice(0, 3);
 
   return (
@@ -77,7 +188,7 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
         <span className="font-mono text-[9px] font-medium uppercase tracking-[0.05em] text-subtle">
           {dataset.formats.length > 0
             ? dataset.formats.join(" · ")
-            : "Format not listed"}
+            : copy.formatNotListed}
         </span>
       </div>
 
@@ -88,7 +199,7 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
         <span className="line-clamp-2">{dataset.title}</span>
       </h3>
       <p className="mt-2 line-clamp-3 text-[11px] leading-5 text-muted">
-        {dataset.description || "No description provided in the public catalog."}
+        {dataset.description || copy.noDescription}
       </p>
 
       {visibleTags.length > 0 ? (
@@ -112,22 +223,22 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
 
       <dl className="mt-4 space-y-1.5 border-t border-line pt-3 text-[10px] leading-4">
         <div className="flex items-start justify-between gap-3">
-          <dt className="shrink-0 text-subtle">Publisher / source</dt>
+          <dt className="shrink-0 text-subtle">{copy.publisher}</dt>
           <dd
             className="line-clamp-2 text-right font-medium text-foreground-soft"
-            title={dataset.sourceName ?? "Not specified"}
+            title={dataset.sourceName ?? copy.notSpecified}
           >
-            {dataset.sourceName ?? "Not specified"}
+            {dataset.sourceName ?? copy.notSpecified}
           </dd>
         </div>
         <div className="flex items-start justify-between gap-3">
-          <dt className="shrink-0 text-subtle">Licence</dt>
+          <dt className="shrink-0 text-subtle">{copy.licence}</dt>
           <dd className="text-right font-medium text-foreground-soft">
-            {dataset.license ?? "Not specified"}
+            {dataset.license ?? copy.notSpecified}
           </dd>
         </div>
         <div className="flex items-start justify-between gap-3">
-          <dt className="shrink-0 text-subtle">Catalog updated</dt>
+          <dt className="shrink-0 text-subtle">{copy.catalogUpdated}</dt>
           <dd className="text-right font-medium text-foreground-soft">
             {formatUtcDate(dataset.updatedAt)}
           </dd>
@@ -138,24 +249,24 @@ function DatasetCard({ dataset }: { dataset: DatasetRecord }) {
         {dataset.downloads !== null ? (
           <span className="inline-flex items-center gap-1">
             <Download className="h-2.5 w-2.5" aria-hidden="true" />
-            {formatInteger(dataset.downloads)} downloads
+            {copy.downloads(formatInteger(dataset.downloads))}
           </span>
         ) : null}
         {dataset.views !== null ? (
           <span className="inline-flex items-center gap-1">
             <Eye className="h-2.5 w-2.5" aria-hidden="true" />
-            {formatInteger(dataset.views)} views
+            {copy.views(formatInteger(dataset.views))}
           </span>
         ) : null}
       </div>
 
       <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line pt-3">
         <SourceLink href={dataset.catalogUrl} className="text-[10px] font-medium">
-          Catalog record
+          {copy.catalogRecord}
         </SourceLink>
         {dataset.sourceUrl ? (
           <SourceLink href={dataset.sourceUrl} className="text-[10px]">
-            Original source
+            {copy.originalSource}
           </SourceLink>
         ) : null}
       </div>
@@ -184,6 +295,8 @@ function DatasetCardSkeleton() {
 }
 
 export function DataExplorer() {
+  const language = useLanguage();
+  const copy = COPY[language];
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [category, setCategory] = useState("");
@@ -232,13 +345,9 @@ export function DataExplorer() {
         }
 
         setData(payload);
-      } catch (fetchError) {
+      } catch {
         if (controller.signal.aborted) return;
-        setError(
-          fetchError instanceof Error
-            ? fetchError.message
-            : "The dataset catalog could not be loaded.",
-        );
+        setError("catalog-error");
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -276,28 +385,28 @@ export function DataExplorer() {
   return (
     <div className="space-y-5">
       <section
-        aria-label="OpenDataBD catalog statistics"
+        aria-label={copy.statsAria}
         className="overflow-hidden rounded-card border border-line bg-surface shadow-card"
       >
         <div className="grid grid-cols-2 divide-x divide-y divide-line sm:grid-cols-4 sm:divide-y-0">
           {[
             {
-              label: "Catalog datasets",
+              label: copy.catalogDatasets,
               value: stats ? formatInteger(stats.totalDatasets) : "\u2014",
               icon: Database,
             },
             {
-              label: "Contributors",
+              label: copy.contributors,
               value: stats ? formatInteger(stats.totalContributors) : "\u2014",
               icon: Layers,
             },
             {
-              label: "Recorded downloads",
+              label: copy.recordedDownloads,
               value: stats ? formatInteger(stats.totalDownloads) : "\u2014",
               icon: Download,
             },
             {
-              label: "Categories",
+              label: copy.categories,
               value: stats
                 ? formatInteger(Object.keys(stats.categoryCounts).length)
                 : data
@@ -323,10 +432,11 @@ export function DataExplorer() {
           })}
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-surface-muted/40 px-4 py-2 text-[9px] text-subtle">
-          <p>Public catalog · metadata only · files may require sign-in</p>
+          <p>{copy.publicCatalogNote}</p>
           <p>
-            Retrieved{" "}
-            {data ? formatUtcDateTime(data.retrievedAt) : "\u2014"}
+            {copy.retrieved(
+              data ? formatUtcDateTime(data.retrievedAt) : "\u2014",
+            )}
           </p>
         </div>
       </section>
@@ -338,7 +448,7 @@ export function DataExplorer() {
               htmlFor="dataset-search"
               className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle"
             >
-              Search catalog
+              {copy.searchCatalog}
             </label>
             <div className="relative">
               <Search
@@ -350,14 +460,14 @@ export function DataExplorer() {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search dataset titles"
+                placeholder={copy.searchPlaceholder}
                 className="h-10 w-full rounded-lg border border-line bg-surface pl-9 pr-9 text-[12px] text-foreground placeholder:text-subtle focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
               />
               {query ? (
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  aria-label="Clear search"
+                  aria-label={copy.clearSearch}
                   className="absolute right-1.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-subtle hover:bg-surface-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                 >
                   <X className="h-3.5 w-3.5" aria-hidden="true" />
@@ -371,7 +481,7 @@ export function DataExplorer() {
               htmlFor="dataset-category"
               className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle"
             >
-              Category
+              {copy.category}
             </label>
             <select
               id="dataset-category"
@@ -382,7 +492,7 @@ export function DataExplorer() {
               }}
               className="h-10 w-full rounded-lg border border-line bg-surface px-3 text-[12px] text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25"
             >
-              <option value="">All categories</option>
+              <option value="">{copy.allCategories}</option>
               {categoryOptions.map((option) => (
                 <option key={option.name} value={option.name}>
                   {option.name}
@@ -400,7 +510,7 @@ export function DataExplorer() {
               className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[11px] font-medium text-muted transition-colors hover:border-line-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               <X className="h-3.5 w-3.5" aria-hidden="true" />
-              Clear
+              {copy.clear}
             </button>
           </div>
         </div>
@@ -408,20 +518,18 @@ export function DataExplorer() {
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow">Catalog results</p>
+          <p className="eyebrow">{copy.resultsEyebrow}</p>
           <p className="mt-1 text-[12px] text-muted" aria-live="polite">
             {loading
-              ? "Loading public datasets…"
+              ? copy.loading
               : data
-                ? `${formatInteger(data.total)} ${
-                    data.total === 1 ? "dataset" : "datasets"
-                  }${hasFilters ? " matching your filters" : " in the public catalog"}`
-                : "No catalog response yet"}
+                ? copy.datasetCount(formatInteger(data.total), hasFilters)
+                : copy.noResponse}
           </p>
         </div>
         {data && data.totalPages > 0 ? (
           <p className="text-[10px] text-subtle">
-            Page {data.page} of {data.totalPages} · {PAGE_LIMIT} per page
+            {copy.pageInfo(data.page, data.totalPages)}
           </p>
         ) : null}
       </div>
@@ -435,8 +543,8 @@ export function DataExplorer() {
       ) : error ? (
         <Panel>
           <ErrorState
-            title="The dataset catalog could not be loaded"
-            description="OpenDataBD's public catalog may be temporarily unavailable, or the response was incomplete. No placeholder datasets are shown."
+            title={copy.errorTitle}
+            description={copy.errorDescription}
             action={
               <button
                 type="button"
@@ -444,7 +552,7 @@ export function DataExplorer() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               >
                 <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
-                Retry catalog
+                {copy.retryCatalog}
               </button>
             }
             className="border-0 bg-transparent"
@@ -454,11 +562,11 @@ export function DataExplorer() {
         <Panel>
           <EmptyState
             icon={Search}
-            title={hasFilters ? "No datasets match these filters" : "The catalog is empty"}
+            title={hasFilters ? copy.noMatchTitle : copy.emptyTitle}
             description={
               hasFilters
-                ? "Try a broader title search or choose a different category. An empty result does not imply that official data on the topic does not exist."
-                : "OpenDataBD's public catalog currently returns no published datasets. Check back later or use the official source directory."
+                ? copy.noMatchDescription
+                : copy.emptyDescription
             }
             action={
               hasFilters ? (
@@ -467,7 +575,7 @@ export function DataExplorer() {
                   onClick={clearFilters}
                   className="rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 >
-                  Clear filters
+                  {copy.clearFilters}
                 </button>
               ) : undefined
             }
@@ -484,7 +592,7 @@ export function DataExplorer() {
           {data.totalPages > 1 ? (
             <nav
               className="flex flex-col items-center justify-between gap-3 rounded-card border border-line bg-surface px-4 py-3 shadow-card sm:flex-row"
-              aria-label="Dataset pagination"
+              aria-label={copy.pagination}
             >
               <button
                 type="button"
@@ -493,7 +601,7 @@ export function DataExplorer() {
                 className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-muted hover:bg-surface-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
-                Previous
+                {copy.previous}
               </button>
 
               <div className="flex items-center gap-1">
@@ -523,7 +631,7 @@ export function DataExplorer() {
                 disabled={data.page >= data.totalPages || loading}
                 className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-muted hover:bg-surface-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
-                Next
+                {copy.next}
                 <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </nav>
@@ -534,8 +642,7 @@ export function DataExplorer() {
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface-muted/40 px-4 py-3 text-[10px] leading-4 text-subtle">
         <p className="inline-flex items-center gap-1.5">
           <CalendarDays className="h-3 w-3" aria-hidden="true" />
-          Catalog metadata changes over time; dataset licences and access conditions
-          vary by record.
+          {copy.footerNote}
         </p>
         <div className="flex items-center gap-3">
           <SourceLink href="https://opendatabd.com/" className="text-[10px] text-muted">
@@ -545,7 +652,7 @@ export function DataExplorer() {
             href="https://www.opendatabd.com/api-docs"
             className="text-[10px] text-muted"
           >
-            Catalog help
+            {copy.catalogHelp}
           </SourceLink>
           <a
             href="https://opendatabd.com/"
@@ -553,17 +660,16 @@ export function DataExplorer() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-[10px] text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
           >
-            Visit catalog
+            {copy.visitCatalog}
             <ExternalLink className="h-2.5 w-2.5" aria-hidden="true" />
-            <span className="sr-only">(opens in a new tab)</span>
+            <span className="sr-only">
+              {language === "bn" ? "(নতুন ট্যাবে খুলবে)" : "(opens in a new tab)"}
+            </span>
           </a>
         </div>
       </div>
 
-      <p className="text-[9px] leading-4 text-subtle">
-        Data Explorer shows catalog metadata only. BizScope BD does not bypass
-        authentication or download restrictions for dataset files.
-      </p>
+      <p className="text-[9px] leading-4 text-subtle">{copy.disclaimer}</p>
     </div>
   );
 }

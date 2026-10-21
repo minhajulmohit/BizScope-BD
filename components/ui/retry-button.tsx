@@ -4,14 +4,16 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RotateCw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useUiCopy } from "@/components/language-provider";
 
 export function RetryButton({
-  label = "Retry",
+  label,
   className,
 }: {
   label?: string;
   className?: string;
 }) {
+  const copy = useUiCopy();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -29,7 +31,7 @@ export function RetryButton({
         className={cn("h-3.5 w-3.5", isPending && "animate-spin")}
         aria-hidden="true"
       />
-      {isPending ? "Refreshing…" : label}
+      {isPending ? copy.refreshing : (label ?? copy.retry)}
     </button>
   );
 }

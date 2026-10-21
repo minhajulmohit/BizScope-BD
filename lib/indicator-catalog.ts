@@ -1,4 +1,18 @@
-import type { DataCadence, IndicatorKey, MetricUnit } from "@/lib/api/types";
+import type {
+  DataCadence,
+  EconomicIndicator,
+  IndicatorKey,
+  MetricUnit,
+} from "@/lib/api/types";
+import type { Language } from "@/lib/i18n";
+
+export interface IndicatorTranslation {
+  name: string;
+  shortName: string;
+  definition: string;
+  unitLabel: string;
+  cadenceLabel: string;
+}
 
 export interface IndicatorDefinition {
   key: IndicatorKey;
@@ -12,11 +26,14 @@ export interface IndicatorDefinition {
   chartColor: string;
   cadence: DataCadence;
   cadenceLabel: string;
+  bn: IndicatorTranslation;
 }
 
 export const WORLD_BANK_CADENCE: DataCadence = "periodic";
 
 export const WORLD_BANK_CADENCE_LABEL = "Annual · periodically revised";
+
+export const WORLD_BANK_CADENCE_LABEL_BN = "বার্ষিক · সময়ে সময়ে সংশোধিত";
 
 export const INDICATOR_ORDER: IndicatorKey[] = [
   "gdp",
@@ -43,6 +60,14 @@ export const INDICATOR_DEFINITIONS: Record<IndicatorKey, IndicatorDefinition> =
       chartColor: "var(--chart-emerald)",
       cadence: WORLD_BANK_CADENCE,
       cadenceLabel: WORLD_BANK_CADENCE_LABEL,
+      bn: {
+        name: "জিডিপি (চলতি মার্কিন ডলার)",
+        shortName: "মোট দেশজ উৎপাদন (জিডিপি)",
+        definition:
+          "ক্রেতার মূল্যে মোট দেশজ উৎপাদন, যা বিশ্বব্যাংকের সরকারি বিনিময় হার ব্যবহার করে চলতি মার্কিন ডলারে রূপান্তর করা হয়েছে। জিডিপি হলো সব আবাসিক উৎপাদকের মোট মূল্য সংযোজন, সঙ্গে পণ্য কর যোগ ও ভর্তুকি বাদ দিয়ে।",
+        unitLabel: "চলতি মার্কিন ডলার",
+        cadenceLabel: WORLD_BANK_CADENCE_LABEL_BN,
+      },
     },
     gdpGrowth: {
       key: "gdpGrowth",
@@ -57,6 +82,14 @@ export const INDICATOR_DEFINITIONS: Record<IndicatorKey, IndicatorDefinition> =
       chartColor: "var(--chart-emerald)",
       cadence: WORLD_BANK_CADENCE,
       cadenceLabel: WORLD_BANK_CADENCE_LABEL,
+      bn: {
+        name: "জিডিপি প্রবৃদ্ধি (বার্ষিক %)",
+        shortName: "বার্ষিক জিডিপি প্রবৃদ্ধি",
+        definition:
+          "স্থির স্থানীয় মুদ্রায় বাজারমূল্যের জিডিপির বার্ষিক শতকরা প্রবৃদ্ধির হার। সমষ্টিগত হিসাবও স্থির মূল্যে করা হয়।",
+        unitLabel: "বার্ষিক শতাংশ",
+        cadenceLabel: WORLD_BANK_CADENCE_LABEL_BN,
+      },
     },
     inflation: {
       key: "inflation",
@@ -71,6 +104,14 @@ export const INDICATOR_DEFINITIONS: Record<IndicatorKey, IndicatorDefinition> =
       chartColor: "var(--chart-amber)",
       cadence: WORLD_BANK_CADENCE,
       cadenceLabel: WORLD_BANK_CADENCE_LABEL,
+      bn: {
+        name: "মুদ্রাস্ফীতি, ভোক্তা মূল্য (বার্ষিক %)",
+        shortName: "ভোক্তা মূল্য মুদ্রাস্ফীতি",
+        definition:
+          "পণ্য ও সেবার একটি নির্দিষ্ট ঝুড়ি কিনতে গড় ভোক্তার খরচের বার্ষিক শতকরা পরিবর্তন। সাধারণত ল্যাসপিয়ারেস সূত্র ব্যবহার করা হয়।",
+        unitLabel: "বার্ষিক শতাংশ",
+        cadenceLabel: WORLD_BANK_CADENCE_LABEL_BN,
+      },
     },
     unemployment: {
       key: "unemployment",
@@ -85,6 +126,14 @@ export const INDICATOR_DEFINITIONS: Record<IndicatorKey, IndicatorDefinition> =
       chartColor: "var(--chart-blue)",
       cadence: WORLD_BANK_CADENCE,
       cadenceLabel: WORLD_BANK_CADENCE_LABEL,
+      bn: {
+        name: "বেকারত্ব, মোট (মোট শ্রমশক্তির %)",
+        shortName: "বেকারত্বের হার",
+        definition:
+          "শ্রমশক্তির যে অংশের কাজ নেই, তবে কাজের জন্য প্রস্তুত এবং খুঁজছে। এটি আন্তর্জাতিক শ্রম সংস্থা (ILO)-র একটি মডেলভিত্তিক অনুমান।",
+        unitLabel: "শ্রমশক্তির শতাংশ",
+        cadenceLabel: WORLD_BANK_CADENCE_LABEL_BN,
+      },
     },
     population: {
       key: "population",
@@ -99,6 +148,14 @@ export const INDICATOR_DEFINITIONS: Record<IndicatorKey, IndicatorDefinition> =
       chartColor: "var(--chart-slate)",
       cadence: WORLD_BANK_CADENCE,
       cadenceLabel: WORLD_BANK_CADENCE_LABEL,
+      bn: {
+        name: "মোট জনসংখ্যা",
+        shortName: "মোট জনসংখ্যা",
+        definition:
+          "প্রকৃত বাসিন্দার সংজ্ঞার ভিত্তিতে মোট জনসংখ্যা, যেখানে আইনি অবস্থা বা নাগরিকত্ব নির্বিশেষে সব বাসিন্দাকে গণনা করা হয়। বছরের মধ্যভাগের অনুমান ব্যবহার করা হয়।",
+        unitLabel: "জনসংখ্যা",
+        cadenceLabel: WORLD_BANK_CADENCE_LABEL_BN,
+      },
     },
     exports: {
       key: "exports",
@@ -113,6 +170,14 @@ export const INDICATOR_DEFINITIONS: Record<IndicatorKey, IndicatorDefinition> =
       chartColor: "var(--chart-emerald)",
       cadence: WORLD_BANK_CADENCE,
       cadenceLabel: WORLD_BANK_CADENCE_LABEL,
+      bn: {
+        name: "পণ্য ও সেবা রপ্তানি (চলতি মার্কিন ডলার)",
+        shortName: "পণ্য ও সেবা রপ্তানি",
+        definition:
+          "বিশ্বের বাকি অংশকে সরবরাহ করা সব পণ্য ও বাজারসেবার মূল্য। এতে পণ্য, মালবাহী, বীমা, পরিবহন, ভ্রমণ, রয়্যালটি, লাইসেন্স ফি ও অন্যান্য সেবা অন্তর্ভুক্ত; শ্রম ও সম্পত্তি আয় বাদ দেওয়া হয়।",
+        unitLabel: "চলতি মার্কিন ডলার",
+        cadenceLabel: WORLD_BANK_CADENCE_LABEL_BN,
+      },
     },
     imports: {
       key: "imports",
@@ -127,6 +192,14 @@ export const INDICATOR_DEFINITIONS: Record<IndicatorKey, IndicatorDefinition> =
       chartColor: "var(--chart-blue)",
       cadence: WORLD_BANK_CADENCE,
       cadenceLabel: WORLD_BANK_CADENCE_LABEL,
+      bn: {
+        name: "পণ্য ও সেবা আমদানি (চলতি মার্কিন ডলার)",
+        shortName: "পণ্য ও সেবা আমদানি",
+        definition:
+          "বিশ্বের বাকি অংশ থেকে গ্রহণ করা সব পণ্য ও বাজারসেবার মূল্য। এতে পণ্য, মালবাহী, বীমা, পরিবহন, ভ্রমণ, রয়্যালটি, লাইসেন্স ফি ও অন্যান্য সেবা অন্তর্ভুক্ত; শ্রম ও সম্পত্তি আয় বাদ দেওয়া হয়।",
+        unitLabel: "চলতি মার্কিন ডলার",
+        cadenceLabel: WORLD_BANK_CADENCE_LABEL_BN,
+      },
     },
   };
 
@@ -139,3 +212,31 @@ export const OVERVIEW_INDICATOR_KEYS: IndicatorKey[] = [
 ];
 
 export const TRADE_INDICATOR_KEYS: IndicatorKey[] = ["exports", "imports"];
+
+/**
+ * Applies the Bengali catalogue copy to an API indicator. The numeric series,
+ * source dates, and IDs are never changed by localisation.
+ */
+export function localizeIndicator(
+  indicator: EconomicIndicator,
+  language: Language,
+): EconomicIndicator {
+  if (language === "en") return indicator;
+
+  const definition = INDICATOR_DEFINITIONS[indicator.key];
+  const inBdt = indicator.unit === "bdt";
+
+  return {
+    ...indicator,
+    name: inBdt
+      ? definition.bn.name.replace("চলতি মার্কিন ডলার", "টাকার সমতুল্য")
+      : definition.bn.name,
+    shortName: definition.bn.shortName,
+    definition: definition.bn.definition,
+    unitLabel: inBdt ? "টাকার সমতুল্য" : definition.bn.unitLabel,
+    source: {
+      ...indicator.source,
+      cadenceLabel: definition.bn.cadenceLabel,
+    },
+  };
+}

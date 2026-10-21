@@ -15,6 +15,8 @@ import {
   YAxis,
 } from "recharts";
 import type { AnalyticsData, EconomicIndicator } from "@/lib/api/types";
+import type { Language } from "@/lib/i18n";
+import { useLanguage } from "@/components/language-provider";
 import {
   formatAxisBdt,
   formatAxisPercent,
@@ -38,12 +40,123 @@ const AXIS_COLOR = "var(--chart-axis)";
 
 const axisTick = { fill: AXIS_COLOR, fontSize: 10 } as const;
 
-function latestYearLabel(...indicators: Array<EconomicIndicator | null>): string {
+const COPY = {
+  en: {
+    latestObservation: (year: number) => `Latest observation · ${year}`,
+    noObservations: "No observations",
+    sourceUpdated: (date: string) => ` · source updated ${date}`,
+    annualObservations: "Annual observations",
+    annualObservation: (label: string | number | undefined) =>
+      `Annual observation · ${String(label ?? "")}`,
+    noInterpolation: "Official annual statistics. Gaps are not interpolated.",
+    economicTitle: "Economic performance",
+    economicDescription:
+      "Annual GDP growth against consumer price inflation. Y-axis: annual percent (%).",
+    economicAria: (range: string) =>
+      `Combined chart of annual GDP growth bars and consumer price inflation line for Bangladesh${range}.`,
+    economicEmpty:
+      "Neither GDP growth nor inflation could be loaded from the World Bank.",
+    gdpGrowthLegend: "GDP growth (annual %)",
+    inflationLegend: "Consumer price inflation (annual %)",
+    gdpGrowthName: "GDP growth",
+    inflationName: "Inflation",
+    tradeTitle: "Exports vs imports",
+    tradeDescriptionBdt:
+      "Goods and services, shown in BDT equivalents at the current reference rate.",
+    tradeDescriptionUsd:
+      "Goods and services, shown in the source currency because the reference rate is unavailable.",
+    tradeEmpty: "World Bank trade observations are currently unavailable.",
+    exports: "Exports",
+    imports: "Imports",
+    exportsName: "Exports of goods & services",
+    importsName: "Imports of goods & services",
+    tradeAria: (unit: string) =>
+      `Grouped bar chart comparing annual goods and services exports with imports in ${unit}.`,
+    tradeTooltip: (label: string | number | undefined) =>
+      `Annual trade flows · ${String(label ?? "")}`,
+    tradeNoteBdt:
+      "Goods and services only. Taka values use the current reference rate.",
+    tradeNoteUsd:
+      "Goods and services only. Shown in US dollars because the taka reference rate is unavailable.",
+    gdpTitle: "GDP growth trend",
+    gdpDescription: "Annual growth in constant-price GDP. Y-axis: annual percent (%).",
+    gdpUnavailable: "GDP growth unavailable",
+    gdpAria:
+      "Area chart of Bangladesh annual GDP growth from the latest ten reported years.",
+    inflationTitle: "Inflation trend",
+    inflationDescription: "Consumer price inflation. Y-axis: annual percent (%).",
+    inflationUnavailable: "Inflation data unavailable",
+    inflationAria:
+      "Line chart of Bangladesh annual consumer price inflation from the latest ten reported years.",
+    cpiName: "CPI inflation",
+    annualRevised: "Annual, periodically revised. No extrapolation.",
+  },
+  bn: {
+    latestObservation: (year: number) => `সর্বশেষ পর্যবেক্ষণ · ${year}`,
+    noObservations: "কোনো পর্যবেক্ষণ নেই",
+    sourceUpdated: (date: string) => ` · উৎস হালনাগাদ ${date}`,
+    annualObservations: "বার্ষিক পর্যবেক্ষণ",
+    annualObservation: (label: string | number | undefined) =>
+      `বার্ষিক পর্যবেক্ষণ · ${String(label ?? "")}`,
+    noInterpolation:
+      "সরকারি বার্ষিক পরিসংখ্যান। ফাঁকগুলো অনুমান করে পূরণ করা হয় না।",
+    economicTitle: "অর্থনৈতিক পারফরম্যান্স",
+    economicDescription:
+      "বার্ষিক জিডিপি প্রবৃদ্ধি বনাম ভোক্তা মূল্য মুদ্রাস্ফীতি। Y-অক্ষ: বার্ষিক শতাংশ (%)।",
+    economicAria: (range: string) =>
+      `বাংলাদেশের বার্ষিক জিডিপি প্রবৃদ্ধির বার ও ভোক্তা মূল্য মুদ্রাস্ফীতির রেখার সম্মিলিত চার্ট${range}।`,
+    economicEmpty:
+      "বিশ্বব্যাংক থেকে জিডিপি প্রবৃদ্ধি বা মুদ্রাস্ফীতি কোনোটিই লোড করা যায়নি।",
+    gdpGrowthLegend: "জিডিপি প্রবৃদ্ধি (বার্ষিক %)",
+    inflationLegend: "ভোক্তা মূল্য মুদ্রাস্ফীতি (বার্ষিক %)",
+    gdpGrowthName: "জিডিপি প্রবৃদ্ধি",
+    inflationName: "মুদ্রাস্ফীতি",
+    tradeTitle: "রপ্তানি বনাম আমদানি",
+    tradeDescriptionBdt:
+      "পণ্য ও সেবা, চলতি রেফারেন্স হারে টাকার সমতুল্যে দেখানো হয়েছে।",
+    tradeDescriptionUsd:
+      "পণ্য ও সেবা, রেফারেন্স হার পাওয়া যায়নি বলে উৎসের মুদ্রায় দেখানো হয়েছে।",
+    tradeEmpty: "বিশ্বব্যাংকের বাণিজ্য পর্যবেক্ষণ এখন পাওয়া যাচ্ছে না।",
+    exports: "রপ্তানি",
+    imports: "আমদানি",
+    exportsName: "পণ্য ও সেবা রপ্তানি",
+    importsName: "পণ্য ও সেবা আমদানি",
+    tradeAria: (unit: string) =>
+      `বার্ষিক পণ্য ও সেবা রপ্তানি ও আমদানির তুলনামূলক গ্রুপড বার চার্ট, ${unit}-এ।`,
+    tradeTooltip: (label: string | number | undefined) =>
+      `বার্ষিক বাণিজ্য প্রবাহ · ${String(label ?? "")}`,
+    tradeNoteBdt:
+      "শুধু পণ্য ও সেবা। টাকার মান চলতি রেফারেন্স হার ব্যবহার করে।",
+    tradeNoteUsd:
+      "শুধু পণ্য ও সেবা। টাকার রেফারেন্স হার পাওয়া যায়নি বলে মার্কিন ডলারে দেখানো হয়েছে।",
+    gdpTitle: "জিডিপি প্রবৃদ্ধির প্রবণতা",
+    gdpDescription:
+      "স্থির মূল্যে জিডিপির বার্ষিক প্রবৃদ্ধি। Y-অক্ষ: বার্ষিক শতাংশ (%)।",
+    gdpUnavailable: "জিডিপি প্রবৃদ্ধি পাওয়া যাচ্ছে না",
+    gdpAria:
+      "সর্বশেষ দশটি রিপোর্ট করা বছরের বাংলাদেশের বার্ষিক জিডিপি প্রবৃদ্ধির এরিয়া চার্ট।",
+    inflationTitle: "মুদ্রাস্ফীতির প্রবণতা",
+    inflationDescription:
+      "ভোক্তা মূল্য মুদ্রাস্ফীতি। Y-অক্ষ: বার্ষিক শতাংশ (%)।",
+    inflationUnavailable: "মুদ্রাস্ফীতির ডেটা পাওয়া যাচ্ছে না",
+    inflationAria:
+      "সর্বশেষ দশটি রিপোর্ট করা বছরের বাংলাদেশের বার্ষিক ভোক্তা মূল্য মুদ্রাস্ফীতির লাইন চার্ট।",
+    cpiName: "ভোক্তা মূল্য সূচক মুদ্রাস্ফীতি",
+    annualRevised: "বার্ষিক, সময়ে সময়ে সংশোধিত। কোনো অনুমান বা সম্প্রসারণ নেই।",
+  },
+};
+
+function latestYearLabel(
+  language: Language,
+  ...indicators: Array<EconomicIndicator | null>
+): string {
   const years = indicators
     .map((indicator) => indicator?.latest?.year)
     .filter((year): year is number => typeof year === "number");
 
-  return years.length > 0 ? `Latest observation · ${Math.max(...years)}` : "No observations";
+  return years.length > 0
+    ? COPY[language].latestObservation(Math.max(...years))
+    : COPY[language].noObservations;
 }
 
 function ChartSource({
@@ -53,6 +166,8 @@ function ChartSource({
   providerUpdated: string | null;
   note: string;
 }) {
+  const copy = COPY[useLanguage()];
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
       <p>{note}</p>
@@ -63,7 +178,7 @@ function ChartSource({
         >
           World Bank WDI
         </SourceLink>
-        {providerUpdated ? ` · source updated ${formatUtcDate(providerUpdated)}` : null}
+        {providerUpdated ? copy.sourceUpdated(formatUtcDate(providerUpdated)) : null}
       </p>
     </div>
   );
@@ -88,6 +203,8 @@ export function EconomicPerformanceChart({
 }: {
   analytics: AnalyticsData;
 }) {
+  const language = useLanguage();
+  const copy = COPY[language];
   const growth = analytics.indicators.gdpGrowth;
   const inflation = analytics.indicators.inflation;
 
@@ -100,37 +217,47 @@ export function EconomicPerformanceChart({
   const lastYear = data[data.length - 1]?.year;
   const yearRange =
     firstYear !== undefined && lastYear !== undefined
-      ? ` from ${firstYear} to ${lastYear}`
+      ? language === "bn"
+        ? `, ${firstYear} থেকে ${lastYear} পর্যন্ত`
+        : ` from ${firstYear} to ${lastYear}`
       : "";
 
   return (
     <Panel className="flex h-full flex-col">
       <PanelHeader
-        title="Economic performance"
-        description="Annual GDP growth against consumer price inflation. Y-axis: annual percent (%)."
+        title={copy.economicTitle}
+        description={copy.economicDescription}
         action={
           <span className="inline-flex rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] font-medium text-muted">
-            {latestYearLabel(growth, inflation)}
+            {latestYearLabel(language, growth, inflation)}
           </span>
         }
       />
       {data.length === 0 ? (
-        <ChartEmpty description="Neither GDP growth nor inflation could be loaded from the World Bank." />
+        <ChartEmpty description={copy.economicEmpty} />
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-4 sm:px-6">
             <ChartLegend
               items={[
-                { label: "GDP growth (annual %)", color: "var(--chart-emerald)", shape: "bar" },
-                { label: "Consumer price inflation (annual %)", color: "var(--chart-amber)", shape: "line" },
+                {
+                  label: copy.gdpGrowthLegend,
+                  color: "var(--chart-emerald)",
+                  shape: "bar",
+                },
+                {
+                  label: copy.inflationLegend,
+                  color: "var(--chart-amber)",
+                  shape: "line",
+                },
               ]}
             />
-            <p className="text-[10px] text-subtle">Annual observations</p>
+            <p className="text-[10px] text-subtle">{copy.annualObservations}</p>
           </div>
           <div
             className="h-[300px] w-full px-2 pb-2 pt-3 sm:h-[320px] sm:px-3"
             role="group"
-            aria-label={`Combined chart of annual GDP growth bars and consumer price inflation line for Bangladesh${yearRange}.`}
+            aria-label={copy.economicAria(yearRange)}
           >
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={data} margin={CHART_MARGIN}>
@@ -155,14 +282,14 @@ export function EconomicPerformanceChart({
                   cursor={{ fill: "var(--chart-cursor)" }}
                   content={
                     <ChartTooltip
-                      formatLabel={(label) => `Annual observation · ${String(label ?? "")}`}
+                      formatLabel={copy.annualObservation}
                       formatValue={(value) => formatPercentPrecise(value)}
                     />
                   }
                 />
                 <Bar
                   dataKey="growth"
-                  name="GDP growth"
+                  name={copy.gdpGrowthName}
                   fill="var(--chart-emerald)"
                   radius={[3, 3, 0, 0]}
                   barSize={18}
@@ -171,7 +298,7 @@ export function EconomicPerformanceChart({
                 <Line
                   type="linear"
                   dataKey="inflation"
-                  name="Inflation"
+                  name={copy.inflationName}
                   stroke="var(--chart-amber)"
                   strokeWidth={2.4}
                   dot={{ r: 2.5, fill: "var(--chart-amber)", strokeWidth: 0 }}
@@ -185,7 +312,7 @@ export function EconomicPerformanceChart({
           <div className="mt-auto">
             <ChartSource
               providerUpdated={growth?.source.datasetUpdated ?? inflation?.source.datasetUpdated ?? null}
-              note="Official annual statistics. Gaps are not interpolated."
+              note={copy.noInterpolation}
             />
           </div>
         </>
@@ -218,6 +345,8 @@ export function TradeFlowsChart({
   analytics: AnalyticsData;
   inBdt: boolean;
 }) {
+  const language = useLanguage();
+  const copy = COPY[language];
   const exportsIndicator = analytics.indicators.exports;
   const importsIndicator = analytics.indicators.imports;
 
@@ -230,34 +359,32 @@ export function TradeFlowsChart({
   return (
     <Panel className="flex h-full flex-col">
       <PanelHeader
-        title="Exports vs imports"
-        description={`Goods and services, shown in ${
-          inBdt ? "BDT equivalents at the current reference rate" : "the source currency because the reference rate is unavailable"
-        }.`}
+        title={copy.tradeTitle}
+        description={inBdt ? copy.tradeDescriptionBdt : copy.tradeDescriptionUsd}
         action={
           <span className="inline-flex rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] font-medium text-muted">
-            {latestYearLabel(exportsIndicator, importsIndicator)}
+            {latestYearLabel(language, exportsIndicator, importsIndicator)}
           </span>
         }
       />
       {rows.length === 0 ? (
-        <ChartEmpty description="World Bank trade observations are currently unavailable." />
+        <ChartEmpty description={copy.tradeEmpty} />
       ) : (
         <>
           <div className="px-5 pt-4 sm:px-6">
             <ChartLegend
               items={[
-                { label: "Exports", color: "var(--chart-emerald)", shape: "bar" },
-                { label: "Imports", color: "var(--chart-blue)", shape: "bar" },
+                { label: copy.exports, color: "var(--chart-emerald)", shape: "bar" },
+                { label: copy.imports, color: "var(--chart-blue)", shape: "bar" },
               ]}
             />
           </div>
           <div
             className="h-[280px] w-full px-2 pb-2 pt-3 sm:px-3"
             role="group"
-            aria-label={`Grouped bar chart comparing annual goods and services exports with imports in ${
-              inBdt ? "BDT equivalents" : "US dollars"
-            }.`}
+            aria-label={copy.tradeAria(
+              inBdt ? (language === "bn" ? "টাকার সমতুল্য" : "BDT equivalents") : (language === "bn" ? "মার্কিন ডলার" : "US dollars"),
+            )}
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={rows} margin={CHART_MARGIN} barGap={2}>
@@ -282,14 +409,14 @@ export function TradeFlowsChart({
                   cursor={{ fill: "var(--chart-cursor)" }}
                   content={
                     <ChartTooltip
-                      formatLabel={(label) => `Annual trade flows · ${String(label ?? "")}`}
+                      formatLabel={copy.tradeTooltip}
                       formatValue={(value) => formatExact(value)}
                     />
                   }
                 />
                 <Bar
                   dataKey="left"
-                  name="Exports of goods & services"
+                  name={copy.exportsName}
                   fill="var(--chart-emerald)"
                   radius={[3, 3, 0, 0]}
                   barSize={12}
@@ -297,7 +424,7 @@ export function TradeFlowsChart({
                 />
                 <Bar
                   dataKey="right"
-                  name="Imports of goods & services"
+                  name={copy.importsName}
                   fill="var(--chart-blue)"
                   radius={[3, 3, 0, 0]}
                   barSize={12}
@@ -313,11 +440,7 @@ export function TradeFlowsChart({
                 importsIndicator?.source.datasetUpdated ??
                 null
               }
-              note={
-                inBdt
-                  ? "Goods and services only. Taka values use the current reference rate."
-                  : "Goods and services only. Shown in US dollars because the taka reference rate is unavailable."
-              }
+              note={inBdt ? copy.tradeNoteBdt : copy.tradeNoteUsd}
             />
           </div>
         </>
@@ -331,14 +454,15 @@ export function GdpGrowthTrendChart({
 }: {
   indicator: EconomicIndicator | null;
 }) {
+  const copy = COPY[useLanguage()];
   const data = indicator?.observations ?? [];
   const latest = indicator?.latest;
 
   return (
     <Panel className="flex h-full flex-col">
       <PanelHeader
-        title="GDP growth trend"
-        description="Annual growth in constant-price GDP. Y-axis: annual percent (%)."
+        title={copy.gdpTitle}
+        description={copy.gdpDescription}
         action={
           latest ? (
             <span className="font-mono text-[11px] font-semibold text-brand-strong">
@@ -348,13 +472,13 @@ export function GdpGrowthTrendChart({
         }
       />
       {data.length === 0 ? (
-        <ChartEmpty title="GDP growth unavailable" />
+        <ChartEmpty title={copy.gdpUnavailable} />
       ) : (
         <>
           <div
             className="h-[230px] w-full px-2 pb-1 pt-4 sm:px-3"
             role="group"
-            aria-label="Area chart of Bangladesh annual GDP growth from the latest ten reported years."
+            aria-label={copy.gdpAria}
           >
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} margin={CHART_MARGIN}>
@@ -372,7 +496,7 @@ export function GdpGrowthTrendChart({
                   cursor={{ stroke: "var(--line-strong)", strokeDasharray: "3 3" }}
                   content={
                     <ChartTooltip
-                      formatLabel={(label) => `Annual observation · ${String(label ?? "")}`}
+                      formatLabel={copy.annualObservation}
                       formatValue={(value) => formatPercentPrecise(value)}
                     />
                   }
@@ -380,7 +504,7 @@ export function GdpGrowthTrendChart({
                 <Area
                   type="linear"
                   dataKey="value"
-                  name="GDP growth"
+                  name={copy.gdpGrowthName}
                   stroke="var(--chart-emerald)"
                   strokeWidth={2.4}
                   fill="var(--chart-emerald)"
@@ -396,7 +520,7 @@ export function GdpGrowthTrendChart({
           <div className="mt-auto">
             <ChartSource
               providerUpdated={indicator?.source.datasetUpdated ?? null}
-              note="Annual, periodically revised. No extrapolation."
+              note={copy.annualRevised}
             />
           </div>
         </>
@@ -410,14 +534,15 @@ export function InflationTrendChart({
 }: {
   indicator: EconomicIndicator | null;
 }) {
+  const copy = COPY[useLanguage()];
   const data = indicator?.observations ?? [];
   const latest = indicator?.latest;
 
   return (
     <Panel className="flex h-full flex-col">
       <PanelHeader
-        title="Inflation trend"
-        description="Consumer price inflation. Y-axis: annual percent (%)."
+        title={copy.inflationTitle}
+        description={copy.inflationDescription}
         action={
           latest ? (
             <span className="font-mono text-[11px] font-semibold text-amber">
@@ -427,13 +552,13 @@ export function InflationTrendChart({
         }
       />
       {data.length === 0 ? (
-        <ChartEmpty title="Inflation data unavailable" />
+        <ChartEmpty title={copy.inflationUnavailable} />
       ) : (
         <>
           <div
             className="h-[230px] w-full px-2 pb-1 pt-4 sm:px-3"
             role="group"
-            aria-label="Line chart of Bangladesh annual consumer price inflation from the latest ten reported years."
+            aria-label={copy.inflationAria}
           >
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={CHART_MARGIN}>
@@ -451,7 +576,7 @@ export function InflationTrendChart({
                   cursor={{ stroke: "var(--line-strong)", strokeDasharray: "3 3" }}
                   content={
                     <ChartTooltip
-                      formatLabel={(label) => `Annual observation · ${String(label ?? "")}`}
+                      formatLabel={copy.annualObservation}
                       formatValue={(value) => formatPercentPrecise(value)}
                     />
                   }
@@ -459,7 +584,7 @@ export function InflationTrendChart({
                 <Line
                   type="linear"
                   dataKey="value"
-                  name="CPI inflation"
+                  name={copy.cpiName}
                   stroke="var(--chart-amber)"
                   strokeWidth={2.4}
                   dot={{ r: 2.2, fill: "var(--chart-amber)", strokeWidth: 0 }}
@@ -473,7 +598,7 @@ export function InflationTrendChart({
           <div className="mt-auto">
             <ChartSource
               providerUpdated={indicator?.source.datasetUpdated ?? null}
-              note="Annual, periodically revised. No extrapolation."
+              note={copy.annualRevised}
             />
           </div>
         </>

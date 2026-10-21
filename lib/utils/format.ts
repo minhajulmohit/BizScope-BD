@@ -2,6 +2,7 @@ import type {
   EconomicIndicator,
   MetricUnit,
 } from "@/lib/api/types";
+import type { Language } from "@/lib/i18n";
 
 const compactFormatter = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -50,7 +51,33 @@ const timeFormatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-let currencyDisplayNames: Intl.DisplayNames | null = null;
+const currencyDisplayNames: Record<Language, Intl.DisplayNames | null> = {
+  en: null,
+  bn: null,
+};
+
+export function getCurrencyName(
+  code: string,
+  language: Language = "en",
+): string {
+  if (!currencyDisplayNames[language]) {
+    try {
+      currencyDisplayNames[language] = new Intl.DisplayNames(
+        [language === "bn" ? "bn" : "en"],
+        { type: "currency" },
+      );
+    } catch {
+      return code;
+    }
+  }
+
+  try {
+    const name = currencyDisplayNames[language]?.of(code);
+    return name && name !== code ? name : code;
+  } catch {
+    return code;
+  }
+}
 
 export function formatInteger(value: number): string {
   return integerFormatter.format(value);
@@ -132,6 +159,7 @@ export function formatIndicatorValue(
 export function formatIndicatorExact(
   unit: MetricUnit,
   value: number,
+  language: Language = "en",
 ): string {
   switch (unit) {
     case "usd":
@@ -141,7 +169,9 @@ export function formatIndicatorExact(
     case "percent":
       return formatPercentPrecise(value);
     case "people":
-      return `${integerFormatter.format(value)} people`;
+      return language === "bn"
+        ? `${integerFormatter.format(value)} জন`
+        : `${integerFormatter.format(value)} people`;
     default: {
       const exhaustive: never = unit;
       return exhaustive;
@@ -202,27 +232,11 @@ export function formatUtcDateTime(value: string | null): string {
   return `${dateFormatter.format(date)} \u00b7 ${timeFormatter.format(date)} UTC`;
 }
 
-export function formatObservationPeriod(year: number): string {
-  return `Annual \u00b7 ${year}`;
-}
-
-export function getCurrencyName(code: string): string {
-  if (!currencyDisplayNames) {
-    try {
-      currencyDisplayNames = new Intl.DisplayNames(["en"], {
-        type: "currency",
-      });
-    } catch {
-      return code;
-    }
-  }
-
-  try {
-    const name = currencyDisplayNames.of(code);
-    return name && name !== code ? name : code;
-  } catch {
-    return code;
-  }
+export function formatObservationPeriod(
+  year: number,
+  language: Language = "en",
+): string {
+  return language === "bn" ? `বার্ষিক · ${year}` : `Annual \u00b7 ${year}`;
 }
 
 export function clampInteger(

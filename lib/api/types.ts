@@ -164,6 +164,11 @@ export interface ProviderStatus {
   cadence: DataCadence;
   cadenceLabel: string;
   detail: string;
+  detailData?: {
+    available?: number;
+    total?: number;
+    datasets?: number;
+  };
   lastRetrievedAt: string | null;
 }
 

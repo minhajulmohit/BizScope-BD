@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils/cn";
+import { useUiCopy } from "@/components/language-provider";
 
 export interface LegendItem {
   label: string;
@@ -13,10 +16,12 @@ export function ChartLegend({
   items: LegendItem[];
   className?: string;
 }) {
+  const copy = useUiCopy();
+
   return (
     <ul
       className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}
-      aria-label="Chart legend"
+      aria-label={copy.chartLegend}
     >
       {items.map((item) => (
         <li

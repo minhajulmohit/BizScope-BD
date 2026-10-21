@@ -2,6 +2,7 @@
 
 import type { TooltipContentProps } from "recharts";
 import { cn } from "@/lib/utils/cn";
+import { useUiCopy } from "@/components/language-provider";
 
 type ValueFormatter = (value: number, name: string) => string;
 
@@ -22,6 +23,8 @@ export function ChartTooltip({
   formatLabel,
   className,
 }: ChartTooltipProps) {
+  const copy = useUiCopy();
+
   if (!active || !payload || payload.length === 0) return null;
 
   const rows = payload.filter(
@@ -44,7 +47,7 @@ export function ChartTooltip({
           ? formatLabel(label)
           : label !== undefined
             ? String(label)
-            : "Observation"}
+            : copy.chartObservation}
       </p>
       <ul className="space-y-1.5">
         {rows.map((entry) => {

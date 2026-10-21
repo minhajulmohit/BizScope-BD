@@ -1,11 +1,29 @@
 import type { LucideIcon } from "lucide-react";
 import { CalendarDays } from "lucide-react";
 import type { DataCadence, MetricDelta } from "@/lib/api/types";
+import type { Language } from "@/lib/i18n";
 import { cn } from "@/lib/utils/cn";
 import { formatUtcDate } from "@/lib/utils/format";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
 import { DeltaChip } from "@/components/ui/delta-chip";
 import { SourceLink } from "@/components/ui/source-link";
+
+const COPY = {
+  en: {
+    unavailable: "Unavailable",
+    source: "Source",
+    sourceUpdated: "Source updated",
+    updateTimeUnavailable: "Update time unavailable",
+    defaultUnavailable: "Not available from the source",
+  },
+  bn: {
+    unavailable: "পাওয়া যাচ্ছে না",
+    source: "উৎস",
+    sourceUpdated: "উৎস হালনাগাদ",
+    updateTimeUnavailable: "হালনাগাদের সময় পাওয়া যাচ্ছে না",
+    defaultUnavailable: "উৎস থেকে পাওয়া যায়নি",
+  },
+};
 
 type KpiTone = "brand" | "blue" | "amber" | "neutral";
 
@@ -31,6 +49,7 @@ export interface KpiCardProps {
   icon: LucideIcon;
   tone?: KpiTone;
   unavailableMessage?: string;
+  language: Language;
 }
 
 export function KpiCard({
@@ -47,8 +66,10 @@ export function KpiCard({
   delta,
   icon: Icon,
   tone = "brand",
-  unavailableMessage = "Not available from the source",
+  unavailableMessage,
+  language,
 }: KpiCardProps) {
+  const copy = COPY[language];
   const isAvailable = value !== null;
 
   return (
@@ -78,7 +99,7 @@ export function KpiCard({
         </p>
       ) : (
         <p className="mt-1 text-[1.45rem] font-semibold leading-[1.3] tracking-[-0.03em] text-subtle">
-          Unavailable
+          {copy.unavailable}
         </p>
       )}
 
@@ -96,14 +117,16 @@ export function KpiCard({
       <div className="mt-2 min-h-5">
         {isAvailable && delta ? <DeltaChip delta={delta} /> : null}
         {!isAvailable ? (
-          <p className="text-[11px] leading-5 text-danger">{unavailableMessage}</p>
+          <p className="text-[11px] leading-5 text-danger">
+            {unavailableMessage ?? copy.defaultUnavailable}
+          </p>
         ) : null}
       </div>
 
       <div className="mt-auto flex items-end justify-between gap-3 border-t border-line pt-3.5">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.09em] text-subtle">
-            Source
+            {copy.source}
           </p>
           <SourceLink
             href={sourceUrl}
@@ -116,12 +139,12 @@ export function KpiCard({
           {providerUpdatedAt ? (
             <>
               <span className="block font-semibold uppercase tracking-[0.09em]">
-                Source updated
+                {copy.sourceUpdated}
               </span>
               {formatUtcDate(providerUpdatedAt)}
             </>
           ) : (
-            "Update time unavailable"
+            copy.updateTimeUnavailable
           )}
         </p>
       </div>

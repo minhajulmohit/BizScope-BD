@@ -21,6 +21,8 @@ BizScope BD is built around a simple rule: **every number must carry its source,
 
 The interface includes a responsive sidebar/mobile navigation drawer with focus management, light and dark themes (system preference on first visit), loading skeletons, empty and error states, retry actions, accessible charts with companion tables, and no horizontal page overflow on small screens.
 
+Every page, chart label, table, notice, empty/error state, metadata title, and methodology section is available in **English and Bangla**. The header language toggle stores the choice in the `bizscope-language` cookie and refreshes the server-rendered page, so navigation, metadata, and client components stay in sync. Bengali pages use `lang="bn"`, the Noto Sans Bengali font, and extra heading line-height for correct glyph rendering. Numeric values, observation years, and source timestamps keep their original data formatting.
+
 ---
 
 ## Stack
@@ -33,6 +35,7 @@ The interface includes a responsive sidebar/mobile navigation drawer with focus 
 | Icons | Lucide React |
 | Data access | Native `fetch` in server components and Route Handlers |
 | Storage | None required; no database, no API keys for this release |
+| Languages | English and Bangla, cookie-backed server rendering |
 | Lint | ESLint 9 with `eslint-config-next` |
 
 No environment variables are required.
@@ -169,13 +172,17 @@ app/
   globals.css              Design tokens and Tailwind v4 theme
 components/
   app-shell.tsx            Responsive navigation shell and focus trap
+  language-provider.tsx    Client language context and copy hooks
+  language-toggle.tsx      Cookie-backed language switch in the header
   charts/                  Recharts wrappers, tooltip, legend, empty state
   ui/                      Panels, badges, KPIs, notices, states, skeletons
   economy/ trade/ currency/ data/ overview/ sources/
 lib/
   api/                     Typed provider clients, validation, cache, status
-  indicator-catalog.ts     Indicator definitions and codes
-  sources.ts               Source registry and integration status
+  i18n.ts                  Shared UI copy and language types
+  i18n-server.ts           Server cookie reader for layouts and pages
+  indicator-catalog.ts     Bilingual indicator definitions and codes
+  sources.ts               Bilingual source registry and integration status
   utils/                   Formatting, metrics, BDT conversion, trade derivations
 ```
 
@@ -188,7 +195,8 @@ lib/
 - Mobile drawer closes on navigation, supports Escape, traps focus, restores focus, and locks body scroll.
 - Visible focus rings, reduced-motion support, and `aria-live` regions for async updates.
 - Light/dark themes with system preference on first visit and a persisted manual choice.
-- No horizontal page scrolling at tested widths (360, 390, 414, 768, 1440 px); wide tables scroll within keyboard-focusable panels.
+- English/Bangla toggle with a persisted cookie, correct `<html lang>`, localized page titles, and a font stack that covers Bengali glyphs.
+- No horizontal page scrolling at tested widths (360, 390, 414, 768, 1440 px) in either language; wide tables scroll within keyboard-focusable panels.
 - Empty, error, partial, and loading states are implemented rather than leaving blank panels.
 
 ---
@@ -211,10 +219,11 @@ Run against the live providers on **21 October 2026**:
 
 - `npm run lint` — passed with no errors or warnings.
 - `npx tsc --noEmit` — passed.
-- `npm run build` — passed (Next.js production build, all routes generated).
+- `npm run build` — passed (Next.js production build, all routes compiled; content routes are dynamic because the root layout reads the language cookie).
 - Live endpoint checks — `/api/analytics` returned all 7 indicators, `/api/currency` returned a valid dollar–taka reference feed, `/api/datasets` returned catalog pages plus validated search/filter/pagination, and `/api/status` reported all three providers operational.
 - Page checks — `/`, `/economy`, `/trade`, `/currency`, `/data`, and `/sources` all returned `200`; an unknown route correctly returned `404`.
-- Browser checks - Playwright on the production build: no application console or page errors (the Cloudflare beacon's localhost CORS rejection is external and expected), axe reported zero WCAG A/AA violations on all six pages, theme persistence and system-dark preference worked, the mobile drawer trapped focus and restored it on Escape, and the converter, economy filters, and dataset search all worked. A standard 390 px context reported a 390 px layout and document width; all six routes stayed at the viewport width with no horizontal panning at 360, 390, 414, and 768 px.
+- Browser checks - Playwright on the production build: no application console or page errors (the Cloudflare beacon's localhost CORS rejection is external and expected), axe reported zero WCAG A/AA violations on all six pages in English and Bangla, theme persistence and system-dark preference worked, the mobile drawer trapped focus and restored it on Escape, and the converter, economy filters, and dataset search all worked. A standard 390 px context reported a 390 px layout and document width; all six routes stayed at the viewport width with no horizontal panning at 360, 390, 414, and 768 px in both languages.
+- Bilingual checks - the header toggle changed server-rendered content, page title, and `<html lang>`; the cookie survived reloads and new tabs; English and Bangla copy objects had matching keys and array lengths; no English dashboard UI phrases appeared in Bangla mode; and every route was checked for localized headings, titles, empty/error copy, and accessible names.
 - BDT display checks — overview, economy, and trade showed taka values with the conversion rate and update date; the currency rate table showed taka per unit; the Sources page contained no internal endpoint or cache table.
 - One benign `net::ERR_ABORTED` appears for `/api/status` when a navigation cancels the previous page's in-flight health request; it is not a data or rendering failure.
 

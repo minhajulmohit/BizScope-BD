@@ -7,11 +7,31 @@ import {
   RefreshCw,
 } from "lucide-react";
 import type { SourceRegistryEntry } from "@/lib/api/types";
+import type { Language } from "@/lib/i18n";
 import { cn } from "@/lib/utils/cn";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { Badge } from "@/components/ui/badge";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
 import { SourceLink } from "@/components/ui/source-link";
+
+const COPY = {
+  en: {
+    connected: "Connected",
+    officialLink: "Official link",
+    where: "Where to find it",
+    updateNotes: "Update notes",
+    usage: "Usage terms:",
+    visit: "Visit source website",
+  },
+  bn: {
+    connected: "সংযুক্ত",
+    officialLink: "সরকারি লিংক",
+    where: "কোথায় পাবেন",
+    updateNotes: "হালনাগাদের নোট",
+    usage: "ব্যবহারের শর্ত:",
+    visit: "উৎসের ওয়েবসাইটে যান",
+  },
+} as const;
 
 const SOURCE_ICONS: Record<string, LucideIcon> = {
   "world-bank": Landmark,
@@ -25,10 +45,13 @@ const SOURCE_ICONS: Record<string, LucideIcon> = {
 export function SourceCard({
   source,
   compact = false,
+  language,
 }: {
   source: SourceRegistryEntry;
   compact?: boolean;
+  language: Language;
 }) {
+  const copy = COPY[language];
   const Icon = SOURCE_ICONS[source.id] ?? Database;
   const isIntegrated = source.integration === "integrated";
 
@@ -46,7 +69,7 @@ export function SourceCard({
         description={source.role}
         action={
           <Badge tone={isIntegrated ? "brand" : "outline"}>
-            {isIntegrated ? "Connected" : "Official link"}
+            {isIntegrated ? copy.connected : copy.officialLink}
           </Badge>
         }
       />
@@ -61,7 +84,7 @@ export function SourceCard({
 
         <div>
           <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
-            Where to find it
+            {copy.where}
           </h3>
           <ul className="mt-2 space-y-1.5">
             {source.endpoints.map((endpoint) => (
@@ -79,14 +102,14 @@ export function SourceCard({
 
         <div className="rounded-lg border border-line bg-surface-muted/50 px-3 py-2.5">
           <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
-            Update notes
+            {copy.updateNotes}
           </h3>
           <p className="mt-1 text-[11px] leading-5 text-muted">{source.freshnessNote}</p>
         </div>
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-[10px]">
           <span className="text-subtle">
-            Usage terms:{" "}
+            {copy.usage}{" "}
             {source.licenseUrl ? (
               <SourceLink href={source.licenseUrl} className="text-muted">
                 {source.license}
@@ -96,7 +119,7 @@ export function SourceCard({
             )}
           </span>
           <SourceLink href={source.homepageUrl} className="text-muted">
-            Visit source website
+            {copy.visit}
           </SourceLink>
         </div>
       </div>

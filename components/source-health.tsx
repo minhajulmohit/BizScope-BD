@@ -7,11 +7,13 @@ import {
   RefreshCw,
   RotateCw,
 } from "lucide-react";
+import type { ProviderStatus } from "@/lib/api/types";
 import { cn } from "@/lib/utils/cn";
 import { formatUtcDateTime } from "@/lib/utils/format";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSourceStatus } from "@/components/use-source-status";
+import { useLanguage } from "@/components/language-provider";
 
 const PROVIDER_ICONS = {
   "world-bank": Landmark,
@@ -21,31 +23,110 @@ const PROVIDER_ICONS = {
 
 const HEALTH_CONFIG = {
   operational: {
-    label: "Working",
     dot: "bg-brand",
     text: "text-brand-strong",
     badge: "bg-brand-soft",
   },
   degraded: {
-    label: "Limited",
     dot: "bg-amber",
     text: "text-amber",
     badge: "bg-amber-soft",
   },
   unavailable: {
-    label: "Unavailable",
     dot: "bg-danger",
     text: "text-danger",
     badge: "bg-danger-soft",
   },
 } as const;
 
+const COPY = {
+  en: {
+    checking: "Checking source status",
+    errorTitle: "Source status could not be loaded",
+    errorBody:
+      "The dashboard data functions may still be available. Try the status check again.",
+    retry: "Retry status",
+    checked: (date: string, responding: number, total: number) =>
+      `Checked ${date} · ${responding} of ${total} sources responding`,
+    recheck: "Recheck",
+    lastChecked: (date: string) => `Last checked: ${date}`,
+    status: {
+      operational: "Working",
+      degraded: "Limited",
+      unavailable: "Unavailable",
+    },
+  },
+  bn: {
+    checking: "উৎসের অবস্থা যাচাই হচ্ছে",
+    errorTitle: "উৎসের অবস্থা লোড করা যায়নি",
+    errorBody:
+      "ড্যাশবোর্ডের ডেটা ফাংশন এখনো পাওয়া যেতে পারে। অবস্থা-যাচাই আবার চেষ্টা করুন।",
+    retry: "অবস্থা আবার যাচাই",
+    checked: (date: string, responding: number, total: number) =>
+      `${date} যাচাই · ${total}টির মধ্যে ${responding}টি উৎস সাড়া দিচ্ছে`,
+    recheck: "আবার যাচাই",
+    lastChecked: (date: string) => `সর্বশেষ যাচাই: ${date}`,
+    status: {
+      operational: "চালু",
+      degraded: "সীমিত",
+      unavailable: "অনুপলব্ধ",
+    },
+  },
+} as const;
+
+const PROVIDER_BN: Record<
+  ProviderStatus["id"],
+  {
+    name: string;
+    cadenceLabel: string;
+    detail: (provider: ProviderStatus) => string;
+  }
+> = {
+  "world-bank": {
+    name: "World Bank WDI",
+    cadenceLabel: "বার্ষিক · সময়ে সময়ে সংশোধিত",
+    detail: (provider) => {
+      if (provider.status === "unavailable") {
+        return "বিশ্বব্যাংকের ডেটায় পৌঁছানো যায়নি।";
+      }
+      const available = provider.detailData?.available;
+      const total = provider.detailData?.total;
+      return available !== undefined && total !== undefined
+        ? `${total}টির মধ্যে ${available}টি সূচক পাওয়া যাচ্ছে`
+        : "বিশ্বব্যাংকের সূচক পাওয়া যাচ্ছে।";
+    },
+  },
+  "exchange-rates": {
+    name: "ExchangeRate-API",
+    cadenceLabel: "দৈনিক রেফারেন্স · তৃতীয় পক্ষ",
+    detail: (provider) =>
+      provider.status === "unavailable"
+        ? "দৈনিক মুদ্রা রেফারেন্সে পৌঁছানো যায়নি।"
+        : "ডলার–টাকার দৈনিক রেফারেন্স হার পাওয়া যাচ্ছে।",
+  },
+  opendatabd: {
+    name: "OpenDataBD",
+    cadenceLabel: "ক্যাটালগ · চাহিদামতো",
+    detail: (provider) => {
+      if (provider.status === "unavailable") {
+        return "সর্বজনীন ক্যাটালগে পৌঁছানো যায়নি।";
+      }
+      const datasets = provider.detailData?.datasets;
+      return datasets !== undefined
+        ? `${datasets}টি ক্যাটালগ ডেটাসেট পাওয়া যাচ্ছে।`
+        : "সর্বজনীন ডেটাসেট ক্যাটালগ পাওয়া যাচ্ছে।";
+    },
+  },
+};
+
 export function SourceHealth() {
+  const language = useLanguage();
+  const copy = COPY[language];
   const { data, loading, error, retry } = useSourceStatus();
 
   if (loading) {
     return (
-      <div className="space-y-3 p-5 sm:p-6" aria-label="Checking source status">
+      <div className="space-y-3 p-5 sm:p-6" aria-label={copy.checking}>
         {[0, 1, 2].map((index) => (
           <div
             key={index}
@@ -71,11 +152,10 @@ export function SourceHealth() {
       >
         <div>
           <p className="text-sm font-semibold text-foreground">
-            Source status could not be loaded
+            {copy.errorTitle}
           </p>
           <p className="mt-1 text-[12px] leading-5 text-muted">
-            The dashboard data functions may still be available. Try the status
-            check again.
+            {copy.errorBody}
           </p>
         </div>
         <button
@@ -84,7 +164,7 @@ export function SourceHealth() {
           className="inline-flex items-center gap-1.5 self-start rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
           <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
-          Retry status
+          {copy.retry}
         </button>
       </div>
     );
@@ -94,12 +174,13 @@ export function SourceHealth() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5 sm:px-6">
         <p className="text-[11px] text-muted" aria-live="polite">
-          Checked{" "}
-          <span className="font-medium text-foreground-soft">
-            {formatUtcDateTime(data.generatedAt)}
-          </span>{" "}
-          · {data.providers.filter((provider) => provider.status === "operational").length}{" "}
-          of {data.providers.length} sources responding
+          {copy.checked(
+            formatUtcDateTime(data.generatedAt),
+            data.providers.filter(
+              (provider) => provider.status === "operational",
+            ).length,
+            data.providers.length,
+          )}
         </p>
         <button
           type="button"
@@ -107,7 +188,7 @@ export function SourceHealth() {
           className="inline-flex items-center gap-1 rounded-md text-[11px] font-medium text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
           <RotateCw className="h-3 w-3" aria-hidden="true" />
-          Recheck
+          {copy.recheck}
         </button>
       </div>
 
@@ -117,6 +198,13 @@ export function SourceHealth() {
             PROVIDER_ICONS[provider.id as keyof typeof PROVIDER_ICONS] ??
             BookOpenText;
           const health = HEALTH_CONFIG[provider.status];
+          const providerBn = PROVIDER_BN[provider.id];
+          const providerName =
+            language === "bn" ? providerBn.name : provider.name;
+          const cadenceLabel =
+            language === "bn" ? providerBn.cadenceLabel : provider.cadenceLabel;
+          const detail =
+            language === "bn" ? providerBn.detail(provider) : provider.detail;
 
           return (
             <li
@@ -130,18 +218,20 @@ export function SourceHealth() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-[13px] font-semibold text-foreground">
-                      {provider.name}
+                      {providerName}
                     </p>
                     <CadenceBadge
                       cadence={provider.cadence}
-                      label={provider.cadenceLabel}
+                      label={cadenceLabel}
                     />
                   </div>
                   <p className="mt-1 text-[11px] leading-5 text-muted">
-                    {provider.detail}
+                    {detail}
                   </p>
                   <p className="mt-0.5 text-[10px] text-subtle">
-                    Last checked: {formatUtcDateTime(provider.lastRetrievedAt)}
+                    {copy.lastChecked(
+                      formatUtcDateTime(provider.lastRetrievedAt),
+                    )}
                   </p>
                 </div>
               </div>
@@ -156,7 +246,7 @@ export function SourceHealth() {
                   className={cn("h-1.5 w-1.5 rounded-full", health.dot)}
                   aria-hidden="true"
                 />
-                {health.label}
+                {copy.status[provider.status]}
               </span>
             </li>
           );

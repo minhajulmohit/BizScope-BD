@@ -1,5 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
+import { useLanguage } from "@/components/language-provider";
+
+const TAGLINE = {
+  en: "See Bangladesh Through Data",
+  bn: "ডেটার মাধ্যমে বাংলাদেশকে দেখুন",
+};
 
 export function BrandMark({
   compact = false,
@@ -8,6 +16,8 @@ export function BrandMark({
   compact?: boolean;
   className?: string;
 }) {
+  const language = useLanguage();
+
   return (
     <Link
       href="/"
@@ -52,7 +62,7 @@ export function BrandMark({
         </span>
         {!compact ? (
           <span className="mt-0.5 text-[10px] font-medium uppercase leading-tight tracking-[0.13em] text-subtle">
-            See Bangladesh Through Data
+            {TAGLINE[language]}
           </span>
         ) : null}
       </span>

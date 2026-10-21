@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
+import { useLanguage, useUiCopy } from "@/components/language-provider";
 import { useSourceStatus } from "@/components/use-source-status";
 
 const DOT_TONES: Record<string, string> = {
@@ -11,25 +12,49 @@ const DOT_TONES: Record<string, string> = {
   checking: "bg-subtle",
 };
 
+const COPY = {
+  en: {
+    checking: "Checking sources",
+    unavailable: "Status unavailable",
+    responding: (count: number, total: number) =>
+      `${count}/${total} sources responding`,
+    degraded: "Sources degraded",
+    offline: "Sources unavailable",
+    title: "View source health and methodology",
+  },
+  bn: {
+    checking: "উৎস যাচাই হচ্ছে",
+    unavailable: "স্ট্যাটাস পাওয়া যাচ্ছে না",
+    responding: (count: number, total: number) =>
+      `${total}টির মধ্যে ${count}টি উৎস সাড়া দিচ্ছে`,
+    degraded: "উৎসগুলো সীমিতভাবে কাজ করছে",
+    offline: "উৎসগুলো অনুপলব্ধ",
+    title: "উৎসের অবস্থা ও পদ্ধতি দেখুন",
+  },
+};
+
 export function SourceStatusPill() {
+  const language = useLanguage();
+  const ui = useUiCopy();
+  const copy = COPY[language];
   const { data, loading, error } = useSourceStatus();
 
   const health = loading ? "checking" : error || !data ? "unavailable" : data.overall;
 
   const label = loading
-    ? "Checking sources"
+    ? copy.checking
     : error || !data
-      ? "Status unavailable"
+      ? copy.unavailable
       : data.overall === "operational"
-        ? `${data.providers.length}/${data.providers.length} sources responding`
+        ? copy.responding(data.providers.length, data.providers.length)
         : data.overall === "degraded"
-          ? "Sources degraded"
-          : "Sources unavailable";
+          ? copy.degraded
+          : copy.offline;
 
   return (
     <Link
       href="/sources"
-      title="View source health and methodology"
+      title={copy.title}
       className="inline-flex h-9 items-center gap-2 rounded-lg border border-line bg-surface px-2.5 text-[11px] font-medium text-muted transition-colors hover:border-line-strong hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-live="polite"
     >
@@ -44,7 +69,7 @@ export function SourceStatusPill() {
         />
       </span>
       <span className="hidden sm:inline">{label}</span>
-      <span className="sm:hidden">Sources</span>
+      <span className="sm:hidden">{ui.source}</span>
     </Link>
   );
 }

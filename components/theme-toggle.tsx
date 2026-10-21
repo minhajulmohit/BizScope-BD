@@ -1,8 +1,11 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { useUiCopy } from "@/components/language-provider";
 
 export function ThemeToggle() {
+  const copy = useUiCopy();
+
   function toggleTheme() {
     const root = document.documentElement;
     const nextIsDark = !root.classList.contains("dark");
@@ -23,8 +26,8 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       className="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface text-muted transition-colors hover:border-line-strong hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      aria-label="Toggle light and dark theme"
-      title="Toggle light and dark theme"
+      aria-label={copy.themeToggle}
+      title={copy.themeToggle}
     >
       <Moon className="h-[17px] w-[17px] dark:hidden" aria-hidden="true" />
       <Sun className="hidden h-[17px] w-[17px] dark:block" aria-hidden="true" />

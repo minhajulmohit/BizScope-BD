@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Bengali } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
+import { LanguageProvider } from "@/components/language-provider";
+import { getLanguage } from "@/lib/i18n-server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,47 +18,82 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const SITE_DESCRIPTION =
-  "BizScope BD is a Bangladesh business intelligence dashboard for exploring World Bank economic indicators, trade flows, third-party currency reference rates, and public datasets from OpenDataBD.";
+const notoBengali = Noto_Sans_Bengali({
+  variable: "--font-bengali",
+  subsets: ["bengali"],
+  display: "swap",
+});
 
-export const metadata: Metadata = {
-  title: {
-    default: "BizScope BD \u2014 See Bangladesh Through Data",
-    template: "%s \u00b7 BizScope BD",
-  },
-  description: SITE_DESCRIPTION,
-  applicationName: "BizScope BD",
-  authors: [{ name: "BizScope BD" }],
-  creator: "BizScope BD",
-  category: "business intelligence",
-  keywords: [
-    "Bangladesh economy",
-    "Bangladesh GDP",
-    "Bangladesh inflation",
-    "Bangladesh trade",
-    "USD BDT",
-    "Bangladesh business intelligence",
-    "World Bank data",
-    "OpenDataBD",
-    "economic dashboard",
-  ],
-  openGraph: {
-    type: "website",
+const SITE_META = {
+  en: {
+    title: "BizScope BD \u2014 See Bangladesh Through Data",
+    description:
+      "BizScope BD is a Bangladesh business intelligence dashboard for exploring World Bank economic indicators, trade flows, third-party currency reference rates, and public datasets from OpenDataBD.",
     locale: "en_US",
-    siteName: "BizScope BD",
-    title: "BizScope BD \u2014 See Bangladesh Through Data",
-    description: SITE_DESCRIPTION,
+    keywords: [
+      "Bangladesh economy",
+      "Bangladesh GDP",
+      "Bangladesh inflation",
+      "Bangladesh trade",
+      "USD BDT",
+      "Bangladesh business intelligence",
+      "World Bank data",
+      "OpenDataBD",
+      "economic dashboard",
+    ],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "BizScope BD \u2014 See Bangladesh Through Data",
-    description: SITE_DESCRIPTION,
+  bn: {
+    title: "BizScope BD \u2014 ডেটার মাধ্যমে বাংলাদেশকে দেখুন",
+    description:
+      "BizScope BD একটি বাংলাদেশ ব্যবসায়িক অন্তর্দৃষ্টি ড্যাশবোর্ড—বিশ্বব্যাংকের অর্থনৈতিক সূচক, বাণিজ্য প্রবাহ, তৃতীয় পক্ষের মুদ্রা রেফারেন্স হার এবং OpenDataBD-র সর্বজনীন ডেটাসেট দেখার জন্য।",
+    locale: "bn_BD",
+    keywords: [
+      "বাংলাদেশ অর্থনীতি",
+      "বাংলাদেশ জিডিপি",
+      "বাংলাদেশ মূল্যস্ফীতি",
+      "বাংলাদেশ বাণিজ্য",
+      "ডলার টাকা",
+      "বাংলাদেশ ব্যবসায়িক অন্তর্দৃষ্টি",
+      "বিশ্বব্যাংক ডেটা",
+      "OpenDataBD",
+      "অর্থনৈতিক ড্যাশবোর্ড",
+    ],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+} as const;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const language = await getLanguage();
+  const meta = SITE_META[language];
+
+  return {
+    title: {
+      default: meta.title,
+      template: "%s \u00b7 BizScope BD",
+    },
+    description: meta.description,
+    applicationName: "BizScope BD",
+    authors: [{ name: "BizScope BD" }],
+    creator: "BizScope BD",
+    category: "business intelligence",
+    keywords: [...meta.keywords],
+    openGraph: {
+      type: "website",
+      locale: meta.locale,
+      siteName: "BizScope BD",
+      title: meta.title,
+      description: meta.description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -82,16 +119,20 @@ const THEME_SCRIPT = `
 })();
 `;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const language = await getLanguage();
+
   return (
     <html
-      lang="en"
+      lang={language}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoBengali.variable}`}
     >
       <body className="min-h-screen antialiased">
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-        <AppShell>{children}</AppShell>
+        <LanguageProvider language={language}>
+          <AppShell>{children}</AppShell>
+        </LanguageProvider>
         <Script
           id="cloudflare-web-analytics"
           src="https://static.cloudflareinsights.com/beacon.min.js"

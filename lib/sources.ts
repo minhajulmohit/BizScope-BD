@@ -1,4 +1,5 @@
 import type { SourceRegistryEntry } from "@/lib/api/types";
+import type { Language } from "@/lib/i18n";
 
 /**
  * The public source register used by the Sources & Methodology page.
@@ -192,3 +193,116 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
 export const SOURCE_BY_ID = new Map(
   SOURCE_REGISTRY.map((source) => [source.id, source]),
 );
+
+interface SourceBnCopy {
+  role: string;
+  cadenceLabel: string;
+  integrationLabel: string;
+  accessNote: string;
+  freshnessNote: string;
+  license: string;
+  endpointLabels: string[];
+}
+
+const SOURCE_BN: Record<string, SourceBnCopy> = {
+  "world-bank": {
+    role: "ম্যাক্রোঅর্থনৈতিক, জনসংখ্যা ও বাণিজ্য সূচক",
+    cadenceLabel: "বার্ষিক · সময়ে সময়ে সংশোধিত",
+    integrationLabel: "স্বয়ংক্রিয়ভাবে সংযুক্ত",
+    accessNote:
+      "বাংলাদেশের জন্য বিশ্বব্যাংকের সর্বজনীন ডেটা সেবা পড়ি। কোনো অ্যাকাউন্ট, কী বা বিশেষ অ্যাক্সেস লাগে না।",
+    freshnessNote:
+      "বিশ্বব্যাংক বছরে একবার এই সংখ্যাগুলো প্রকাশ করে এবং আগের বছর সংশোধন করতে পারে। সর্বশেষ বছর ক্যালেন্ডারের চেয়ে পিছিয়ে থাকতে পারে, তাই প্রতিটি মান তার প্রকৃত পর্যবেক্ষণ বছর দেখায়। ডেটাসেট সর্বশেষ কবে সংশোধিত হয়েছে সেই তারিখও দেখানো হয়।",
+    license: "CC BY 4.0",
+    endpointLabels: [
+      "বাংলাদেশের জন্য বিশ্বব্যাংক ডেটা",
+      "বিশ্বব্যাংক ডেটা সহায়তা",
+    ],
+  },
+  "exchange-rates": {
+    role: "দৈনিক মুদ্রা রেফারেন্স হার",
+    cadenceLabel: "দৈনিক রেফারেন্স · তৃতীয় পক্ষ",
+    integrationLabel: "স্বয়ংক্রিয়ভাবে সংযুক্ত",
+    accessNote:
+      "একটি বিনামূল্যের সর্বজনীন মুদ্রা সেবা। অ্যাকাউন্ট বা কী লাগে না, তবে এর ন্যায্য ব্যবহারের শর্ত প্রযোজ্য।",
+    freshnessNote:
+      "সেবাটি সাধারণত দিনে একবার হালনাগাদ হয় এবং হালনাগাদের সময় দেয়। এগুলো রেফারেন্স মান—লাইভ বাজার কোট বা বাংলাদেশ ব্যাংকের সরকারি ক্রয়/বিক্রয় হার নয়।",
+    license: "প্রদানকারীর শর্ত; উৎস উল্লেখ আবশ্যক",
+    endpointLabels: ["দৈনিক রেফারেন্স হার"],
+  },
+  opendatabd: {
+    role: "সর্বজনীন ডেটাসেট ক্যাটালগ ও মেটাডেটা",
+    cadenceLabel: "ক্যাটালগ · চাহিদামতো",
+    integrationLabel: "সংযুক্ত · কেবল ক্যাটালগ",
+    accessNote:
+      "সর্বজনীন ক্যাটালগে সাইন-ইন ছাড়াই ব্রাউজ করা যায়। ডেটাসেট ফাইল খুলতে অ্যাকাউন্ট লাগতে পারে এবং এই সাইট কখনো সেগুলো ডাউনলোড বা প্রক্সি করে না।",
+    freshnessNote:
+      "প্রকাশকরা ডেটাসেট যোগ করলে ক্যাটালগ বদলায়। ফরম্যাট, লাইসেন্স ও অ্যাক্সেসের শর্ত রেকর্ডভেদে ভিন্ন, আবার ব্যবহারের আগে যাচাই করা উচিত।",
+    license: "ডেটাসেটভেদে ভিন্ন",
+    endpointLabels: ["ডেটাসেট ক্যাটালগ", "ক্যাটালগ সারসংক্ষেপ"],
+  },
+  "bangladesh-bank": {
+    role: "সরকারি মুদ্রা, আর্থিক ও ম্যাক্রো ডেটা",
+    cadenceLabel: "সরকারি প্রকাশনা · ম্যানুয়াল অ্যাক্সেস",
+    integrationLabel: "সরকারি লিংক",
+    accessNote:
+      "সরকারি ওয়েব পেজ ও প্রকাশনা। কিছু বিনিময় হার পেজে ব্রাউজার যাচাই লাগে এবং এই সংস্করণে স্বয়ংক্রিয় সর্বজনীন ডেটা ফিড পাওয়া যায়নি, তাই এগুলো কেবল লিংক। কোনো স্ক্র্যাপিং করা হয় না।",
+    freshnessNote:
+      "টেবিল ও ফরম্যাটভেদে প্রকাশনার সময়সূচি ভিন্ন। সরকারি বিনিময় হার, রিজার্ভ, রেমিট্যান্স ও সুদের হার সরাসরি বাংলাদেশ ব্যাংক থেকে পড়া উচিত।",
+    license: "বাংলাদেশ ব্যাংকের সরকারি প্রকাশনা",
+    endpointLabels: [
+      "জাতীয় সারসংক্ষেপ ডেটা পেজ",
+      "বাংলাদেশ ব্যাংক ওপেন ডেটা",
+      "সরকারি বিনিময় হার পেজ",
+    ],
+  },
+  bbs: {
+    role: "জাতীয় পরিসংখ্যান, সিপিআই, জিডিপি, শ্রম ও বাণিজ্য",
+    cadenceLabel: "সরকারি প্রকাশনা · ম্যানুয়াল অ্যাক্সেস",
+    integrationLabel: "সরকারি লিংক",
+    accessNote:
+      "BBS ওয়েব পেজ, পিডিএফ ও স্প্রেডশিট হিসেবে প্রতিবেদন ও টেবিল প্রকাশ করে। এই সূচকগুলোর জন্য স্বয়ংক্রিয় সর্বজনীন ডেটা ফিড পাওয়া যায়নি, তাই ড্যাশবোর্ড সরকারি প্রকাশনার লিংক দেয়।",
+    freshnessNote:
+      "প্রকাশের তারিখ BBS-এর প্রকাশনা সময়সূচি অনুসরণ করে। সিপিআই, ত্রৈমাসিক জিডিপি, মজুরি ও বাণিজ্য প্রকাশনা সংশোধিত হতে পারে; প্রযোজ্য রেফারেন্স সময়ের জন্য প্রকাশনাটি দেখুন।",
+    license: "বাংলাদেশ সরকারের প্রকাশনার শর্ত",
+    endpointLabels: [
+      "মূল্য ও মজুরি পরিসংখ্যান",
+      "জিডিপি প্রকাশনা",
+      "বৈদেশিক বাণিজ্য পরিসংখ্যান",
+    ],
+  },
+  "data-gov-bd": {
+    role: "সরকারি ডেটাসেট ডিরেক্টরি",
+    cadenceLabel: "ডিরেক্টরি · উৎস খোঁজা",
+    integrationLabel: "ডিরেক্টরি লিংক",
+    accessNote:
+      "সরকারি সর্বজনীন ডেটাসেট খুঁজতে ডিরেক্টরি হিসেবে ব্যবহৃত। এই সংস্করণে স্বয়ংক্রিয় সর্বজনীন ক্যাটালগ ফিড পাওয়া যায়নি, তাই ড্যাশবোর্ড পোর্টালের লিংক দেয়।",
+    freshnessNote:
+      "ডেটাসেটের প্রাপ্যতা, ফরম্যাট, হালনাগাদের ধরন ও লাইসেন্স বিভাগ ও রেকর্ডভেদে ভিন্ন।",
+    license: "ডেটাসেটভেদে ভিন্ন",
+    endpointLabels: ["সরকারি ওপেন ডেটা পোর্টাল"],
+  },
+};
+
+export function localizeSource(
+  source: SourceRegistryEntry,
+  language: Language,
+): SourceRegistryEntry {
+  if (language === "en") return source;
+  const copy = SOURCE_BN[source.id];
+  if (!copy) return source;
+
+  return {
+    ...source,
+    role: copy.role,
+    cadenceLabel: copy.cadenceLabel,
+    integrationLabel: copy.integrationLabel,
+    accessNote: copy.accessNote,
+    freshnessNote: copy.freshnessNote,
+    license: copy.license,
+    endpoints: source.endpoints.map((endpoint, index) => ({
+      ...endpoint,
+      label: copy.endpointLabels[index] ?? endpoint.label,
+    })),
+  };
+}

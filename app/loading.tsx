@@ -1,9 +1,24 @@
 import { CardSkeleton, Skeleton } from "@/components/ui/skeleton";
+import { getLanguage } from "@/lib/i18n-server";
 
-export default function Loading() {
+const COPY = {
+  en: {
+    label: "Loading dashboard data",
+    sr: "Loading dashboard data…",
+  },
+  bn: {
+    label: "ড্যাশবোর্ডের ডেটা লোড হচ্ছে",
+    sr: "ড্যাশবোর্ডের ডেটা লোড হচ্ছে…",
+  },
+} as const;
+
+export default async function Loading() {
+  const language = await getLanguage();
+  const copy = COPY[language];
+
   return (
-    <div className="space-y-8" aria-busy="true" aria-label="Loading dashboard data">
-      <span className="sr-only">Loading dashboard data…</span>
+    <div className="space-y-8" aria-busy="true" aria-label={copy.label}>
+      <span className="sr-only">{copy.sr}</span>
       <div className="border-b border-line pb-7">
         <Skeleton className="h-3 w-36" />
         <Skeleton className="mt-4 h-10 w-[min(100%,420px)]" />

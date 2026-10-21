@@ -47,8 +47,145 @@ import { DataNotice } from "@/components/ui/data-notice";
 import { EmptyState } from "@/components/ui/states";
 import { ChartLegend } from "@/components/charts/chart-legend";
 import { ChartTooltip, chartTooltipWrapperStyle } from "@/components/charts/chart-tooltip";
+import { useLanguage } from "@/components/language-provider";
+import type { Language } from "@/lib/i18n";
 
 type ChartType = "line" | "bar";
+
+const COPY = {
+  en: {
+    annualPeriod: (year: number) => `Annual · ${year}`,
+    noObservation: "No observation",
+    noIndicatorsTitle: "No economic indicators available",
+    noIndicatorsDescription:
+      "We couldn't load any usable annual series for Bangladesh. No placeholder values are shown. Try refreshing the page.",
+    selectTitle: "Select an indicator",
+    selectDescription:
+      "Seven annual World Bank series. Choose a metric to explore its history, units, and observations.",
+    selectAria: "Economic indicators",
+    historyTitle: (name: string) => `${name} history`,
+    historyDescription: (name: string, unit: string) =>
+      `${name} · Unit: ${unit}`,
+    chartType: "Chart type",
+    line: "Line",
+    bar: "Bar",
+    from: "From",
+    to: "to",
+    toYear: "To year",
+    calendarYears: (count: number) => `${count} calendar years`,
+    definitionLabel: "Definition:",
+    bdtNote:
+      "The World Bank publishes this series in US dollars; the values shown here are converted to BDT at the current reference rate.",
+    emptyRangeTitle: "No reported observation in this range",
+    emptyRangeDescription:
+      "Choose a different year range. Missing annual observations are not interpolated or replaced with estimates.",
+    chartAria: (type: string, name: string, from: number, to: number) =>
+      `${type} chart of ${name} for Bangladesh from ${from} to ${to}.`,
+    lineChart: "Line",
+    barChart: "Bar",
+    annualObservation: (label: string | number | undefined) =>
+      `Annual observation · ${String(label ?? "")}`,
+    yAxis: (unit: string, count: number) =>
+      `Y-axis: ${unit}. ${count} reported ${count === 1 ? "year" : "years"} selected.`,
+    indicatorPage: "World Bank indicator page",
+    aboutTitle: "About this indicator",
+    aboutDescription: "Definition, units, and source dates.",
+    unit: "Unit",
+    frequency: "Frequency",
+    annual: "Annual",
+    latestYear: "Latest year",
+    sourceUpdated: "Source updated",
+    retrieved: "Retrieved",
+    licence: "Licence",
+    cadence: "Annual · periodic",
+    sourcePage: "World Bank source page",
+    gapsTitle: "Reported observation gaps",
+    gapsBody: (gaps: string) =>
+      `Missing years in the returned series: ${gaps}. They are left empty in charts and are not estimated.`,
+    note:
+      "Annual values can be revised by the World Bank. The observation year is not the date we checked the source.",
+    tableTitle: "Annual data table",
+    tableDescription: (name: string) =>
+      `Reported observations for ${name}. Changes are shown only against the immediately preceding year.`,
+    tableAria: "Annual economic data table",
+    tableCaption: (name: string) =>
+      `${name} annual observations for Bangladesh`,
+    year: "Year",
+    value: "Value",
+    change: "Change vs prior year",
+    source: "Source",
+    latest: "Latest",
+    sourceName: "World Bank",
+    tableNote:
+      "Table lists reported observations only; years absent from the source are not synthesized. Negative changes are negative values, not an indicator judgment.",
+  },
+  bn: {
+    annualPeriod: (year: number) => `বার্ষিক · ${year}`,
+    noObservation: "কোনো পর্যবেক্ষণ নেই",
+    noIndicatorsTitle: "কোনো অর্থনৈতিক সূচক পাওয়া যাচ্ছে না",
+    noIndicatorsDescription:
+      "বাংলাদেশের জন্য ব্যবহারযোগ্য কোনো বার্ষিক সিরিজ লোড করা যায়নি। কোনো প্লেসহোল্ডার মান দেখানো হচ্ছে না। পেজটি রিফ্রেশ করে দেখুন।",
+    selectTitle: "একটি সূচক বাছুন",
+    selectDescription:
+      "সাতটি বার্ষিক বিশ্বব্যাংক সিরিজ। ইতিহাস, একক ও পর্যবেক্ষণ দেখতে একটি সূচক বাছুন।",
+    selectAria: "অর্থনৈতিক সূচক",
+    historyTitle: (name: string) => `${name} · সময়ের ধারা`,
+    historyDescription: (name: string, unit: string) =>
+      `${name} · একক: ${unit}`,
+    chartType: "চার্টের ধরন",
+    line: "রেখা",
+    bar: "বার",
+    from: "শুরু",
+    to: "শেষ",
+    toYear: "শেষ বছর",
+    calendarYears: (count: number) => `${count}টি ক্যালেন্ডার বছর`,
+    definitionLabel: "সংজ্ঞা:",
+    bdtNote:
+      "বিশ্বব্যাংক এই সিরিজটি মার্কিন ডলারে প্রকাশ করে; এখানে দেখানো মান চলতি রেফারেন্স হারে টাকায় রূপান্তর করা।",
+    emptyRangeTitle: "এই পরিসরে কোনো রিপোর্ট করা পর্যবেক্ষণ নেই",
+    emptyRangeDescription:
+      "অন্য বছর পরিসর বাছুন। অনুপস্থিত বার্ষিক পর্যবেক্ষণ অনুমান করে পূরণ বা প্রতিস্থাপন করা হয় না।",
+    chartAria: (type: string, name: string, from: number, to: number) =>
+      `${from} থেকে ${to} পর্যন্ত বাংলাদেশের ${name}-এর ${type} চার্ট।`,
+    lineChart: "রেখা",
+    barChart: "বার",
+    annualObservation: (label: string | number | undefined) =>
+      `বার্ষিক পর্যবেক্ষণ · ${String(label ?? "")}`,
+    yAxis: (unit: string, count: number) =>
+      `Y-অক্ষ: ${unit}। ${count}টি রিপোর্ট করা বছর নির্বাচিত।`,
+    indicatorPage: "বিশ্বব্যাংক সূচক পেজ",
+    aboutTitle: "এই সূচক সম্পর্কে",
+    aboutDescription: "সংজ্ঞা, একক ও উৎসের তারিখ।",
+    unit: "একক",
+    frequency: "হালনাগাদের ধরন",
+    annual: "বার্ষিক",
+    latestYear: "সর্বশেষ বছর",
+    sourceUpdated: "উৎস হালনাগাদ",
+    retrieved: "সংগ্রহ",
+    licence: "লাইসেন্স",
+    cadence: "বার্ষিক · সাময়িক",
+    sourcePage: "বিশ্বব্যাংক উৎস পেজ",
+    gapsTitle: "রিপোর্ট করা পর্যবেক্ষণের ফাঁক",
+    gapsBody: (gaps: string) =>
+      `প্রাপ্ত সিরিজে অনুপস্থিত বছর: ${gaps}। চার্টে এগুলো খালি রাখা হয় এবং অনুমান করা হয় না।`,
+    note:
+      "বার্ষিক মান বিশ্বব্যাংক সংশোধন করতে পারে। পর্যবেক্ষণের বছর মানে আমরা উৎস কবে যাচাই করেছি সেই তারিখ নয়।",
+    tableTitle: "বার্ষিক ডেটা টেবিল",
+    tableDescription: (name: string) =>
+      `${name}-এর রিপোর্ট করা পর্যবেক্ষণ। পরিবর্তন কেবল ঠিক আগের বছরের বিপরীতে দেখানো হয়।`,
+    tableAria: "বার্ষিক অর্থনৈতিক ডেটা টেবিল",
+    tableCaption: (name: string) =>
+      `বাংলাদেশের জন্য ${name}-এর বার্ষিক পর্যবেক্ষণ`,
+    year: "বছর",
+    value: "মান",
+    change: "আগের বছরের তুলনায় পরিবর্তন",
+    source: "উৎস",
+    latest: "সর্বশেষ",
+    sourceName: "World Bank",
+    tableNote:
+      "টেবিল কেবল রিপোর্ট করা পর্যবেক্ষণ দেখায়; উৎসে অনুপস্থিত বছর তৈরি করা হয় না। নেতিবাচক পরিবর্তন মানে নেতিবাচক মান, সূচক সম্পর্কে কোনো রায় নয়।",
+  },
+};
 
 function axisFormatter(unit: MetricUnit): (value: number) => string {
   if (unit === "percent") return formatAxisPercent;
@@ -57,8 +194,11 @@ function axisFormatter(unit: MetricUnit): (value: number) => string {
   return formatAxisNumber;
 }
 
-function tooltipFormatter(unit: MetricUnit): (value: number) => string {
-  return (value) => formatIndicatorExact(unit, value);
+function tooltipFormatter(
+  unit: MetricUnit,
+  language: Language,
+): (value: number) => string {
+  return (value) => formatIndicatorExact(unit, value, language);
 }
 
 function MetricButton({
@@ -70,6 +210,8 @@ function MetricButton({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const language = useLanguage();
+  const copy = COPY[language];
   const latest = indicator.latest;
 
   return (
@@ -102,13 +244,15 @@ function MetricButton({
           selected ? "text-brand-strong" : "text-subtle",
         )}
       >
-        {latest ? `Annual · ${latest.year}` : "No observation"}
+        {latest ? copy.annualPeriod(latest.year) : copy.noObservation}
       </span>
     </button>
   );
 }
 
 export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
+  const language = useLanguage();
+  const copy = COPY[language];
   const available = useMemo(
     () =>
       INDICATOR_ORDER.map((key) => analytics.indicators[key]).filter(
@@ -182,27 +326,28 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
     return (
       <Panel>
         <EmptyState
-          title="No economic indicators available"
-          description="We couldn't load any usable annual series for Bangladesh. No placeholder values are shown. Try refreshing the page."
+          title={copy.noIndicatorsTitle}
+          description={copy.noIndicatorsDescription}
         />
       </Panel>
     );
   }
 
   const definition = INDICATOR_DEFINITIONS[selected.key];
+  const definitionCopy = language === "bn" ? definition.bn : definition;
   const axis = axisFormatter(selected.unit);
 
   return (
     <div className="space-y-4">
       <Panel>
         <PanelHeader
-          title="Select an indicator"
-          description="Seven annual World Bank series. Choose a metric to explore its history, units, and observations."
+          title={copy.selectTitle}
+          description={copy.selectDescription}
         />
         <div
           className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7"
           role="group"
-          aria-label="Economic indicators"
+          aria-label={copy.selectAria}
         >
           {available.map((indicator) => (
             <MetricButton
@@ -218,13 +363,13 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel className="min-w-0 xl:col-span-2">
           <PanelHeader
-            title={`${definition.shortName} history`}
-            description={`${selected.name} · Unit: ${selected.unitLabel}`}
+            title={copy.historyTitle(definitionCopy.shortName)}
+            description={copy.historyDescription(selected.name, selected.unitLabel)}
             action={
               <div
                 className="inline-flex rounded-lg border border-line bg-surface-muted p-0.5"
                 role="group"
-                aria-label="Chart type"
+                aria-label={copy.chartType}
               >
                 <button
                   type="button"
@@ -238,7 +383,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   )}
                 >
                   <ChartLine className="h-3.5 w-3.5" aria-hidden="true" />
-                  Line
+                  {copy.line}
                 </button>
                 <button
                   type="button"
@@ -252,7 +397,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   )}
                 >
                   <ChartColumn className="h-3.5 w-3.5" aria-hidden="true" />
-                  Bar
+                  {copy.bar}
                 </button>
               </div>
             }
@@ -262,7 +407,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1.5">
                 <label htmlFor="from-year" className="text-[10px] font-medium text-subtle">
-                  From
+                  {copy.from}
                 </label>
                 <select
                   id="from-year"
@@ -280,10 +425,10 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   ))}
                 </select>
               </div>
-              <span className="text-[10px] text-subtle">to</span>
+              <span className="text-[10px] text-subtle">{copy.to}</span>
               <div className="flex items-center gap-1.5">
                 <label htmlFor="to-year" className="sr-only">
-                  To year
+                  {copy.toYear}
                 </label>
                 <select
                   id="to-year"
@@ -302,13 +447,13 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                 </select>
               </div>
               <span className="text-[10px] text-subtle">
-                {toYear - fromYear + 1} calendar years
+                {copy.calendarYears(toYear - fromYear + 1)}
               </span>
             </div>
             <ChartLegend
               items={[
                 {
-                  label: definition.shortName,
+                  label: definitionCopy.shortName,
                   color: definition.chartColor,
                   shape: chartType === "line" ? "line" : "bar",
                 },
@@ -319,26 +464,31 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
           <div className="px-5 pt-4 sm:px-6">
             <div className="rounded-lg border border-line bg-surface-muted/40 px-3 py-2">
               <p className="text-[10px] leading-4 text-muted">
-                <span className="font-semibold text-foreground-soft">Definition:</span>{" "}
-                {definition.definition}
-                {selected.unit === "bdt"
-                  ? " The World Bank publishes this series in US dollars; the values shown here are converted to BDT at the current reference rate."
-                  : ""}
+                <span className="font-semibold text-foreground-soft">
+                  {copy.definitionLabel}
+                </span>{" "}
+                {definitionCopy.definition}
+                {selected.unit === "bdt" ? ` ${copy.bdtNote}` : ""}
               </p>
             </div>
           </div>
 
           {!hasAnyValue ? (
             <EmptyState
-              title="No reported observation in this range"
-              description="Choose a different year range. Missing annual observations are not interpolated or replaced with estimates."
+              title={copy.emptyRangeTitle}
+              description={copy.emptyRangeDescription}
               className="py-12"
             />
           ) : (
             <div
               className="h-[310px] w-full px-2 pb-2 pt-4 sm:h-[340px] sm:px-3"
               role="group"
-              aria-label={`${chartType} chart of ${selected.name} for Bangladesh from ${fromYear} to ${toYear}.`}
+              aria-label={copy.chartAria(
+                chartType === "line" ? copy.lineChart : copy.barChart,
+                selected.name,
+                fromYear,
+                toYear,
+              )}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
@@ -369,8 +519,8 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                     cursor={{ fill: "var(--chart-cursor)" }}
                     content={
                       <ChartTooltip
-                        formatLabel={(label) => `Annual observation · ${String(label ?? "")}`}
-                        formatValue={tooltipFormatter(selected.unit)}
+                        formatLabel={copy.annualObservation}
+                        formatValue={tooltipFormatter(selected.unit, language)}
                       />
                     }
                   />
@@ -378,7 +528,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                     <Line
                       type="linear"
                       dataKey="value"
-                      name={definition.shortName}
+                      name={definitionCopy.shortName}
                       stroke={definition.chartColor}
                       strokeWidth={2.5}
                       dot={{
@@ -393,7 +543,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                   ) : (
                     <Bar
                       dataKey="value"
-                      name={definition.shortName}
+                      name={definitionCopy.shortName}
                       fill={definition.chartColor}
                       radius={[3, 3, 0, 0]}
                       barSize={20}
@@ -407,57 +557,56 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
             <p>
-              Y-axis: {selected.unitLabel}. {tableRows.length} reported{" "}
-              {tableRows.length === 1 ? "year" : "years"} selected.
+              {copy.yAxis(selected.unitLabel, tableRows.length)}
             </p>
             <SourceLink
               href={selected.source.sourceUrl}
               className="text-muted"
             >
-              World Bank indicator page
+              {copy.indicatorPage}
             </SourceLink>
           </div>
         </Panel>
 
         <Panel className="flex h-full min-w-0 flex-col">
           <PanelHeader
-            title="About this indicator"
-            description="Definition, units, and source dates."
+            title={copy.aboutTitle}
+            description={copy.aboutDescription}
           />
           <div className="space-y-4 p-5 sm:p-6">
             <p className="text-[12px] leading-6 text-muted">{selected.definition}</p>
 
             <dl className="divide-y divide-line overflow-hidden rounded-lg border border-line text-[11px]">
               <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Unit</dt>
+                <dt className="text-subtle">{copy.unit}</dt>
                 <dd className="text-right font-medium text-foreground">
                   {selected.unitLabel}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Frequency</dt>
-                <dd className="font-medium text-foreground">Annual</dd>
+                <dt className="text-subtle">{copy.frequency}</dt>
+                <dd className="font-medium text-foreground">{copy.annual}</dd>
               </div>
               <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Latest year</dt>
+                <dt className="text-subtle">{copy.latestYear}</dt>
                 <dd className="font-medium tabular text-foreground">
                   {selected.latest?.year ?? "\u2014"}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Source updated</dt>
+                <dt className="text-subtle">{copy.sourceUpdated}</dt>
                 <dd className="text-right font-medium text-foreground">
                   {formatUtcDate(selected.source.datasetUpdated)}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Retrieved</dt>
+                <dt className="text-subtle">{copy.retrieved}</dt>
                 <dd className="text-right font-medium text-foreground">
                   {formatUtcDateTime(selected.source.retrievedAt)}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Licence</dt>
+                <dt className="text-subtle">{copy.licence}</dt>
                 <dd className="font-medium text-foreground">
                   {selected.source.license}
                 </dd>
@@ -465,24 +614,22 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
             </dl>
 
             <div className="flex flex-wrap items-center gap-2">
-              <CadenceBadge cadence="periodic" label="Annual · periodic" />
+              <CadenceBadge cadence="periodic" label={copy.cadence} />
               <SourceLink href={selected.source.sourceUrl} className="text-[10px]">
-                World Bank source page
+                {copy.sourcePage}
               </SourceLink>
             </div>
 
             {gaps ? (
-              <DataNotice title="Reported observation gaps" tone="warning">
-                Missing years in the returned series: {gaps}. They are left empty
-                in charts and are not estimated.
+              <DataNotice title={copy.gapsTitle} tone="warning">
+                {copy.gapsBody(gaps)}
               </DataNotice>
             ) : null}
 
             <div className="mt-auto flex items-start gap-2 rounded-lg bg-surface-muted px-3 py-2.5">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-subtle" aria-hidden="true" />
               <p className="text-[10px] leading-4 text-muted">
-                Annual values can be revised by the World Bank. The observation
-                year is not the date we checked the source.
+                {copy.note}
               </p>
             </div>
           </div>
@@ -491,38 +638,38 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
 
       <Panel>
         <PanelHeader
-          title="Annual data table"
-          description={`Reported observations for ${definition.shortName}. Changes are shown only against the immediately preceding year.`}
+          title={copy.tableTitle}
+          description={copy.tableDescription(definitionCopy.shortName)}
           action={
             <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
               <Clock3 className="h-3 w-3" aria-hidden="true" />
-              Annual
+              {copy.annual}
             </span>
           }
         />
         <div
           className="table-scroll overflow-x-auto scrollbar-subtle"
           role="region"
-          aria-label="Annual economic data table"
+          aria-label={copy.tableAria}
           tabIndex={0}
         >
           <table className="w-full min-w-[620px] text-left text-[12px]">
             <caption className="sr-only">
-              {selected.name} annual observations for Bangladesh
+              {copy.tableCaption(selected.name)}
             </caption>
             <thead>
               <tr className="border-b border-line bg-surface-muted/60 text-[10px] uppercase tracking-[0.08em] text-subtle">
                 <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
-                  Year
+                  {copy.year}
                 </th>
                 <th scope="col" className="px-4 py-2.5 text-right font-semibold">
-                  Value
+                  {copy.value}
                 </th>
                 <th scope="col" className="px-4 py-2.5 text-right font-semibold">
-                  Change vs prior year
+                  {copy.change}
                 </th>
                 <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
-                  Source
+                  {copy.source}
                 </th>
               </tr>
             </thead>
@@ -536,6 +683,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                         selected.unit,
                         observation.value,
                         previous,
+                        language,
                       )
                     : "\u2014";
 
@@ -549,7 +697,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                         {observation.year}
                         {selected.latest?.year === observation.year ? (
                           <span className="rounded bg-brand-soft px-1 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-brand-strong">
-                            Latest
+                            {copy.latest}
                           </span>
                         ) : null}
                       </span>
@@ -558,7 +706,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                       className="whitespace-nowrap px-4 py-2.5 text-right font-medium tabular text-foreground"
                       title={
                         observation.value !== null
-                          ? formatIndicatorExact(selected.unit, observation.value)
+                          ? formatIndicatorExact(selected.unit, observation.value, language)
                           : undefined
                       }
                     >
@@ -566,7 +714,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                         <>
                           {formatIndicatorValue(selected, observation.value)}
                           <span className="sr-only">
-                            {formatIndicatorExact(selected.unit, observation.value)}
+                            {formatIndicatorExact(selected.unit, observation.value, language)}
                           </span>
                         </>
                       ) : (
@@ -581,7 +729,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                         href={selected.source.sourceUrl}
                         className="text-[11px]"
                       >
-                        World Bank
+                        {copy.sourceName}
                       </SourceLink>
                     </td>
                   </tr>
@@ -591,9 +739,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
           </table>
         </div>
         <div className="border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
-          Table lists reported observations only; years absent from the source are
-          not synthesized. Negative changes are negative values, not an indicator
-          judgment.
+          {copy.tableNote}
         </div>
       </Panel>
     </div>

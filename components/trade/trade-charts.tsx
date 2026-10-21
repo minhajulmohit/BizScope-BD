@@ -25,9 +25,88 @@ import { SourceLink } from "@/components/ui/source-link";
 import { ChartLegend } from "@/components/charts/chart-legend";
 import { ChartTooltip, chartTooltipWrapperStyle } from "@/components/charts/chart-tooltip";
 import { ChartEmpty } from "@/components/charts/chart-empty";
+import { useLanguage } from "@/components/language-provider";
 
 const MARGIN = { top: 10, right: 10, left: -2, bottom: 0 };
 const AXIS_TICK = { fill: "var(--chart-axis)", fontSize: 10 } as const;
+
+const COPY = {
+  en: {
+    sourceUpdated: (date: string) => ` · source updated ${date}`,
+    conversionBdt: (rate: string, date: string) =>
+      `Taka equivalents at 1 USD = ৳${rate}${date ? ` (${date})` : ""}.`,
+    conversionUsd:
+      "Shown in the source currency because the taka reference rate is unavailable.",
+    flowsTitle: "Exports vs imports over time",
+    flowsDescription: (note: string) => `Goods and services. ${note}`,
+    annualPeriods: (count: number) => `${count} annual periods`,
+    noTrade: "No World Bank trade observations are available.",
+    exports: "Exports of goods & services",
+    imports: "Imports of goods & services",
+    flowsAria: (unit: string) =>
+      `Grouped bar chart of annual Bangladesh exports and imports of goods and services in ${unit}.`,
+    tradeFlows: (label: string | number | undefined) =>
+      `Annual trade flows · ${String(label ?? "")}`,
+    flowsNote: "Goods and services only — not merchandise-only customs trade.",
+    balanceTitle: "Trade balance",
+    balanceDescription: (note: string) =>
+      `Exports minus imports, same definition and period. ${note}`,
+    comparableYears: (count: number) => `${count} comparable years`,
+    balanceEmptyTitle: "Balance cannot be calculated",
+    balanceEmptyDescription:
+      "A trade balance requires both the exports and imports series for the same annual period. This dashboard does not substitute another trade definition.",
+    surplus: "Surplus",
+    deficit: "Deficit",
+    balanceAria: (unit: string) =>
+      `Diverging bar chart of Bangladesh's annual goods and services trade balance in ${unit}.`,
+    balanceTooltip: (label: string | number | undefined) =>
+      `Calculated trade balance · ${String(label ?? "")}`,
+    deficitLabel: "deficit",
+    surplusLabel: "surplus",
+    balanceName: "Exports minus imports",
+    balanceNote: "Calculated, not a source-published balance.",
+    bdtUnit: "BDT equivalents",
+    usdUnit: "US dollars",
+  },
+  bn: {
+    sourceUpdated: (date: string) => ` · উৎস হালনাগাদ ${date}`,
+    conversionBdt: (rate: string, date: string) =>
+      `১ মার্কিন ডলার = ৳${rate} হারে টাকার সমতুল্য${date ? ` (${date})` : ""}।`,
+    conversionUsd:
+      "টাকার রেফারেন্স হার পাওয়া যায়নি, তাই উৎসের মুদ্রায় দেখানো হচ্ছে।",
+    flowsTitle: "সময়ের সঙ্গে রপ্তানি বনাম আমদানি",
+    flowsDescription: (note: string) => `পণ্য ও সেবা। ${note}`,
+    annualPeriods: (count: number) => `${count}টি বার্ষিক সময়কাল`,
+    noTrade: "বিশ্বব্যাংকের কোনো বাণিজ্য পর্যবেক্ষণ পাওয়া যাচ্ছে না।",
+    exports: "পণ্য ও সেবা রপ্তানি",
+    imports: "পণ্য ও সেবা আমদানি",
+    flowsAria: (unit: string) =>
+      `বার্ষিক বাংলাদেশের পণ্য ও সেবা রপ্তানি ও আমদানির গ্রুপড বার চার্ট, ${unit}-এ।`,
+    tradeFlows: (label: string | number | undefined) =>
+      `বার্ষিক বাণিজ্য প্রবাহ · ${String(label ?? "")}`,
+    flowsNote:
+      "শুধু পণ্য ও সেবা—শুধু পণ্যের কাস্টমস বাণিজ্য নয়।",
+    balanceTitle: "বাণিজ্য ভারসাম্য",
+    balanceDescription: (note: string) =>
+      `রপ্তানি থেকে আমদানি বাদ, একই সংজ্ঞা ও সময়কালে। ${note}`,
+    comparableYears: (count: number) => `${count}টি তুলনাযোগ্য বছর`,
+    balanceEmptyTitle: "ভারসাম্য হিসাব করা যাচ্ছে না",
+    balanceEmptyDescription:
+      "বাণিজ্য ভারসাম্যের জন্য একই বার্ষিক সময়কালের রপ্তানি ও আমদানি—দুটো সিরিজই দরকার। এই ড্যাশবোর্ড অন্য কোনো বাণিজ্য সংজ্ঞা বসায় না।",
+    surplus: "উদ্বৃত্ত",
+    deficit: "ঘাটতি",
+    balanceAria: (unit: string) =>
+      `বাংলাদেশের বার্ষিক পণ্য ও সেবা বাণিজ্য ভারসাম্যের ডাইভার্জিং বার চার্ট, ${unit}-এ।`,
+    balanceTooltip: (label: string | number | undefined) =>
+      `হিসাব করা বাণিজ্য ভারসাম্য · ${String(label ?? "")}`,
+    deficitLabel: "ঘাটতি",
+    surplusLabel: "উদ্বৃত্ত",
+    balanceName: "রপ্তানি থেকে আমদানি বাদ",
+    balanceNote: "হিসাব করা, উৎসে প্রকাশিত ভারসাম্য নয়।",
+    bdtUnit: "টাকার সমতুল্য",
+    usdUnit: "মার্কিন ডলার",
+  },
+};
 
 function ChartSourceFooter({
   providerUpdated,
@@ -36,6 +115,8 @@ function ChartSourceFooter({
   providerUpdated: string | null;
   note: string;
 }) {
+  const copy = COPY[useLanguage()];
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
       <p>{note}</p>
@@ -46,9 +127,7 @@ function ChartSourceFooter({
         >
           World Bank WDI
         </SourceLink>
-        {providerUpdated
-          ? ` · source updated ${formatUtcDate(providerUpdated)}`
-          : null}
+        {providerUpdated ? copy.sourceUpdated(formatUtcDate(providerUpdated)) : null}
       </p>
     </div>
   );
@@ -65,6 +144,8 @@ export function TradeCharts({
   bdtPerUsd: number | null;
   bdtUpdatedAt: string | null;
 }) {
+  const language = useLanguage();
+  const copy = COPY[language];
   const inBdt = bdtPerUsd !== null && bdtPerUsd > 0;
   const hasFlows = series.some(
     (row) => row.exports !== null || row.imports !== null,
@@ -75,39 +156,41 @@ export function TradeCharts({
   const formatExact = inBdt ? formatBdtExact : formatUsdExact;
   const conversionNote =
     inBdt && bdtPerUsd !== null
-      ? `Taka equivalents at 1 USD = ৳${formatRate(bdtPerUsd)}${
-          bdtUpdatedAt ? ` (${formatUtcDate(bdtUpdatedAt)})` : ""
-        }.`
-      : "Shown in the source currency because the taka reference rate is unavailable.";
+      ? copy.conversionBdt(
+          formatRate(bdtPerUsd),
+          bdtUpdatedAt ? formatUtcDate(bdtUpdatedAt) : "",
+        )
+      : copy.conversionUsd;
+  const unitLabel = inBdt ? copy.bdtUnit : copy.usdUnit;
 
   return (
     <div className="grid gap-4 xl:grid-cols-3">
       <Panel className="flex min-w-0 flex-col xl:col-span-2">
         <PanelHeader
-          title="Exports vs imports over time"
-          description={`Goods and services. ${conversionNote}`}
+          title={copy.flowsTitle}
+          description={copy.flowsDescription(conversionNote)}
           action={
             <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
-              {series.length} annual periods
+              {copy.annualPeriods(series.length)}
             </span>
           }
         />
         {!hasFlows ? (
-          <ChartEmpty description="No World Bank trade observations are available." />
+          <ChartEmpty description={copy.noTrade} />
         ) : (
           <>
             <div className="px-5 pt-4 sm:px-6">
               <ChartLegend
                 items={[
-                  { label: "Exports of goods & services", color: "var(--chart-emerald)", shape: "bar" },
-                  { label: "Imports of goods & services", color: "var(--chart-blue)", shape: "bar" },
+                  { label: copy.exports, color: "var(--chart-emerald)", shape: "bar" },
+                  { label: copy.imports, color: "var(--chart-blue)", shape: "bar" },
                 ]}
               />
             </div>
             <div
               className="h-[320px] w-full px-2 pb-2 pt-4 sm:h-[350px] sm:px-3"
               role="group"
-              aria-label={`Grouped bar chart of annual Bangladesh exports and imports of goods and services${inBdt ? " in BDT equivalents" : " in US dollars"}.`}
+              aria-label={copy.flowsAria(unitLabel)}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={series} margin={MARGIN} barGap={2}>
@@ -131,14 +214,14 @@ export function TradeCharts({
                     cursor={{ fill: "var(--chart-cursor)" }}
                     content={
                       <ChartTooltip
-                        formatLabel={(label) => `Annual trade flows · ${String(label ?? "")}`}
+                        formatLabel={copy.tradeFlows}
                         formatValue={(value) => formatExact(value)}
                       />
                     }
                   />
                   <Bar
                     dataKey="exports"
-                    name="Exports of goods & services"
+                    name={copy.exports}
                     fill="var(--chart-emerald)"
                     radius={[3, 3, 0, 0]}
                     barSize={13}
@@ -146,7 +229,7 @@ export function TradeCharts({
                   />
                   <Bar
                     dataKey="imports"
-                    name="Imports of goods & services"
+                    name={copy.imports}
                     fill="var(--chart-blue)"
                     radius={[3, 3, 0, 0]}
                     barSize={13}
@@ -158,7 +241,7 @@ export function TradeCharts({
             <div className="mt-auto">
               <ChartSourceFooter
                 providerUpdated={providerUpdated}
-                note="Goods and services only — not merchandise-only customs trade."
+                note={copy.flowsNote}
               />
             </div>
           </>
@@ -167,35 +250,35 @@ export function TradeCharts({
 
       <Panel className="flex min-w-0 flex-col">
         <PanelHeader
-          title="Trade balance"
-          description={`Exports minus imports, same definition and period. ${conversionNote}`}
+          title={copy.balanceTitle}
+          description={copy.balanceDescription(conversionNote)}
           action={
             hasBalance ? (
               <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
-                {comparable.length} comparable years
+                {copy.comparableYears(comparable.length)}
               </span>
             ) : null
           }
         />
         {!hasBalance ? (
           <ChartEmpty
-            title="Balance cannot be calculated"
-            description="A trade balance requires both the exports and imports series for the same annual period. This dashboard does not substitute another trade definition."
+            title={copy.balanceEmptyTitle}
+            description={copy.balanceEmptyDescription}
           />
         ) : (
           <>
             <div className="px-5 pt-4 sm:px-6">
               <ChartLegend
                 items={[
-                  { label: "Surplus", color: "var(--chart-emerald)", shape: "bar" },
-                  { label: "Deficit", color: "var(--chart-blue)", shape: "bar" },
+                  { label: copy.surplus, color: "var(--chart-emerald)", shape: "bar" },
+                  { label: copy.deficit, color: "var(--chart-blue)", shape: "bar" },
                 ]}
               />
             </div>
             <div
               className="h-[320px] w-full px-2 pb-2 pt-4 sm:h-[350px] sm:px-3"
               role="group"
-              aria-label={`Diverging bar chart of Bangladesh's annual goods and services trade balance${inBdt ? " in BDT equivalents" : " in US dollars"}.`}
+              aria-label={copy.balanceAria(unitLabel)}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={series} margin={MARGIN}>
@@ -220,10 +303,14 @@ export function TradeCharts({
                     cursor={{ fill: "var(--chart-cursor)" }}
                     content={
                       <ChartTooltip
-                        formatLabel={(label) => `Calculated trade balance · ${String(label ?? "")}`}
+                        formatLabel={copy.balanceTooltip}
                         formatValue={(value) =>
                           `${formatExact(value)} ${
-                            value < 0 ? "(deficit)" : value > 0 ? "(surplus)" : ""
+                            value < 0
+                              ? `(${copy.deficitLabel})`
+                              : value > 0
+                                ? `(${copy.surplusLabel})`
+                                : ""
                           }`.trim()
                         }
                       />
@@ -231,7 +318,7 @@ export function TradeCharts({
                   />
                   <Bar
                     dataKey="balance"
-                    name="Exports minus imports"
+                    name={copy.balanceName}
                     radius={[2, 2, 0, 0]}
                     barSize={20}
                     isAnimationActive={false}
@@ -253,7 +340,7 @@ export function TradeCharts({
             <div className="mt-auto">
               <ChartSourceFooter
                 providerUpdated={providerUpdated}
-                note="Calculated, not a source-published balance."
+                note={copy.balanceNote}
               />
             </div>
           </>

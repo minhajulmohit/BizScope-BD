@@ -51,6 +51,12 @@ export async function getStatusData(): Promise<StatusData> {
       detail: analytics
         ? `${analytics.summary.availableIndicators} of ${analytics.summary.totalIndicators} indicators available`
         : "The World Bank data could not be reached.",
+      detailData: analytics
+        ? {
+            available: analytics.summary.availableIndicators,
+            total: analytics.summary.totalIndicators,
+          }
+        : undefined,
       lastRetrievedAt: analytics?.summary.lastSuccessfulRetrieval ?? null,
     },
     {
@@ -74,6 +80,7 @@ export async function getStatusData(): Promise<StatusData> {
       detail: catalog
         ? `${catalog.totalDatasets} catalog datasets available.`
         : "The public catalog could not be reached.",
+      detailData: catalog ? { datasets: catalog.totalDatasets } : undefined,
       lastRetrievedAt: catalog?.retrievedAt ?? null,
     },
   ];
