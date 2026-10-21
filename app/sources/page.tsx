@@ -8,7 +8,6 @@ import {
   Info,
   Landmark,
   RefreshCw,
-  ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { getAnalyticsData } from "@/lib/api/world-bank";
@@ -29,7 +28,7 @@ import { SourceCard } from "@/components/sources/source-card";
 export const revalidate = 1800;
 
 const PAGE_DESCRIPTION =
-  "Every data provider, endpoint, indicator code, unit, update cadence, cache policy, licence, and limitation behind BizScope BD — including sources that are linked but not automatically integrated.";
+  "Where every number in BizScope BD comes from, how often it changes, and what the dashboard does and does not claim — including official sources that are linked rather than copied automatically.";
 
 export const metadata: Metadata = {
   title: "Sources & Methodology",
@@ -55,107 +54,72 @@ const FRESHNESS_TIERS: Array<{
 }> = [
   {
     label: "Daily reference",
-    title: "Third-party FX feed",
+    title: "Currency reference rates",
     description:
-      "Open ER-API supplies a daily reference snapshot. Cached for up to one hour; never presented as a live ticker or an official bank rate.",
+      "ExchangeRate-API provides one reference update each day. We keep a short-term copy so pages load quickly; it is not a live ticker or an official bank rate.",
     icon: RefreshCw,
   },
   {
-    label: "Periodic official",
-    title: "World Bank annual data",
+    label: "Annual official",
+    title: "World Bank statistics",
     description:
-      "Seven annual series, cached for six hours. Latest non-null observations carry their year; later revisions are possible.",
+      "Seven yearly series, checked at most every six hours. Every value shows its observation year, and earlier years can be revised.",
     icon: CalendarRange,
   },
   {
-    label: "On-demand catalog",
-    title: "OpenDataBD metadata",
+    label: "Public catalog",
+    title: "OpenDataBD dataset listings",
     description:
-      "Public catalog responses are cached for ten minutes. Dataset contents and download access are not mirrored.",
+      "Catalog details are checked at most every ten minutes. Dataset files and download access are not copied or stored.",
     icon: Database,
   },
   {
-    label: "Manual access",
+    label: "Official links",
     title: "Bangladesh Bank, BBS, data.gov.bd",
     description:
-      "Official HTML, PDF, Excel, or SDMX publications linked directly. No automatic ingestion or scraping is claimed.",
+      "Official websites are linked directly. Nothing is copied, scraped, or presented as an automatic feed.",
     icon: Landmark,
-  },
-];
-
-const API_ENDPOINTS = [
-  {
-    path: "/api/analytics",
-    description:
-      "Normalised World Bank indicators, per-indicator errors, observation years, provider last-updated dates, and retrieval times.",
-    parameters: "None",
-    cache: "6-hour server data cache · HTTP s-maxage 6h",
-    response: "200 for ok/partial; 503 when all indicators fail",
-  },
-  {
-    path: "/api/currency",
-    description:
-      "Validated USD-based third-party rates, BDT rate, provider timestamps, attribution, and a sanitised error state.",
-    parameters: "None",
-    cache: "1-hour server data cache · provider updates daily",
-    response: "200 for valid feed; 502 on feed failure",
-  },
-  {
-    path: "/api/datasets",
-    description:
-      "OpenDataBD catalog proxy. Normalises dataset metadata and pagination and never proxies dataset file downloads.",
-    parameters: "q (≤80 chars), category, page (1–1000), limit (1–24, default 12)",
-    cache: "10-minute catalog cache · HTTP s-maxage 10m",
-    response: "200 for valid catalog response; 502 on failure",
-  },
-  {
-    path: "/api/status",
-    description:
-      "Health snapshot for the three integrated providers. Uses the same cached data functions as the dashboard.",
-    parameters: "None",
-    cache: "5-minute HTTP cache",
-    response: "200 always, with provider-level health states",
   },
 ];
 
 const CACHE_ROWS = [
   {
     source: "World Bank WDI",
-    frequency: "Annual, periodically revised",
-    appCache: "6 hours per indicator; 30-minute page revalidation",
-    note: "Cache does not imply new provider observations. Observation year is always shown.",
+    frequency: "Once a year, with revisions",
+    appCache: "At most every 6 hours",
+    note: "A check does not mean new data. The observation year is always shown.",
   },
   {
-    source: "Open ER-API",
-    frequency: "Daily reference update",
-    appCache: "1 hour; page revalidation every 30 minutes",
-    note: "The next provider update time is displayed. Rates remain third-party, not official.",
+    source: "ExchangeRate-API",
+    frequency: "Usually once a day",
+    appCache: "At most every hour",
+    note: "The next update time is displayed. Rates are third-party, not official.",
   },
   {
     source: "OpenDataBD catalog",
-    frequency: "On-demand catalog metadata",
-    appCache: "10 minutes for catalog; 1 hour for platform stats",
-    note: "Dataset files are not cached, proxied, or automatically downloaded.",
+    frequency: "Changes as datasets are published",
+    appCache: "At most every 10 minutes for listings; 1 hour for totals",
+    note: "Dataset files are not copied, stored, or downloaded.",
   },
   {
     source: "Bangladesh Bank / BBS / data.gov.bd",
     frequency: "Varies by publication",
-    appCache: "Not applicable — no automated retrieval",
-    note: "Official pages are linked directly for manual access.",
+    appCache: "Not checked automatically",
+    note: "Official pages are linked for you to visit directly.",
   },
 ];
 
 const LIMITATIONS = [
   "World Bank values are annual and may lag the current calendar year. Every value is shown with its observation year, and an older annual observation is never relabelled as current.",
-  "World Bank series can be revised after first publication. The application does not track historical revisions.",
+  "World Bank series can be revised after first publication. The dashboard does not track historical revisions.",
   "Unemployment is a modeled ILO estimate, not a direct survey count for every year.",
-  "Exports and imports cover goods and services in current US dollars. They are not merchandise-only customs figures and are not inflation-adjusted.",
+  "The World Bank publishes exports and imports in US dollars. The dashboard converts them to BDT at the current reference rate. They cover goods and services, not merchandise-only customs figures, and are not adjusted for inflation.",
   "The trade balance and export coverage ratio are derived calculations, shown only when both underlying values share the same year and definition.",
-  "The currency feed provides current rates only. No historical exchange-rate chart is created from a single daily snapshot.",
-  "Bangladesh Bank exchange-rate pages returned an interactive browser-verification screen during implementation, and no documented JSON endpoint was verified. Official rates are linked, not ingested.",
-  "BBS and data.gov.bd are linked as official publication/directory sources. No public JSON API integration is claimed.",
+  "The currency service provides current rates only. No historical exchange-rate chart is created from a single daily snapshot.",
+  "Bangladesh Bank's exchange-rate pages required a browser check during implementation, so official rates are linked rather than copied automatically.",
+  "BBS and data.gov.bd are linked as official publication and directory sources. The dashboard does not claim an automatic feed from either.",
   "OpenDataBD is a broad public catalog, not an economy-only dataset service. Its results vary in subject, format, licence, and access conditions.",
-  "No database is required for this release; dashboard data is fetched and cached at the server layer rather than stored in MongoDB.",
+  "This release does not keep its own database of the underlying datasets. Data is read from the sources when needed and held only briefly to keep pages fast.",
 ];
 
 export default async function SourcesPage() {
@@ -167,15 +131,15 @@ export default async function SourcesPage() {
       <PageHeader
         eyebrow="Reference / Methodology"
         title="Sources & methodology"
-        description="Exactly where every number comes from, how often it changes, how it is cached, and what this release does not claim. Integrations and manual links are labelled separately."
+        description="Where every number comes from, how often it changes, and what this release does not claim. Automatic connections and official links are labelled separately."
       >
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-          <Badge tone="brand">3 integrated sources</Badge>
-          <Badge tone="outline">No real-time feeds</Badge>
+          <Badge tone="brand">3 connected sources</Badge>
+          <Badge tone="outline">No real-time data</Badge>
         </div>
       </PageHeader>
 
-      <DataNotice title="No real-time data is integrated.">
+      <DataNotice title="No real-time data is included.">
         BizScope BD contains a daily third-party currency reference, annual
         periodically revised World Bank statistics, and an on-demand public
         dataset catalog. Nothing on this dashboard is a live market quote or a
@@ -187,13 +151,12 @@ export default async function SourcesPage() {
         className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border border-line bg-surface px-4 py-3 text-[11px]"
       >
         {[
-          ["#freshness", "Freshness model"],
-          ["#health", "Provider health"],
-          ["#providers", "Integrated sources"],
+          ["#freshness", "Update types"],
+          ["#health", "Source status"],
+          ["#providers", "Connected sources"],
           ["#official-sources", "Official links"],
-          ["#indicators", "Indicator codes"],
-          ["#caching", "Caching"],
-          ["#api", "Internal API"],
+          ["#indicators", "The seven indicators"],
+          ["#caching", "Update checks"],
           ["#licensing", "Licensing"],
           ["#limitations", "Limitations"],
         ].map(([href, label]) => (
@@ -209,9 +172,9 @@ export default async function SourcesPage() {
 
       <section id="freshness" className="scroll-mt-24 space-y-3">
         <div>
-          <p className="eyebrow">Freshness model</p>
+          <p className="eyebrow">Update types</p>
           <h2 className="mt-1 text-lg font-semibold tracking-[-0.02em] text-foreground">
-            Four honest update classes
+            Four kinds of data freshness
           </h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -241,12 +204,12 @@ export default async function SourcesPage() {
       <section id="health" className="scroll-mt-24">
         <Panel>
           <PanelHeader
-            title="Provider health"
-            description="Last successful retrieval and current response state for each integrated source."
+            title="Source status"
+            description="Last successful check and current state for each connected source."
             action={
               <span className="inline-flex items-center gap-1 text-[10px] text-subtle">
                 <Clock3 className="h-3 w-3" aria-hidden="true" />
-                Cached for 5 minutes
+                Checked every 5 minutes
               </span>
             }
           />
@@ -257,14 +220,14 @@ export default async function SourcesPage() {
       <section id="providers" className="scroll-mt-24 space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="eyebrow">Automatic integrations</p>
+            <p className="eyebrow">Connected automatically</p>
             <h2 className="mt-1 text-lg font-semibold tracking-[-0.02em] text-foreground">
-              Sources the application actually fetches
+              Sources the dashboard reads for you
             </h2>
           </div>
           <p className="max-w-md text-[10px] leading-4 text-subtle sm:text-right">
-            These endpoints are called server-side with request timeouts and
-            response-shape validation. Public API keys are not required.
+            We check these sources on the server, with timeouts, and only use
+            responses that pass our checks. No account or key is needed.
           </p>
         </div>
         <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
@@ -276,14 +239,14 @@ export default async function SourcesPage() {
 
       <section id="official-sources" className="scroll-mt-24 space-y-3">
         <div>
-          <p className="eyebrow">Manual access</p>
+          <p className="eyebrow">Official links</p>
           <h2 className="mt-1 text-lg font-semibold tracking-[-0.02em] text-foreground">
-            Official sources linked, not automated
+            Official sources linked, not copied automatically
           </h2>
           <p className="mt-1 max-w-3xl text-[11px] leading-5 text-muted">
-            These providers publish web pages, PDFs, spreadsheets, or SDMX
-            datasets. They are included for authoritative follow-up and are not
-            represented as live API integrations.
+            These organizations publish web pages, PDFs, spreadsheets, or data
+            catalogs. They are included for authoritative follow-up. We do not
+            claim an automatic feed from them.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -296,8 +259,8 @@ export default async function SourcesPage() {
       <section id="indicators" className="scroll-mt-24">
         <Panel>
           <PanelHeader
-            title="World Bank indicator reference"
-            description="The seven series used by the dashboard. All are annual, country-coded BGD, and requested with the latest ten non-null observations (mrnev=10)."
+            title="The seven World Bank indicators"
+            description="All are yearly and cover Bangladesh. Where the World Bank publishes in US dollars, the dashboard shows a BDT equivalent at the current reference rate."
             action={
               <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
                 {analytics.summary.availableIndicators}/{analytics.summary.totalIndicators} available
@@ -312,7 +275,8 @@ export default async function SourcesPage() {
           >
             <table className="w-full min-w-[760px] text-left text-[11px]">
               <caption className="sr-only">
-                World Bank indicator codes, units, frequency, and latest observation
+                World Bank indicators, units shown, frequency, latest observation
+                year, and source
               </caption>
               <thead>
                 <tr className="border-b border-line bg-surface-muted/60 text-[9px] uppercase tracking-[0.08em] text-subtle">
@@ -320,16 +284,13 @@ export default async function SourcesPage() {
                     Indicator
                   </th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">
-                    Code
-                  </th>
-                  <th scope="col" className="px-4 py-2.5 font-semibold">
-                    Unit
+                    Unit shown
                   </th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">
                     Frequency
                   </th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">
-                    Latest observation
+                    Latest year
                   </th>
                   <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                     Source
@@ -345,18 +306,14 @@ export default async function SourcesPage() {
                       <th scope="row" className="px-5 py-3 font-medium text-foreground sm:px-6">
                         {definition.shortName}
                       </th>
-                      <td className="px-4 py-3 font-mono text-[10px] text-muted">
-                        {definition.code}
+                      <td className="px-4 py-3 text-muted">
+                        {definition.unit === "usd" ? "BDT equivalent" : definition.unitLabel}
                       </td>
-                      <td className="px-4 py-3 text-muted">{definition.unitLabel}</td>
-                      <td className="px-4 py-3 text-muted">Annual</td>
+                      <td className="px-4 py-3 text-muted">Yearly</td>
                       <td className="px-4 py-3 text-muted">
                         {indicator?.latest ? (
-                          <span className="inline-flex items-center gap-2">
-                            <span className="font-medium tabular text-foreground">
-                              {indicator.latest.year}
-                            </span>
-                            <span className="text-[9px] text-subtle">non-null</span>
+                          <span className="font-medium tabular text-foreground">
+                            {indicator.latest.year}
                           </span>
                         ) : (
                           "\u2014"
@@ -381,15 +338,15 @@ export default async function SourcesPage() {
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] text-subtle sm:px-6">
             <p>
-              Provider last updated: {formatUtcDate(analytics.summary.lastProviderUpdate)} ·
-              Retrieval: {formatUtcDateTime(analytics.summary.lastSuccessfulRetrieval)}
+              World Bank last updated: {formatUtcDate(analytics.summary.lastProviderUpdate)} ·
+              Last checked by BizScope: {formatUtcDateTime(analytics.summary.lastSuccessfulRetrieval)}
             </p>
             {hasErrors ? (
               <p className="text-amber">
-                Some series were unavailable at the last retrieval.
+                Some series were unavailable at the last check.
               </p>
             ) : (
-              <p>All seven series loaded at the last cached retrieval.</p>
+              <p>All seven series loaded at the last check.</p>
             )}
           </div>
         </Panel>
@@ -398,30 +355,30 @@ export default async function SourcesPage() {
       <section id="caching" className="scroll-mt-24">
         <Panel>
           <PanelHeader
-            title="Caching and data freshness"
-            description="Caching limits repeated upstream requests; it never makes a provider update more often than it actually does."
+            title="How often we check for updates"
+            description="Checking more often does not make a source publish new data. Observation years and update times are always shown."
           />
           <div
             className="table-scroll overflow-x-auto scrollbar-subtle"
             role="region"
-            aria-label="Caching and freshness table"
+            aria-label="Update check frequency table"
             tabIndex={0}
           >
             <table className="w-full min-w-[720px] text-left text-[11px]">
-              <caption className="sr-only">Server caching and update frequency by provider</caption>
+              <caption className="sr-only">Update frequency and check interval by source</caption>
               <thead>
                 <tr className="border-b border-line bg-surface-muted/60 text-[9px] uppercase tracking-[0.08em] text-subtle">
                   <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
                     Source
                   </th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">
-                    Provider frequency
+                    How often it changes
                   </th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">
-                    Application cache
+                    How often we check
                   </th>
                   <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
-                    Note
+                    What this means
                   </th>
                 </tr>
               </thead>
@@ -442,67 +399,8 @@ export default async function SourcesPage() {
             </table>
           </div>
           <div className="border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
-            If a provider fails, BizScope BD returns a sanitised error state and
-            keeps successful indicators available. Failed responses are not cached
-            as successful observations.
-          </div>
-        </Panel>
-      </section>
-
-      <section id="api" className="scroll-mt-24">
-        <Panel>
-          <PanelHeader
-            title="Internal data API"
-            description="Server route handlers used by the dashboard. They validate external responses and never expose upstream error bodies or secrets."
-          />
-          <div
-            className="table-scroll overflow-x-auto scrollbar-subtle"
-            role="region"
-            aria-label="Internal API reference table"
-            tabIndex={0}
-          >
-            <table className="w-full min-w-[840px] text-left text-[11px]">
-              <caption className="sr-only">BizScope BD internal API endpoints</caption>
-              <thead>
-                <tr className="border-b border-line bg-surface-muted/60 text-[9px] uppercase tracking-[0.08em] text-subtle">
-                  <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
-                    Endpoint
-                  </th>
-                  <th scope="col" className="px-4 py-2.5 font-semibold">
-                    Parameters
-                  </th>
-                  <th scope="col" className="px-4 py-2.5 font-semibold">
-                    Cache
-                  </th>
-                  <th scope="col" className="px-5 py-2.5 font-semibold sm:px-6">
-                    Response behaviour
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {API_ENDPOINTS.map((endpoint) => (
-                  <tr key={endpoint.path}>
-                    <th scope="row" className="px-5 py-3.5 align-top sm:px-6">
-                      <code className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-foreground">
-                        GET {endpoint.path}
-                      </code>
-                      <p className="mt-1 max-w-xs text-[10px] font-normal leading-4 text-muted">
-                        {endpoint.description}
-                      </p>
-                    </th>
-                    <td className="px-4 py-3.5 align-top font-mono text-[9px] leading-4 text-muted">
-                      {endpoint.parameters}
-                    </td>
-                    <td className="px-4 py-3.5 align-top text-[10px] leading-4 text-muted">
-                      {endpoint.cache}
-                    </td>
-                    <td className="px-5 py-3.5 align-top text-[10px] leading-4 text-muted sm:px-6">
-                      {endpoint.response}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            If a source is unavailable, we say so and keep the sources that did
+            work. An old value is never presented as a fresh one.
           </div>
         </Panel>
       </section>
@@ -512,7 +410,7 @@ export default async function SourcesPage() {
           <Panel>
             <PanelHeader
               title="Licensing & attribution"
-              description="Attribution requirements for each provider whose data is displayed."
+              description="Credit and usage terms for each source."
             />
             <div className="space-y-4 p-5 text-[11px] leading-5 text-muted sm:p-6">
               <div>
@@ -530,9 +428,9 @@ export default async function SourcesPage() {
                 </p>
               </div>
               <div>
-                <p className="font-semibold text-foreground">ExchangeRate-API / Open ER-API</p>
+                <p className="font-semibold text-foreground">ExchangeRate-API</p>
                 <p className="mt-0.5">
-                  Rates are attributed to ExchangeRate-API and link to its provider
+                  Rates are credited to ExchangeRate-API and link to its source
                   page and terms. This application does not present them as official
                   Bangladesh Bank rates.{" "}
                   <SourceLink
@@ -565,38 +463,36 @@ export default async function SourcesPage() {
           <Panel>
             <PanelHeader
               title="Verification & failure behaviour"
-              description="What has actually been implemented and what happens when a provider fails."
-              action={<ShieldCheck className="h-4 w-4 text-brand" aria-hidden="true" />}
+              description="What happens when a source is slow or unavailable."
             />
             <div className="space-y-3 p-5 text-[11px] leading-5 text-muted sm:p-6">
               <p className="flex gap-2">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
                 <span>
-                  The three integrated sources have working server-side fetchers
-                  with documented or public endpoints. The provider health panel
-                  above checks them independently.
+                  The three connected sources are checked by the dashboard. The
+                  source status panel above shows their current state.
                 </span>
               </p>
               <p className="flex gap-2">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
                 <span>
-                  External payloads are shape-checked before use. Null values are
-                  retained as missing, not converted into zeroes.
+                  We check the shape of each response before using it. Missing
+                  values stay missing and are never turned into zero.
                 </span>
               </p>
               <p className="flex gap-2">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
                 <span>
-                  Each World Bank indicator is cached independently, so one failed
-                  series does not erase the others. Currency and catalog failures
-                  have their own unavailable states.
+                  Each World Bank series loads separately, so one failure does not
+                  erase the others. Currency and catalog failures get their own
+                  unavailable message.
                 </span>
               </p>
               <p className="flex gap-2">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-subtle" aria-hidden="true" />
                 <span>
-                  The status endpoint reports provider-level health; it does not
-                  guarantee that every individual observation is available.
+                  The status check reports whether a source is responding; it
+                  cannot guarantee that every individual observation exists.
                 </span>
               </p>
               <div className="rounded-lg border border-line bg-surface-muted/60 px-3 py-2.5 text-[10px] leading-4">
@@ -604,9 +500,9 @@ export default async function SourcesPage() {
                   <Info className="h-3 w-3" aria-hidden="true" />
                   Read clearly:
                 </span>{" "}
-                Retail rates, exchange rates used for trade conversion, and a
-                daily reference feed can differ. Check the official source for any
-                regulated or financial decision.
+                Retail rates, official bank rates, and the reference rate used here
+                can differ. Check the official source for any regulated or
+                financial decision.
               </div>
             </div>
           </Panel>

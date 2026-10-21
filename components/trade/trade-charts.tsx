@@ -13,7 +13,10 @@ import {
 } from "recharts";
 import type { TradeYear } from "@/lib/utils/trade";
 import {
+  formatAxisBdt,
   formatAxisUsd,
+  formatBdtExact,
+  formatRate,
   formatUsdExact,
   formatUtcDate,
 } from "@/lib/utils/format";
@@ -44,7 +47,7 @@ function ChartSourceFooter({
           World Bank WDI
         </SourceLink>
         {providerUpdated
-          ? ` · provider updated ${formatUtcDate(providerUpdated)}`
+          ? ` · source updated ${formatUtcDate(providerUpdated)}`
           : null}
       </p>
     </div>
@@ -54,22 +57,35 @@ function ChartSourceFooter({
 export function TradeCharts({
   series,
   providerUpdated,
+  bdtPerUsd,
+  bdtUpdatedAt,
 }: {
   series: TradeYear[];
   providerUpdated: string | null;
+  bdtPerUsd: number | null;
+  bdtUpdatedAt: string | null;
 }) {
+  const inBdt = bdtPerUsd !== null && bdtPerUsd > 0;
   const hasFlows = series.some(
     (row) => row.exports !== null || row.imports !== null,
   );
   const comparable = series.filter((row) => row.balance !== null);
   const hasBalance = comparable.length > 0;
+  const axisFormatter = inBdt ? formatAxisBdt : formatAxisUsd;
+  const formatExact = inBdt ? formatBdtExact : formatUsdExact;
+  const conversionNote =
+    inBdt && bdtPerUsd !== null
+      ? `Taka equivalents at 1 USD = ৳${formatRate(bdtPerUsd)}${
+          bdtUpdatedAt ? ` (${formatUtcDate(bdtUpdatedAt)})` : ""
+        }.`
+      : "Shown in the source currency because the taka reference rate is unavailable.";
 
   return (
     <div className="grid gap-4 xl:grid-cols-3">
       <Panel className="flex min-w-0 flex-col xl:col-span-2">
         <PanelHeader
           title="Exports vs imports over time"
-          description="Goods and services, current US dollars. Y-axis: current US$."
+          description={`Goods and services. ${conversionNote}`}
           action={
             <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
               {series.length} annual periods
@@ -91,7 +107,7 @@ export function TradeCharts({
             <div
               className="h-[320px] w-full px-2 pb-2 pt-4 sm:h-[350px] sm:px-3"
               role="group"
-              aria-label="Grouped bar chart of annual Bangladesh exports and imports of goods and services in current US dollars."
+              aria-label={`Grouped bar chart of annual Bangladesh exports and imports of goods and services${inBdt ? " in BDT equivalents" : " in US dollars"}.`}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={series} margin={MARGIN} barGap={2}>
@@ -108,7 +124,7 @@ export function TradeCharts({
                     axisLine={false}
                     tickLine={false}
                     width={54}
-                    tickFormatter={formatAxisUsd}
+                    tickFormatter={axisFormatter}
                   />
                   <Tooltip
                     wrapperStyle={chartTooltipWrapperStyle}
@@ -116,7 +132,7 @@ export function TradeCharts({
                     content={
                       <ChartTooltip
                         formatLabel={(label) => `Annual trade flows · ${String(label ?? "")}`}
-                        formatValue={(value) => formatUsdExact(value)}
+                        formatValue={(value) => formatExact(value)}
                       />
                     }
                   />
@@ -152,7 +168,7 @@ export function TradeCharts({
       <Panel className="flex min-w-0 flex-col">
         <PanelHeader
           title="Trade balance"
-          description="Exports minus imports, same definition and period. Y-axis: current US$."
+          description={`Exports minus imports, same definition and period. ${conversionNote}`}
           action={
             hasBalance ? (
               <span className="rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
@@ -179,7 +195,7 @@ export function TradeCharts({
             <div
               className="h-[320px] w-full px-2 pb-2 pt-4 sm:h-[350px] sm:px-3"
               role="group"
-              aria-label="Diverging bar chart of Bangladesh's annual goods and services trade balance in current US dollars."
+              aria-label={`Diverging bar chart of Bangladesh's annual goods and services trade balance${inBdt ? " in BDT equivalents" : " in US dollars"}.`}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={series} margin={MARGIN}>
@@ -196,7 +212,7 @@ export function TradeCharts({
                     axisLine={false}
                     tickLine={false}
                     width={54}
-                    tickFormatter={formatAxisUsd}
+                    tickFormatter={axisFormatter}
                   />
                   <ReferenceLine y={0} stroke="var(--line-strong)" strokeWidth={1} />
                   <Tooltip
@@ -206,7 +222,7 @@ export function TradeCharts({
                       <ChartTooltip
                         formatLabel={(label) => `Calculated trade balance · ${String(label ?? "")}`}
                         formatValue={(value) =>
-                          `${formatUsdExact(value)} ${
+                          `${formatExact(value)} ${
                             value < 0 ? "(deficit)" : value > 0 ? "(surplus)" : ""
                           }`.trim()
                         }

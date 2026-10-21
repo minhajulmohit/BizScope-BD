@@ -116,7 +116,7 @@ export function KpiCard({
           {providerUpdatedAt ? (
             <>
               <span className="block font-semibold uppercase tracking-[0.09em]">
-                Provider update
+                Source updated
               </span>
               {formatUtcDate(providerUpdatedAt)}
             </>

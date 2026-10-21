@@ -46,7 +46,7 @@ export function SourceCard({
         description={source.role}
         action={
           <Badge tone={isIntegrated ? "brand" : "outline"}>
-            {isIntegrated ? "Integrated" : "Linked"}
+            {isIntegrated ? "Connected" : "Official link"}
           </Badge>
         }
       />
@@ -61,25 +61,17 @@ export function SourceCard({
 
         <div>
           <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
-            Endpoints &amp; official pages
+            Where to find it
           </h3>
-          <ul className="mt-2 space-y-2">
+          <ul className="mt-2 space-y-1.5">
             {source.endpoints.map((endpoint) => (
               <li
                 key={endpoint.url}
                 className="rounded-lg border border-line bg-background px-3 py-2"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <SourceLink href={endpoint.url} className="text-[11px] font-medium">
-                    {endpoint.label}
-                  </SourceLink>
-                  <span className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-[9px] text-subtle">
-                    {endpoint.format}
-                  </span>
-                </div>
-                <p className="mt-1 break-all font-mono text-[9px] leading-4 text-subtle">
-                  {endpoint.url}
-                </p>
+                <SourceLink href={endpoint.url} className="text-[11px] font-medium">
+                  {endpoint.label}
+                </SourceLink>
               </li>
             ))}
           </ul>
@@ -87,14 +79,14 @@ export function SourceCard({
 
         <div className="rounded-lg border border-line bg-surface-muted/50 px-3 py-2.5">
           <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
-            Freshness &amp; limitations
+            Update notes
           </h3>
           <p className="mt-1 text-[11px] leading-5 text-muted">{source.freshnessNote}</p>
         </div>
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-[10px]">
           <span className="text-subtle">
-            Licence:{" "}
+            Usage terms:{" "}
             {source.licenseUrl ? (
               <SourceLink href={source.licenseUrl} className="text-muted">
                 {source.license}
@@ -104,7 +96,7 @@ export function SourceCard({
             )}
           </span>
           <SourceLink href={source.homepageUrl} className="text-muted">
-            Provider home
+            Visit source website
           </SourceLink>
         </div>
       </div>

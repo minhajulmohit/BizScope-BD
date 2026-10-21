@@ -14,11 +14,11 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
     cadence: "periodic",
     cadenceLabel: "Annual · periodically revised",
     integration: "integrated",
-    integrationLabel: "Integrated · automatic",
+    integrationLabel: "Connected automatically",
     accessNote:
-      "Public Indicators API. No API key or account is required. Data are returned as JSON observations for Bangladesh (country code BGD).",
+      "We read the World Bank's public data service for Bangladesh. No account, key, or special access is needed.",
     freshnessNote:
-      "Annual observations published at the World Bank's discretion. The latest observation can lag the current calendar year and earlier years may be revised. The API's lastupdated field is shown alongside values.",
+      "The World Bank publishes these figures once a year and can revise earlier years. The latest year can lag the calendar, so every value shows its actual observation year. The date the dataset was last revised is shown too.",
     homepageUrl: "https://data.worldbank.org/country/bangladesh",
     documentationUrl:
       "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api",
@@ -26,12 +26,12 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
     licenseUrl: "https://datacatalog.worldbank.org/public-licenses",
     endpoints: [
       {
-        label: "Indicator observations",
+        label: "World Bank data for Bangladesh",
         url: "https://api.worldbank.org/v2/country/BGD/indicator/{INDICATOR_CODE}?format=json&mrnev=10",
         format: "JSON REST",
       },
       {
-        label: "Indicator query documentation",
+        label: "World Bank data help",
         url: "https://datahelpdesk.worldbank.org/knowledgebase/articles/898599-indicator-api-queries",
         format: "HTML documentation",
       },
@@ -39,24 +39,24 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
   },
   {
     id: "exchange-rates",
-    name: "ExchangeRate-API — Open ER-API",
-    shortName: "Open ER-API",
-    role: "Third-party daily currency reference rates",
+    name: "ExchangeRate-API",
+    shortName: "ExchangeRate-API",
+    role: "Daily currency reference rates",
     cadence: "daily",
     cadenceLabel: "Daily reference · third-party",
     integration: "integrated",
-    integrationLabel: "Integrated · automatic",
+    integrationLabel: "Connected automatically",
     accessNote:
-      "Public open-access endpoint with no API key for the USD base feed. Rate limits and fair-use terms still apply to the provider service.",
+      "A free public currency service. It needs no account or key, but its fair-use terms still apply.",
     freshnessNote:
-      "The provider typically updates the feed once per day and supplies last-updated and next-update timestamps. This is a reference rate, not a live market quote and not the official Bangladesh Bank buying or selling rate.",
+      "The service usually updates once a day and provides update times. These are reference values, not a live market quote or Bangladesh Bank's official buying or selling rate.",
     homepageUrl: "https://www.exchangerate-api.com/",
     documentationUrl: "https://www.exchangerate-api.com/docs/free",
     license: "Provider terms; attribution required",
     licenseUrl: "https://www.exchangerate-api.com/terms",
     endpoints: [
       {
-        label: "USD base rates",
+        label: "Daily reference rates",
         url: "https://open.er-api.com/v6/latest/USD",
         format: "JSON REST",
       },
@@ -70,11 +70,11 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
     cadence: "catalog",
     cadenceLabel: "Catalog · on-demand",
     integration: "integrated",
-    integrationLabel: "Integrated · catalog only",
+    integrationLabel: "Connected · catalog only",
     accessNote:
-      "The public GET catalog endpoints are documented as requiring no authentication. Dataset file downloads may require authentication and are not proxied or downloaded by this application.",
+      "The public catalog can be browsed without signing in. Dataset files may require an account and are never downloaded or passed through this site.",
     freshnessNote:
-      "Catalog contents change as contributors publish datasets. Dataset licenses, formats, and access conditions vary by record and should be checked before reuse.",
+      "The catalog changes as publishers add datasets. Formats, licences, and access conditions vary by record and should be checked before reuse.",
     homepageUrl: "https://opendatabd.com/",
     documentationUrl: "https://www.opendatabd.com/api-docs",
     license: "Varies by dataset",
@@ -86,7 +86,7 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
         format: "JSON REST",
       },
       {
-        label: "Platform statistics",
+        label: "Catalog summary",
         url: "https://opendatabd.com/api/stats",
         format: "JSON REST",
       },
@@ -100,9 +100,9 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
     cadence: "manual",
     cadenceLabel: "Official publication · manual access",
     integration: "official-link",
-    integrationLabel: "Linked · not automated",
+    integrationLabel: "Official link",
     accessNote:
-      "The National Summary Data Page and open-data pages are official HTML publications. During implementation the exchange-rate pages returned an interactive bot-verification screen, and no documented public JSON endpoint was found for automatic ingestion. No scraping is attempted.",
+      "Official web pages and publications. Some exchange-rate pages use a browser check, and no automatic public data feed was available for this release, so these are links only. Nothing is scraped.",
     freshnessNote:
       "Publication schedules vary by table and format. Official exchange rates, reserves, remittances, and interest rates should be read directly from Bangladesh Bank.",
     homepageUrl: "https://www.bb.org.bd/",
@@ -135,9 +135,9 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
     cadence: "manual",
     cadenceLabel: "Official publication · manual access",
     integration: "official-link",
-    integrationLabel: "Linked · not automated",
+    integrationLabel: "Official link",
     accessNote:
-      "BBS publishes reports and tables as web pages, PDF files, and spreadsheets. No public JSON API was verified for the indicators listed here, so the application links to the official publications instead of presenting them as live integrations.",
+      "BBS publishes reports and tables as web pages, PDF files, and spreadsheets. No automatic public data feed was available for these indicators, so the dashboard links to the official publications.",
     freshnessNote:
       "Release dates follow BBS publication schedules. CPI, quarterly GDP, wage, and trade publications may be revised; check the publication itself for the applicable reference period.",
     homepageUrl: "https://bbs.gov.bd/",
@@ -170,9 +170,9 @@ export const SOURCE_REGISTRY: SourceRegistryEntry[] = [
     cadence: "manual",
     cadenceLabel: "Directory · source discovery",
     integration: "directory",
-    integrationLabel: "Directory · not automated",
+    integrationLabel: "Directory link",
     accessNote:
-      "Used as a discovery directory for public government datasets. No machine-readable catalog endpoint was verified for this release, so links are provided to the portal rather than an API integration.",
+      "Used as a directory to find public government datasets. No automatic public catalog feed was available for this release, so the dashboard links to the portal.",
     freshnessNote:
       "Dataset availability, formats, update frequency, and licenses vary by department and record.",
     homepageUrl: "https://data.gov.bd/",

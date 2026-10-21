@@ -27,16 +27,16 @@ export default function DataPage() {
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
           <CadenceBadge cadence="catalog" label="OpenDataBD catalog" />
           <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[10px] text-muted">
-            Public metadata · no API key
+            Free public catalog
           </span>
         </div>
       </PageHeader>
 
       <DataNotice title="Catalog metadata, not a data download service.">
-        BizScope BD queries OpenDataBD&apos;s public catalog endpoints. Dataset
-        files may require authentication and are never proxied or downloaded by
-        this app. Always check the licence and access conditions on the original
-        record before reusing a dataset.
+        BizScope BD searches OpenDataBD&apos;s public catalog. Dataset files may
+        require sign-in and are never proxied or downloaded by this app. Always
+        check the licence and access conditions on the original record before
+        reusing a dataset.
       </DataNotice>
 
       <DataExplorer />

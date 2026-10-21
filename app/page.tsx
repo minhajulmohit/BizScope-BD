@@ -27,8 +27,10 @@ import {
   formatUtcDateTime,
 } from "@/lib/utils/format";
 import { getIndicatorDelta } from "@/lib/utils/metrics";
+import { convertAnalyticsToBdt } from "@/lib/utils/display-currency";
 import { cn } from "@/lib/utils/cn";
 import { DataNotice } from "@/components/ui/data-notice";
+import { BdtConversionNotice } from "@/components/ui/bdt-conversion-notice";
 import { ErrorState } from "@/components/ui/states";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { RetryButton } from "@/components/ui/retry-button";
@@ -44,7 +46,7 @@ import {
 export const revalidate = 1800;
 
 const PAGE_DESCRIPTION =
-  "A Bangladesh business intelligence overview: GDP, growth, inflation, unemployment, population, trade, and the USD/BDT reference rate, with observation years and sources attached.";
+  "A Bangladesh business intelligence overview: GDP, growth, inflation, unemployment, population, trade, and the dollar–taka reference rate, with observation years and sources attached.";
 
 export const metadata: Metadata = {
   title: "Overview",
@@ -114,6 +116,8 @@ export default async function OverviewPage() {
 
   const indicatorKeys = OVERVIEW_INDICATOR_KEYS;
   const scopeNames = analytics.errors.map((error) => error.scope).join(", ");
+  const displayAnalytics = convertAnalyticsToBdt(analytics, currency.bdtRate);
+  const displaysInBdt = currency.bdtRate !== null && currency.bdtRate > 0;
 
   return (
     <div className="space-y-8 sm:space-y-9">
@@ -150,36 +154,41 @@ export default async function OverviewPage() {
             </div>
             <div className="p-4">
               <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-subtle">
-                Provider update
+                World Bank update
               </dt>
               <dd className="mt-1 text-[12px] font-medium leading-5 text-foreground-soft">
                 {formatUtcDate(analytics.summary.lastProviderUpdate)}
               </dd>
               <dd className="mt-0.5 text-[10px] leading-4 text-muted">
-                World Bank API <code>lastupdated</code>
+                The date the World Bank last revised this data
               </dd>
             </div>
             <div className="p-4">
               <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-subtle">
-                Last successful retrieval
+                Last checked by BizScope
               </dt>
               <dd className="mt-1 text-[12px] font-medium leading-5 text-foreground-soft">
                 {formatUtcDateTime(analytics.summary.lastSuccessfulRetrieval)}
               </dd>
               <dd className="mt-0.5 text-[10px] leading-4 text-muted">
-                Cached server response · UTC
+                Server time, UTC
               </dd>
             </div>
           </dl>
         </div>
       </section>
 
-      <DataNotice title="Periodic statistics, not a real-time feed.">
+      <DataNotice title="Official annual statistics, not live estimates.">
         World Bank indicators are annual official statistics and may be revised;
-        the latest available year can lag today. The USD/BDT figure is a daily
-        third-party reference rate from Open ER-API, not Bangladesh Bank&apos;s
+        the latest available year can lag today. The dollar–taka figure is a
+        daily reference rate from ExchangeRate-API, not Bangladesh Bank&apos;s
         official buying or selling rate.
       </DataNotice>
+
+      <BdtConversionNotice
+        bdtPerUsd={currency.bdtRate}
+        updatedAt={currency.lastUpdatedUtc}
+      />
 
       {analytics.errors.length > 0 ? (
         <ErrorState
@@ -187,14 +196,14 @@ export default async function OverviewPage() {
           description={`Showing only successfully loaded series${
             scopeNames ? `. Unavailable: ${scopeNames}` : ""
           }. No values are inserted for missing data.`}
-          action={<RetryButton label="Retry data request" />}
+          action={<RetryButton label="Try again" />}
         />
       ) : null}
 
       {currency.status === "error" ? (
         <DataNotice
           tone="warning"
-          title="The daily currency reference feed is currently unavailable."
+          title="The daily currency reference is currently unavailable."
         >
           Other dashboard sections remain usable. The currency card and converter
           will show an unavailable state instead of a stale or invented rate.
@@ -205,13 +214,13 @@ export default async function OverviewPage() {
         <SectionHeading
           eyebrow="Key indicators"
           title="The latest official readings"
-          description="Five annual World Bank series plus one independent daily FX reference. Observation periods are shown on every card."
+          description="Five annual World Bank series plus one independent daily currency reference. Observation periods are shown on every card."
           action={<HeroLink href="/economy">All economic data</HeroLink>}
         />
         <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
           {indicatorKeys.map((key: IndicatorKey) => {
             const definition = INDICATOR_DEFINITIONS[key];
-            const indicator = analytics.indicators[key];
+            const indicator = displayAnalytics.indicators[key];
             const config = KPI_CONFIG[key as keyof typeof KPI_CONFIG];
             const latest = indicator?.latest ?? null;
 
@@ -225,9 +234,11 @@ export default async function OverviewPage() {
                     : null
                 }
                 exactValue={
-                  latest ? formatIndicatorExact(definition.unit, latest.value) : undefined
+                  latest && indicator
+                    ? formatIndicatorExact(indicator.unit, latest.value)
+                    : undefined
                 }
-                unit={definition.unitLabel}
+                unit={indicator?.unitLabel ?? definition.unitLabel}
                 period={
                   latest
                     ? formatObservationPeriod(latest.year)
@@ -250,22 +261,22 @@ export default async function OverviewPage() {
           })}
 
           <KpiCard
-            label="USD to BDT reference rate"
+            label="Dollar to taka reference rate"
             value={
               currency.bdtRate !== null ? formatRate(currency.bdtRate) : null
             }
             exactValue={
               currency.bdtRate !== null
-                ? `1 USD = ${formatRate(currency.bdtRate)} BDT (third-party reference)`
+                ? `1 US dollar = ৳${formatRate(currency.bdtRate)} (third-party reference)`
                 : undefined
             }
-            unit="BDT per 1 USD"
+            unit="Taka per US dollar"
             period={
               currency.lastUpdatedUtc
                 ? `Daily ref. · ${formatUtcDate(currency.lastUpdatedUtc)}`
                 : "Update time unavailable"
             }
-            sourceName="Open ER-API"
+            sourceName="ExchangeRate-API"
             sourceUrl={currency.source.documentationUrl}
             cadence="daily"
             cadenceLabel="Daily · third party"
@@ -273,7 +284,7 @@ export default async function OverviewPage() {
             delta={null}
             icon={CircleDollarSign}
             tone="blue"
-            unavailableMessage="Reference feed unavailable"
+            unavailableMessage="Daily reference rate unavailable"
           />
         </div>
       </section>
@@ -292,10 +303,10 @@ export default async function OverviewPage() {
         />
         <div className="mt-4 grid gap-4 xl:grid-cols-3">
           <div className="min-w-0 xl:col-span-2">
-            <EconomicPerformanceChart analytics={analytics} />
+            <EconomicPerformanceChart analytics={displayAnalytics} />
           </div>
           <div className="min-w-0">
-            <TradeFlowsChart analytics={analytics} />
+            <TradeFlowsChart analytics={displayAnalytics} inBdt={displaysInBdt} />
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -308,11 +319,14 @@ export default async function OverviewPage() {
         <SectionHeading
           eyebrow="Evidence"
           title="Latest observations & sources"
-          description="The values behind the dashboard, with observation years, provider freshness, and honest integration status."
+          description="The values behind the dashboard, with observation years, source dates, and an honest status for each source."
         />
         <div className="mt-4 grid gap-4 xl:grid-cols-3">
           <div className="min-w-0 xl:col-span-2">
-            <LatestObservations analytics={analytics} />
+            <LatestObservations
+              analytics={displayAnalytics}
+              inBdt={displaysInBdt}
+            />
           </div>
           <div className="min-w-0">
             <SourceSummary
@@ -325,9 +339,9 @@ export default async function OverviewPage() {
       </section>
 
       <p className={cn("max-w-3xl text-[10px] leading-4 text-subtle")}>
-        Figures are shown as published by their providers and are not investment
+        Figures are shown as published by their sources and are not investment
         advice. World Bank and OpenDataBD data are subject to their respective
-        licences; Open ER-API is a third-party reference feed. See{" "}
+        licences; the currency reference comes from a third party. See{" "}
         <Link href="/sources" className="font-medium text-muted underline underline-offset-2 hover:text-foreground">
           Sources &amp; Methodology
         </Link>{" "}

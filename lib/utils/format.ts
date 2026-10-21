@@ -32,6 +32,10 @@ const exactUsdFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
+const exactBdtFormatter = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0,
+});
+
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",
   month: "short",
@@ -71,6 +75,18 @@ export function formatUsdExact(value: number): string {
   return formatted.replace("$", "US$");
 }
 
+export function formatBdtCompact(value: number): string {
+  if (value < 0) {
+    return `\u2212\u09f3${compactFormatter.format(Math.abs(value))}`;
+  }
+  return `\u09f3${compactFormatter.format(value)}`;
+}
+
+export function formatBdtExact(value: number): string {
+  const sign = value < 0 ? "\u2212" : "";
+  return `${sign}BDT ${exactBdtFormatter.format(Math.abs(value))}`;
+}
+
 export function formatPercent(value: number, decimals = 1): string {
   return `${decimalFormatter(decimals).format(value)}%`;
 }
@@ -100,6 +116,8 @@ export function formatIndicatorValue(
   switch (indicator.unit) {
     case "usd":
       return formatUsdCompact(value);
+    case "bdt":
+      return formatBdtCompact(value);
     case "percent":
       return formatPercent(value, 1);
     case "people":
@@ -118,6 +136,8 @@ export function formatIndicatorExact(
   switch (unit) {
     case "usd":
       return formatUsdExact(value);
+    case "bdt":
+      return formatBdtExact(value);
     case "percent":
       return formatPercentPrecise(value);
     case "people":
@@ -133,6 +153,8 @@ export function formatUnitLabel(unit: MetricUnit): string {
   switch (unit) {
     case "usd":
       return "Current US$";
+    case "bdt":
+      return "BDT equivalent";
     case "percent":
       return "Percent";
     case "people":
@@ -153,6 +175,13 @@ export function formatAxisUsd(value: number): string {
     return `\u2212$${compactFormatter.format(Math.abs(value))}`;
   }
   return `$${compactFormatter.format(value)}`;
+}
+
+export function formatAxisBdt(value: number): string {
+  if (value < 0) {
+    return `\u2212\u09f3${compactFormatter.format(Math.abs(value))}`;
+  }
+  return `\u09f3${compactFormatter.format(value)}`;
 }
 
 export function formatAxisNumber(value: number): string {

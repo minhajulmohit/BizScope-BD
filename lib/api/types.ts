@@ -12,7 +12,7 @@ export type IndicatorKey =
   | "unemployment"
   | "population";
 
-export type MetricUnit = "usd" | "percent" | "people";
+export type MetricUnit = "usd" | "bdt" | "percent" | "people";
 
 export type DataCadence = "daily" | "periodic" | "catalog" | "manual";
 

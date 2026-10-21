@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAnalyticsData } from "@/lib/api/world-bank";
+import { getCurrencyData } from "@/lib/api/exchange-rates";
+import { convertAnalyticsToBdt } from "@/lib/utils/display-currency";
 import { PageHeader } from "@/components/ui/page-header";
+import { BdtConversionNotice } from "@/components/ui/bdt-conversion-notice";
 import { DataNotice } from "@/components/ui/data-notice";
 import { ErrorState } from "@/components/ui/states";
 import { RetryButton } from "@/components/ui/retry-button";
@@ -23,7 +26,11 @@ export const metadata: Metadata = {
 };
 
 export default async function EconomyPage() {
-  const analytics = await getAnalyticsData();
+  const [analytics, currency] = await Promise.all([
+    getAnalyticsData(),
+    getCurrencyData(),
+  ]);
+  const displayAnalytics = convertAnalyticsToBdt(analytics, currency.bdtRate);
 
   return (
     <div className="space-y-6 sm:space-y-7">
@@ -41,9 +48,9 @@ export default async function EconomyPage() {
       </PageHeader>
 
       <DataNotice title="Annual official statistics, subject to revision.">
-        The World Bank API returns annual observations and the most recent
-        ten non-null periods per indicator. Charts and tables use the reported
-        years only; missing observations are not extrapolated or filled.{" "}
+        The World Bank publishes new observations once a year and can revise past
+        years. Charts and tables use reported years only; missing observations
+        are not extrapolated or filled.{" "}
         <Link
           href="/sources"
           className="font-medium text-foreground-soft underline underline-offset-2 hover:text-foreground"
@@ -52,6 +59,11 @@ export default async function EconomyPage() {
         </Link>
         .
       </DataNotice>
+
+      <BdtConversionNotice
+        bdtPerUsd={currency.bdtRate}
+        updatedAt={currency.lastUpdatedUtc}
+      />
 
       {analytics.status !== "ok" ? (
         <ErrorState
@@ -62,14 +74,14 @@ export default async function EconomyPage() {
           }
           description={
             analytics.status === "error"
-              ? "The World Bank API did not return usable series. No placeholder data is shown. Check your connection or try again."
+              ? "We couldn't load the World Bank data. No placeholder values are shown. Check your connection or try again."
               : `${analytics.summary.availableIndicators} of ${analytics.summary.totalIndicators} indicators loaded. Only those series are shown.`
           }
-          action={<RetryButton label="Retry data request" />}
+          action={<RetryButton label="Try again" />}
         />
       ) : null}
 
-      <EconomyExplorer analytics={analytics} />
+      <EconomyExplorer analytics={displayAnalytics} />
     </div>
   );
 }

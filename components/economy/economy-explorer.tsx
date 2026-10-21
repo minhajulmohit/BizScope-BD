@@ -15,7 +15,6 @@ import {
   ChartColumn,
   ChartLine,
   Clock3,
-  ExternalLink,
   Info,
 } from "lucide-react";
 import type {
@@ -26,6 +25,7 @@ import type {
 } from "@/lib/api/types";
 import { INDICATOR_DEFINITIONS, INDICATOR_ORDER } from "@/lib/indicator-catalog";
 import {
+  formatAxisBdt,
   formatAxisNumber,
   formatAxisPercent,
   formatAxisUsd,
@@ -52,6 +52,7 @@ type ChartType = "line" | "bar";
 
 function axisFormatter(unit: MetricUnit): (value: number) => string {
   if (unit === "percent") return formatAxisPercent;
+  if (unit === "bdt") return formatAxisBdt;
   if (unit === "usd") return formatAxisUsd;
   return formatAxisNumber;
 }
@@ -182,7 +183,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
       <Panel>
         <EmptyState
           title="No economic indicators available"
-          description="The World Bank API did not return usable annual series for Bangladesh. No placeholder values are shown. Try refreshing the page."
+          description="We couldn't load any usable annual series for Bangladesh. No placeholder values are shown. Try refreshing the page."
         />
       </Panel>
     );
@@ -218,7 +219,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
         <Panel className="min-w-0 xl:col-span-2">
           <PanelHeader
             title={`${definition.shortName} history`}
-            description={`${definition.name} · Unit: ${definition.unitLabel}`}
+            description={`${selected.name} · Unit: ${selected.unitLabel}`}
             action={
               <div
                 className="inline-flex rounded-lg border border-line bg-surface-muted p-0.5"
@@ -320,6 +321,9 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
               <p className="text-[10px] leading-4 text-muted">
                 <span className="font-semibold text-foreground-soft">Definition:</span>{" "}
                 {definition.definition}
+                {selected.unit === "bdt"
+                  ? " The World Bank publishes this series in US dollars; the values shown here are converted to BDT at the current reference rate."
+                  : ""}
               </p>
             </div>
           </div>
@@ -334,7 +338,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
             <div
               className="h-[310px] w-full px-2 pb-2 pt-4 sm:h-[340px] sm:px-3"
               role="group"
-              aria-label={`${chartType} chart of ${definition.name} for Bangladesh from ${fromYear} to ${toYear}.`}
+              aria-label={`${chartType} chart of ${selected.name} for Bangladesh from ${fromYear} to ${toYear}.`}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
@@ -417,19 +421,13 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
 
         <Panel className="flex h-full min-w-0 flex-col">
           <PanelHeader
-            title="Indicator reference"
-            description="Definition, units, and provider freshness."
+            title="About this indicator"
+            description="Definition, units, and source dates."
           />
           <div className="space-y-4 p-5 sm:p-6">
             <p className="text-[12px] leading-6 text-muted">{selected.definition}</p>
 
             <dl className="divide-y divide-line overflow-hidden rounded-lg border border-line text-[11px]">
-              <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Indicator code</dt>
-                <dd className="font-mono text-[10px] font-medium text-foreground">
-                  {selected.code}
-                </dd>
-              </div>
               <div className="flex items-center justify-between gap-3 px-3 py-2">
                 <dt className="text-subtle">Unit</dt>
                 <dd className="text-right font-medium text-foreground">
@@ -447,7 +445,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3 px-3 py-2">
-                <dt className="text-subtle">Provider update</dt>
+                <dt className="text-subtle">Source updated</dt>
                 <dd className="text-right font-medium text-foreground">
                   {formatUtcDate(selected.source.datasetUpdated)}
                 </dd>
@@ -468,16 +466,9 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
 
             <div className="flex flex-wrap items-center gap-2">
               <CadenceBadge cadence="periodic" label="Annual · periodic" />
-              <a
-                href={selected.source.apiUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-sm text-[10px] text-muted underline decoration-line-strong underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-              >
-                API query
-                <ExternalLink className="h-2.5 w-2.5" aria-hidden="true" />
-                <span className="sr-only">(opens in a new tab)</span>
-              </a>
+              <SourceLink href={selected.source.sourceUrl} className="text-[10px]">
+                World Bank source page
+              </SourceLink>
             </div>
 
             {gaps ? (
@@ -491,7 +482,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-subtle" aria-hidden="true" />
               <p className="text-[10px] leading-4 text-muted">
                 Annual values can be revised by the World Bank. The observation
-                year is not the date the API was queried.
+                year is not the date we checked the source.
               </p>
             </div>
           </div>
@@ -517,7 +508,7 @@ export function EconomyExplorer({ analytics }: { analytics: AnalyticsData }) {
         >
           <table className="w-full min-w-[620px] text-left text-[12px]">
             <caption className="sr-only">
-              {definition.name} annual observations for Bangladesh
+              {selected.name} annual observations for Bangladesh
             </caption>
             <thead>
               <tr className="border-b border-line bg-surface-muted/60 text-[10px] uppercase tracking-[0.08em] text-subtle">

@@ -15,13 +15,13 @@ import { CurrencyWorkspace } from "@/components/currency/currency-workspace";
 export const revalidate = 1800;
 
 const PAGE_DESCRIPTION =
-  "Convert USD to BDT and explore third-party daily reference exchange rates from Open ER-API, with clear attribution and separate links to Bangladesh Bank's official rates.";
+  "Convert between currencies and see Bangladeshi taka reference rates from ExchangeRate-API, with clear attribution and separate links to Bangladesh Bank's official rates.";
 
 export const metadata: Metadata = {
   title: "Currency & Exchange Rates",
   description: PAGE_DESCRIPTION,
   openGraph: {
-    title: "USD/BDT and currency reference rates",
+    title: "Dollar–taka and currency reference rates",
     description: PAGE_DESCRIPTION,
   },
 };
@@ -37,10 +37,10 @@ export default async function CurrencyPage() {
       <PageHeader
         eyebrow="Currency / Reference rates"
         title="Currency & exchange rates"
-        description="A USD-based currency converter and reference-rate table from a third-party daily feed. These are indicative reference rates — not Bangladesh Bank's official buying or selling rates."
+        description="A currency converter and taka-based reference-rate table using a third-party daily update. These are indicative reference rates — not Bangladesh Bank's official buying or selling rates."
       >
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-          <CadenceBadge cadence="daily" label="Daily third-party feed" />
+          <CadenceBadge cadence="daily" label="Daily third-party reference" />
           <span className="rounded-md border border-line bg-surface px-2 py-1 font-mono text-[10px] text-muted">
             Updated · {formatUtcDate(currency.lastUpdatedUtc)}
           </span>
@@ -51,33 +51,33 @@ export default async function CurrencyPage() {
         tone="warning"
         title="Third-party reference data, not an official bank rate."
       >
-        Open ER-API is an independent currency feed. Its values can differ from
-        Bangladesh Bank&apos;s official rates and are not suitable for settlement,
-        accounting, or regulatory decisions. The app validates the feed&apos;s
-        status, currency codes, and numeric values before display.
+        ExchangeRate-API is an independent currency service. Its values can
+        differ from Bangladesh Bank&apos;s official rates and are not suitable for
+        settlement, accounting, or regulatory decisions. We check that today&apos;s
+        rates are complete and numeric before showing them.
       </DataNotice>
 
       {currency.status === "error" ? (
         <ErrorState
           title="Currency reference rates are unavailable"
-          description="The third-party feed did not return a valid USD base or a usable BDT rate. No stale or substitute rate is shown. Official Bangladesh Bank links remain available below."
-          action={<RetryButton label="Retry currency feed" />}
+          description="The currency service did not return a usable dollar–taka rate. No stale or substitute rate is shown. Official Bangladesh Bank links remain available below."
+          action={<RetryButton label="Try again" />}
         />
       ) : (
         <CurrencyWorkspace data={currency} currencyNames={currencyNames} />
       )}
 
       <DataNotice tone="info" title="No historical exchange-rate chart is shown.">
-        This provider endpoint supplies current rates only. BizScope BD does not
-        invent a history or relabel the daily snapshot as a time series. For
-        historical official rates, use Bangladesh Bank&apos;s published data.
+        This service provides today&apos;s rates only. BizScope BD does not invent
+        a history or relabel the daily snapshot as a time series. For historical
+        official rates, use Bangladesh Bank&apos;s published data.
       </DataNotice>
 
       <Panel>
         <PanelHeader
           title="Official Bangladesh Bank rates"
           description="The authoritative source for official exchange-rate publications."
-          action={<Badge tone="outline">Not automated</Badge>}
+          action={<Badge tone="outline">Official link</Badge>}
         />
         <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.9fr)]">
           <div className="space-y-3 text-[12px] leading-6 text-muted">
@@ -98,12 +98,12 @@ export default async function CurrencyPage() {
               Bangladesh Bank publishes official exchange rates, the National
               Summary Data Page, reserves, remittance data, and other financial
               statistics as web pages and downloadable tables. Some pages require
-              interactive browser verification, and no documented public JSON
-              endpoint is available for automatic ingestion in this release.
+              a browser check, and the bank does not provide an automatic feed that
+              this dashboard can use in this release.
             </p>
             <p>
               BizScope BD therefore links to the official pages rather than
-              presenting them as a live API integration. The third-party rates
+              presenting them as automatically updated. The third-party rates
               above should always be checked against this source before any
               official use.
             </p>
@@ -128,7 +128,7 @@ export default async function CurrencyPage() {
               Bangladesh Bank open data
             </SourceLink>
             <p className="mt-1 border-t border-line pt-2 text-[10px] leading-4 text-subtle">
-              Provided as official reference links. No automatic rate ingestion
+              Provided as official reference links. No automatic copying of rates
               from these pages is claimed.
             </p>
           </div>

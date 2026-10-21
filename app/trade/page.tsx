@@ -7,6 +7,8 @@ import {
   Scale,
 } from "lucide-react";
 import { getAnalyticsData } from "@/lib/api/world-bank";
+import { getCurrencyData } from "@/lib/api/exchange-rates";
+import { convertIndicatorToBdt } from "@/lib/utils/display-currency";
 import type { MetricDelta } from "@/lib/api/types";
 import {
   buildTradeSeries,
@@ -14,6 +16,8 @@ import {
   latestTradeObservation,
 } from "@/lib/utils/trade";
 import {
+  formatBdtCompact,
+  formatBdtExact,
   formatPercent,
   formatSigned,
   formatUsdCompact,
@@ -27,6 +31,7 @@ import { DataNotice } from "@/components/ui/data-notice";
 import { ErrorState } from "@/components/ui/states";
 import { RetryButton } from "@/components/ui/retry-button";
 import { CadenceBadge } from "@/components/ui/cadence-badge";
+import { BdtConversionNotice } from "@/components/ui/bdt-conversion-notice";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { SourceLink } from "@/components/ui/source-link";
@@ -35,7 +40,7 @@ import { TradeCharts } from "@/components/trade/trade-charts";
 export const revalidate = 1800;
 
 const PAGE_DESCRIPTION =
-  "Bangladesh trade analytics using World Bank annual exports and imports of goods and services, with a derived trade balance shown only for compatible periods.";
+  "Bangladesh trade analytics using World Bank annual exports and imports of goods and services, shown in BDT with a derived trade balance for compatible periods.";
 
 export const metadata: Metadata = {
   title: "Trade Analytics",
@@ -46,21 +51,30 @@ export const metadata: Metadata = {
   },
 };
 
-function usdChangeDelta(
+function formatMoneyCompact(value: number, inBdt: boolean): string {
+  return inBdt ? formatBdtCompact(value) : formatUsdCompact(value);
+}
+
+function formatMoneyExact(value: number, inBdt: boolean): string {
+  return inBdt ? formatBdtExact(value) : formatUsdExact(value);
+}
+
+function moneyChangeDelta(
   current: number,
   previous: number,
   previousYear: number,
+  inBdt: boolean,
 ): MetricDelta | null {
   const difference = current - previous;
   if (!Number.isFinite(difference)) return null;
 
   if (difference === 0) {
-    return { direction: "flat", amountLabel: "US$0", previousYear };
+    return { direction: "flat", amountLabel: inBdt ? "৳0" : "US$0", previousYear };
   }
 
   return {
     direction: difference > 0 ? "up" : "down",
-    amountLabel: `${difference > 0 ? "+" : "\u2212"}${formatUsdCompact(Math.abs(difference))}`,
+    amountLabel: `${difference > 0 ? "+" : "\u2212"}${formatMoneyCompact(Math.abs(difference), inBdt)}`,
     previousYear,
   };
 }
@@ -81,9 +95,17 @@ function ppChangeDelta(
 }
 
 export default async function TradePage() {
-  const analytics = await getAnalyticsData();
-  const exportsIndicator = analytics.indicators.exports;
-  const importsIndicator = analytics.indicators.imports;
+  const [analytics, currency] = await Promise.all([
+    getAnalyticsData(),
+    getCurrencyData(),
+  ]);
+  const displaysInBdt = currency.bdtRate !== null;
+  const exportsIndicator = analytics.indicators.exports
+    ? convertIndicatorToBdt(analytics.indicators.exports, currency.bdtRate ?? 0)
+    : null;
+  const importsIndicator = analytics.indicators.imports
+    ? convertIndicatorToBdt(analytics.indicators.imports, currency.bdtRate ?? 0)
+    : null;
 
   const series = buildTradeSeries(exportsIndicator, importsIndicator);
   const latestExports = latestTradeObservation(series, "exports");
@@ -120,7 +142,7 @@ export default async function TradePage() {
       <PageHeader
         eyebrow="Trade / Analytics"
         title="Trade analytics"
-        description="Bangladesh's exports and imports of goods and services from the World Bank, compared over time with a derived balance shown only where both series share the same definition and annual period."
+        description="Bangladesh's exports and imports of goods and services from the World Bank, compared over time in taka. A derived balance is shown only where both series share the same definition and annual period."
       >
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
           <CadenceBadge cadence="periodic" label="Annual World Bank data" />
@@ -131,18 +153,22 @@ export default async function TradePage() {
       </PageHeader>
 
       <DataNotice title="Goods and services, not merchandise-only trade.">
-        These World Bank series cover exports and imports of goods and services in
-        current US dollars. They include services and must not be silently mixed
-        with merchandise-only customs figures from BBS or Bangladesh Bank. The
-        trade balance is calculated only when both World Bank series exist for the
-        same year.
+        These World Bank series cover exports and imports of goods and services.
+        They include services and must not be silently mixed with merchandise-only
+        customs figures from BBS or Bangladesh Bank. The trade balance is
+        calculated only when both World Bank series exist for the same year.
       </DataNotice>
+
+      <BdtConversionNotice
+        bdtPerUsd={currency.bdtRate}
+        updatedAt={currency.lastUpdatedUtc}
+      />
 
       {!exportsIndicator || !importsIndicator ? (
         <ErrorState
           title="Trade data is incomplete"
           description="One or both World Bank trade series could not be loaded. Exports and imports are shown only where available, and no balance is calculated from mixed definitions or periods."
-          action={<RetryButton label="Retry trade data" />}
+          action={<RetryButton label="Try again" />}
         />
       ) : null}
 
@@ -155,15 +181,15 @@ export default async function TradePage() {
             label="Exports of goods & services"
             value={
               latestExports?.exports !== undefined && latestExports?.exports !== null
-                ? formatUsdCompact(latestExports.exports)
+                ? formatMoneyCompact(latestExports.exports, displaysInBdt)
                 : null
             }
             exactValue={
               latestExports?.exports != null
-                ? formatUsdExact(latestExports.exports)
+                ? formatMoneyExact(latestExports.exports, displaysInBdt)
                 : undefined
             }
-            unit="Current US dollars"
+            unit={displaysInBdt ? "BDT equivalent" : "Current US dollars"}
             period={
               latestExports ? `Annual · ${latestExports.year}` : "No observation"
             }
@@ -181,15 +207,15 @@ export default async function TradePage() {
             label="Imports of goods & services"
             value={
               latestImports?.imports !== undefined && latestImports?.imports !== null
-                ? formatUsdCompact(latestImports.imports)
+                ? formatMoneyCompact(latestImports.imports, displaysInBdt)
                 : null
             }
             exactValue={
               latestImports?.imports != null
-                ? formatUsdExact(latestImports.imports)
+                ? formatMoneyExact(latestImports.imports, displaysInBdt)
                 : undefined
             }
-            unit="Current US dollars"
+            unit={displaysInBdt ? "BDT equivalent" : "Current US dollars"}
             period={
               latestImports ? `Annual · ${latestImports.year}` : "No observation"
             }
@@ -207,15 +233,15 @@ export default async function TradePage() {
             label="Trade balance · goods & services"
             value={
               balanceReady && latestBalance?.balance != null
-                ? formatUsdCompact(latestBalance.balance)
+                ? formatMoneyCompact(latestBalance.balance, displaysInBdt)
                 : null
             }
             exactValue={
               latestBalance?.balance != null
-                ? formatUsdExact(latestBalance.balance)
+                ? formatMoneyExact(latestBalance.balance, displaysInBdt)
                 : undefined
             }
-            unit="Exports minus imports, current US$"
+            unit={displaysInBdt ? "Exports minus imports, BDT equivalent" : "Exports minus imports, current US$"}
             period={
               latestBalance ? `Annual · ${latestBalance.year}` : "Needs both series"
             }
@@ -228,10 +254,11 @@ export default async function TradePage() {
               latestBalance?.balance != null &&
               previousBalance?.balance != null &&
               latestBalance.year - previousBalance.year === 1
-                ? usdChangeDelta(
+                ? moneyChangeDelta(
                     latestBalance.balance,
                     previousBalance.balance,
                     previousBalance.year,
+                    displaysInBdt,
                   )
                 : null
             }
@@ -278,7 +305,12 @@ export default async function TradePage() {
         </div>
       </section>
 
-      <TradeCharts series={series} providerUpdated={providerUpdated} />
+      <TradeCharts
+        series={series}
+        providerUpdated={providerUpdated}
+        bdtPerUsd={currency.bdtRate}
+        bdtUpdatedAt={currency.lastUpdatedUtc}
+      />
 
       <Panel>
         <PanelHeader
@@ -298,7 +330,7 @@ export default async function TradePage() {
           <div
             className="table-scroll overflow-x-auto scrollbar-subtle"
             role="region"
-            aria-label="Annual trade data table"
+            aria-label={`Annual trade data table in ${displaysInBdt ? "BDT equivalents" : "US dollars"}`}
             tabIndex={0}
           >
             <table className="w-full min-w-[760px] text-left text-[12px]">
@@ -312,13 +344,13 @@ export default async function TradePage() {
                     Year
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-right font-semibold">
-                    Exports
+                    Exports ({displaysInBdt ? "BDT" : "US$"})
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-right font-semibold">
-                    Imports
+                    Imports ({displaysInBdt ? "BDT" : "US$"})
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-right font-semibold">
-                    Balance
+                    Balance ({displaysInBdt ? "BDT" : "US$"})
                   </th>
                   <th scope="col" className="px-5 py-2.5 text-right font-semibold sm:px-6">
                     Export coverage
@@ -340,21 +372,21 @@ export default async function TradePage() {
                     </th>
                     <td
                       className="whitespace-nowrap px-4 py-2.5 text-right tabular text-foreground"
-                      title={row.exports !== null ? formatUsdExact(row.exports) : undefined}
+                      title={row.exports !== null ? formatMoneyExact(row.exports, displaysInBdt) : undefined}
                     >
-                      {row.exports !== null ? formatUsdCompact(row.exports) : "\u2014"}
+                      {row.exports !== null ? formatMoneyCompact(row.exports, displaysInBdt) : "\u2014"}
                     </td>
                     <td
                       className="whitespace-nowrap px-4 py-2.5 text-right tabular text-foreground"
-                      title={row.imports !== null ? formatUsdExact(row.imports) : undefined}
+                      title={row.imports !== null ? formatMoneyExact(row.imports, displaysInBdt) : undefined}
                     >
-                      {row.imports !== null ? formatUsdCompact(row.imports) : "\u2014"}
+                      {row.imports !== null ? formatMoneyCompact(row.imports, displaysInBdt) : "\u2014"}
                     </td>
                     <td
                       className="whitespace-nowrap px-4 py-2.5 text-right font-medium tabular text-foreground"
-                      title={row.balance !== null ? formatUsdExact(row.balance) : undefined}
+                      title={row.balance !== null ? formatMoneyExact(row.balance, displaysInBdt) : undefined}
                     >
-                      {row.balance !== null ? formatUsdCompact(row.balance) : "\u2014"}
+                      {row.balance !== null ? formatMoneyCompact(row.balance, displaysInBdt) : "\u2014"}
                     </td>
                     <td className="whitespace-nowrap px-5 py-2.5 text-right tabular text-muted sm:px-6">
                       {row.coverageRatio !== null
@@ -369,8 +401,8 @@ export default async function TradePage() {
         )}
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
           <p>
-            Values abbreviated on screen; exact source values appear on hover.
-            Balance is a derived calculation, not a World Bank-published series.
+            Values are abbreviated; exact {displaysInBdt ? "taka equivalents" : "US-dollar values"} appear on hover.
+            Balance is calculated here, not a World Bank-published series.
           </p>
           <p>Retrieved {formatUtcDateTime(lastRetrieved)}</p>
         </div>
@@ -387,8 +419,9 @@ export default async function TradePage() {
               <span className="font-semibold text-foreground">Exports</span> are the
               value of goods and services provided to the rest of the world.{" "}
               <span className="font-semibold text-foreground">Imports</span> are the
-              value received from the rest of the world. Both are in current US
-              dollars and include services.
+              value received from the rest of the world. Both include services. The
+              World Bank reports them in US dollars; the dashboard shows taka
+              equivalents at the current reference rate.
             </p>
             <p>
               The balance is <span className="font-semibold text-foreground">exports minus imports</span>{" "}
@@ -396,9 +429,10 @@ export default async function TradePage() {
               as the trade contribution to GDP.
             </p>
             <p>
-              Because values are nominal, changes reflect price movements and
-              exchange-rate effects as well as volume. This dashboard does not
-              adjust these series for inflation.
+              Because values are nominal, changes reflect price movements as well
+              as volume. The same current exchange rate is used for every year, so
+              the taka series is a present-day equivalent, not a historical
+              exchange-rate conversion. It is not adjusted for inflation.
             </p>
             <div className="flex flex-wrap gap-4 pt-1">
               <SourceLink href={sourceUrl} className="text-[11px]">
@@ -433,11 +467,11 @@ export default async function TradePage() {
               merged into these values.
             </p>
             <p>
-              The latest World Bank provider update was{" "}
+              The latest World Bank data update was{" "}
               <span className="font-medium text-foreground">
                 {formatUtcDate(providerUpdated)}
               </span>
-              . These are periodic official statistics, not a live trade ticker.
+              . These are annual official statistics, not a live trade ticker.
             </p>
             <div className="flex flex-col gap-2 pt-1">
               <SourceLink

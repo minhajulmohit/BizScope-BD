@@ -16,8 +16,10 @@ import {
 } from "recharts";
 import type { AnalyticsData, EconomicIndicator } from "@/lib/api/types";
 import {
+  formatAxisBdt,
   formatAxisPercent,
   formatAxisUsd,
+  formatBdtExact,
   formatPercent,
   formatPercentPrecise,
   formatUsdExact,
@@ -61,7 +63,7 @@ function ChartSource({
         >
           World Bank WDI
         </SourceLink>
-        {providerUpdated ? ` · provider updated ${formatUtcDate(providerUpdated)}` : null}
+        {providerUpdated ? ` · source updated ${formatUtcDate(providerUpdated)}` : null}
       </p>
     </div>
   );
@@ -209,19 +211,29 @@ function densifyMixedRows(
   return dense;
 }
 
-export function TradeFlowsChart({ analytics }: { analytics: AnalyticsData }) {
+export function TradeFlowsChart({
+  analytics,
+  inBdt,
+}: {
+  analytics: AnalyticsData;
+  inBdt: boolean;
+}) {
   const exportsIndicator = analytics.indicators.exports;
   const importsIndicator = analytics.indicators.imports;
 
   const rows = densifyMixedRows(
     mergeIndicatorSeries(exportsIndicator, importsIndicator),
   );
+  const axisFormatter = inBdt ? formatAxisBdt : formatAxisUsd;
+  const formatExact = inBdt ? formatBdtExact : formatUsdExact;
 
   return (
     <Panel className="flex h-full flex-col">
       <PanelHeader
         title="Exports vs imports"
-        description="Goods and services, current US dollars. Y-axis: current US$."
+        description={`Goods and services, shown in ${
+          inBdt ? "BDT equivalents at the current reference rate" : "the source currency because the reference rate is unavailable"
+        }.`}
         action={
           <span className="inline-flex rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] font-medium text-muted">
             {latestYearLabel(exportsIndicator, importsIndicator)}
@@ -243,7 +255,9 @@ export function TradeFlowsChart({ analytics }: { analytics: AnalyticsData }) {
           <div
             className="h-[280px] w-full px-2 pb-2 pt-3 sm:px-3"
             role="group"
-            aria-label="Grouped bar chart comparing annual goods and services exports with imports."
+            aria-label={`Grouped bar chart comparing annual goods and services exports with imports in ${
+              inBdt ? "BDT equivalents" : "US dollars"
+            }.`}
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={rows} margin={CHART_MARGIN} barGap={2}>
@@ -261,7 +275,7 @@ export function TradeFlowsChart({ analytics }: { analytics: AnalyticsData }) {
                   axisLine={false}
                   tickLine={false}
                   width={52}
-                  tickFormatter={formatAxisUsd}
+                  tickFormatter={axisFormatter}
                 />
                 <Tooltip
                   wrapperStyle={chartTooltipWrapperStyle}
@@ -269,7 +283,7 @@ export function TradeFlowsChart({ analytics }: { analytics: AnalyticsData }) {
                   content={
                     <ChartTooltip
                       formatLabel={(label) => `Annual trade flows · ${String(label ?? "")}`}
-                      formatValue={(value) => formatUsdExact(value)}
+                      formatValue={(value) => formatExact(value)}
                     />
                   }
                 />
@@ -299,7 +313,11 @@ export function TradeFlowsChart({ analytics }: { analytics: AnalyticsData }) {
                 importsIndicator?.source.datasetUpdated ??
                 null
               }
-              note="Goods and services only — not merchandise-only trade."
+              note={
+                inBdt
+                  ? "Goods and services only. Taka values use the current reference rate."
+                  : "Goods and services only. Shown in US dollars because the taka reference rate is unavailable."
+              }
             />
           </div>
         </>

@@ -37,6 +37,14 @@ function effectiveRateFormatter(value: number): string {
   }).format(value);
 }
 
+function bdtPerUnitFormatter(value: number): string {
+  const decimals = value >= 1 ? 2 : value >= 0.01 ? 4 : 6;
+  return `৳${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: decimals,
+  }).format(value)}`;
+}
+
 function CurrencySelect({
   id,
   label,
@@ -126,6 +134,13 @@ export function CurrencyWorkspace({
     });
   }, [currencyNames, data.rates, query]);
 
+  const bdtRate = data.bdtRate;
+
+  function rateInBdt(unitsPerUsd: number): number | null {
+    if (bdtRate === null || bdtRate <= 0 || unitsPerUsd <= 0) return null;
+    return bdtRate / unitsPerUsd;
+  }
+
   function swapCurrencies() {
     setFromCode(toCode);
     setToCode(fromCode);
@@ -139,7 +154,7 @@ export function CurrencyWorkspace({
           <div className="p-5 pt-6 sm:p-6 sm:pt-7">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="eyebrow">USD → BDT</p>
+                <p className="eyebrow">US dollar → taka</p>
                 <h2 className="mt-1 text-[13px] font-semibold text-foreground">
                   Bangladeshi taka per US dollar
                 </h2>
@@ -155,13 +170,13 @@ export function CurrencyWorkspace({
             </div>
             <p className="mt-2 text-[12px] leading-5 text-muted">
               1 US dollar equals {data.bdtRate !== null ? formatRate(data.bdtRate) : "\u2014"}{" "}
-              Bangladeshi taka at this provider&apos;s daily reference update.
+              Bangladeshi taka at the latest daily reference update.
             </p>
 
             <dl className="mt-6 grid grid-cols-1 gap-3 border-t border-line pt-4 text-[10px] sm:grid-cols-2">
               <div>
                 <dt className="font-semibold uppercase tracking-[0.07em] text-subtle">
-                  Provider update
+                  Rate updated
                 </dt>
                 <dd className="mt-1 text-[11px] font-medium leading-4 text-foreground-soft">
                   {formatUtcDateTime(data.lastUpdatedUtc)}
@@ -177,7 +192,7 @@ export function CurrencyWorkspace({
               </div>
               <div>
                 <dt className="font-semibold uppercase tracking-[0.07em] text-subtle">
-                  Retrieved by BizScope
+                  Checked by BizScope
                 </dt>
                 <dd className="mt-1 text-[11px] font-medium leading-4 text-foreground-soft">
                   {formatUtcDateTime(data.retrievedAt)}
@@ -188,7 +203,7 @@ export function CurrencyWorkspace({
                   Base currency
                 </dt>
                 <dd className="mt-1 text-[11px] font-medium leading-4 text-foreground-soft">
-                  USD · provider daily feed
+                  Reference currency · US dollar
                 </dd>
               </div>
             </dl>
@@ -201,7 +216,7 @@ export function CurrencyWorkspace({
                 href={data.source.homepageUrl}
                 className="text-[10px] text-muted"
               >
-                Rate by {data.source.provider}
+                Currency data from {data.source.provider}
               </SourceLink>
             </div>
           </div>
@@ -210,7 +225,7 @@ export function CurrencyWorkspace({
         <Panel className="min-w-0">
           <PanelHeader
             title="Currency converter"
-            description="Convert between any currencies in the provider feed using USD-based cross-rates."
+            description="Convert between currencies using the same daily reference update."
             action={
               <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
                 <RefreshCw className="h-3 w-3" aria-hidden="true" />
@@ -252,7 +267,7 @@ export function CurrencyWorkspace({
                 role={!amountValid ? "alert" : undefined}
               >
                 {amountValid
-                  ? "Enter a non-negative number. Cross-rates use the same provider update."
+                  ? "Enter a non-negative number. Conversions use the same daily reference update."
                   : "Enter a valid non-negative number, up to 1 trillion, using a period for decimals."}
               </p>
             </div>
@@ -301,7 +316,7 @@ export function CurrencyWorkspace({
                   </p>
                   <p className="mt-1.5 text-[11px] text-muted">
                     {convertedFormatter(numericAmount)} {fromCode} at a reference
-                    cross-rate of 1 {fromCode} ={" "}
+                    rate of 1 {fromCode} ={" "}
                     {effectiveRate !== null
                       ? effectiveRateFormatter(effectiveRate)
                       : "\u2014"}{" "}
@@ -316,9 +331,9 @@ export function CurrencyWorkspace({
             </div>
 
             <p className="text-[10px] leading-4 text-subtle">
-              Cross-rates are derived from the provider&apos;s USD base feed. They
-              are reference values, not a transaction quote. Provider timestamps
-              apply to all rates.
+              Conversions use the currency service&apos;s daily reference rates.
+              They are indicative values, not a transaction quote. The same
+              update time applies to all rates.
             </p>
           </div>
         </Panel>
@@ -327,7 +342,7 @@ export function CurrencyWorkspace({
       <Panel>
         <PanelHeader
           title="Reference rate table"
-          description="Units of each currency per 1 US dollar. Search by currency code or name."
+          description="How much one unit of each currency is worth in Bangladeshi taka. Search by currency code or name."
           action={
             <span className="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-1 font-mono text-[10px] text-muted">
               <Clock3 className="h-3 w-3" aria-hidden="true" />
@@ -372,7 +387,8 @@ export function CurrencyWorkspace({
           >
             <table className="w-full min-w-[460px] text-left text-[12px]">
               <caption className="sr-only">
-                Third-party reference exchange rates per US dollar
+                Third-party reference rates expressed as Bangladeshi taka per one
+                unit of each currency
               </caption>
               <thead className="sticky top-0 z-10 bg-surface-muted">
                 <tr className="border-b border-line text-[10px] uppercase tracking-[0.08em] text-subtle">
@@ -383,7 +399,7 @@ export function CurrencyWorkspace({
                     Code
                   </th>
                   <th scope="col" className="px-5 py-2.5 text-right font-semibold sm:px-6">
-                    Units per 1 USD
+                    Taka per 1 unit
                   </th>
                 </tr>
               </thead>
@@ -392,6 +408,7 @@ export function CurrencyWorkspace({
                   const isBdt = quote.code === "BDT";
                   const isSelected =
                     quote.code === fromCode || quote.code === toCode;
+                  const takaValue = rateInBdt(quote.unitsPerUsd);
 
                   return (
                     <tr
@@ -416,7 +433,7 @@ export function CurrencyWorkspace({
                         {quote.code}
                       </td>
                       <td className="whitespace-nowrap px-5 py-2.5 text-right font-medium tabular text-foreground sm:px-6">
-                        {formatRate(quote.unitsPerUsd)}
+                        {takaValue !== null ? bdtPerUnitFormatter(takaValue) : "\u2014"}
                       </td>
                     </tr>
                   );
@@ -426,13 +443,13 @@ export function CurrencyWorkspace({
           </div>
         )}
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
-          <p>All rates share the provider&apos;s single daily update timestamp.</p>
+          <p>All rates share the service&apos;s single daily update timestamp.</p>
           <div className="flex items-center gap-3">
             <SourceLink
               href={data.source.documentationUrl}
               className="text-[10px] text-muted"
             >
-              API documentation
+              About this rate source
             </SourceLink>
             <SourceLink
               href={data.source.termsUrl}

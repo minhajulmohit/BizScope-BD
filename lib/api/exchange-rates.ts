@@ -8,7 +8,7 @@ import { fetchJson, isRecord, safeErrorMessage, UpstreamError } from "@/lib/api/
 import type { CurrencyData, CurrencyQuote } from "@/lib/api/types";
 
 const CURRENCY_SOURCE: CurrencyData["source"] = {
-  provider: "ExchangeRate-API (Open ER-API)",
+  provider: "ExchangeRate-API",
   homepageUrl: "https://www.exchangerate-api.com/",
   documentationUrl: "https://www.exchangerate-api.com/docs/free",
   termsUrl: "https://www.exchangerate-api.com/terms",

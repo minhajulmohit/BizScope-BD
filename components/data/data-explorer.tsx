@@ -323,7 +323,7 @@ export function DataExplorer() {
           })}
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-surface-muted/40 px-4 py-2 text-[9px] text-subtle">
-          <p>Public GET catalog · metadata only · files may require authentication</p>
+          <p>Public catalog · metadata only · files may require sign-in</p>
           <p>
             Retrieved{" "}
             {data ? formatUtcDateTime(data.retrievedAt) : "\u2014"}
@@ -436,7 +436,7 @@ export function DataExplorer() {
         <Panel>
           <ErrorState
             title="The dataset catalog could not be loaded"
-            description="OpenDataBD's public catalog API may be temporarily unavailable, or the response did not validate. No dataset placeholders are shown."
+            description="OpenDataBD's public catalog may be temporarily unavailable, or the response was incomplete. No placeholder datasets are shown."
             action={
               <button
                 type="button"
@@ -545,7 +545,7 @@ export function DataExplorer() {
             href="https://www.opendatabd.com/api-docs"
             className="text-[10px] text-muted"
           >
-            Catalog API docs
+            Catalog help
           </SourceLink>
           <a
             href="https://opendatabd.com/"

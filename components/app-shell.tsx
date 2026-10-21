@@ -133,8 +133,8 @@ function SidebarFooter() {
           </p>
         </div>
         <p className="mt-1.5 text-[11px] leading-[1.6] text-muted">
-          Annual official statistics and a daily third-party FX reference. No
-          feed here is presented as real-time.
+          Annual official statistics and a daily third-party currency reference.
+          Nothing here is presented as real-time.
         </p>
         <Link
           href="/sources"

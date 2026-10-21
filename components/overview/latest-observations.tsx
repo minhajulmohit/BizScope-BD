@@ -7,7 +7,13 @@ import { INDICATOR_DEFINITIONS, INDICATOR_ORDER } from "@/lib/indicator-catalog"
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { SourceLink } from "@/components/ui/source-link";
 
-export function LatestObservations({ analytics }: { analytics: AnalyticsData }) {
+export function LatestObservations({
+  analytics,
+  inBdt,
+}: {
+  analytics: AnalyticsData;
+  inBdt: boolean;
+}) {
   return (
     <Panel>
       <PanelHeader
@@ -55,16 +61,13 @@ export function LatestObservations({ analytics }: { analytics: AnalyticsData }) 
               return (
                 <tr key={key} className="transition-colors hover:bg-surface-muted/40">
                   <th scope="row" className="px-5 py-3 font-medium text-foreground sm:px-6">
-                    <span className="block">{definition.shortName}</span>
-                    <span className="mt-0.5 block font-mono text-[9px] font-normal text-subtle">
-                      {definition.code}
-                    </span>
+                    {definition.shortName}
                   </th>
                   <td
                     className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular text-foreground"
                     title={
-                      latest
-                        ? formatIndicatorExact(definition.unit, latest.value)
+                      latest && indicator
+                        ? formatIndicatorExact(indicator.unit, latest.value)
                         : undefined
                     }
                   >
@@ -90,9 +93,11 @@ export function LatestObservations({ analytics }: { analytics: AnalyticsData }) 
         </table>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3 text-[10px] leading-4 text-subtle sm:px-6">
-        <p>Values are annual observations, not calendar-year estimates for today.</p>
+        <p>Values are annual observations, not estimates for today.</p>
         <p>
-          Export/import values cover goods and services.
+          {inBdt
+            ? "Money values are taka equivalents at the reference rate shown above."
+            : "Money values are shown in their original US dollars because the taka reference rate is unavailable."}
         </p>
       </div>
     </Panel>

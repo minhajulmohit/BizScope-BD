@@ -50,19 +50,19 @@ export async function getStatusData(): Promise<StatusData> {
       cadenceLabel: "Annual · periodically revised",
       detail: analytics
         ? `${analytics.summary.availableIndicators} of ${analytics.summary.totalIndicators} indicators available`
-        : "The analytics provider could not be reached.",
+        : "The World Bank data could not be reached.",
       lastRetrievedAt: analytics?.summary.lastSuccessfulRetrieval ?? null,
     },
     {
       id: "exchange-rates",
-      name: "Open ER-API",
+      name: "ExchangeRate-API",
       status: currency?.status === "ok" ? "operational" : "unavailable",
       cadence: "daily",
       cadenceLabel: "Daily reference · third-party",
       detail:
         currency?.status === "ok"
-          ? "USD reference rates are responding."
-          : "The daily reference feed could not be reached.",
+          ? "Dollar–taka reference rates are available."
+          : "The daily currency reference could not be reached.",
       lastRetrievedAt: currency?.retrievedAt ?? null,
     },
     {
@@ -73,7 +73,7 @@ export async function getStatusData(): Promise<StatusData> {
       cadenceLabel: "Catalog · on-demand",
       detail: catalog
         ? `${catalog.totalDatasets} catalog datasets available.`
-        : "The public catalog API could not be reached.",
+        : "The public catalog could not be reached.",
       lastRetrievedAt: catalog?.retrievedAt ?? null,
     },
   ];

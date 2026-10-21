@@ -24,8 +24,8 @@ export default function AppError({
           This page could not be rendered
         </h1>
         <p className="mt-2 text-sm leading-6 text-muted">
-          An unexpected application error occurred. The underlying data provider
-          may be temporarily unavailable. Try loading the page again.
+          An unexpected application error occurred. A data source may be
+          temporarily unavailable. Try loading the page again.
         </p>
         <button
           type="button"

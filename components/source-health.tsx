@@ -21,13 +21,13 @@ const PROVIDER_ICONS = {
 
 const HEALTH_CONFIG = {
   operational: {
-    label: "Operational",
+    label: "Working",
     dot: "bg-brand",
     text: "text-brand-strong",
     badge: "bg-brand-soft",
   },
   degraded: {
-    label: "Degraded",
+    label: "Limited",
     dot: "bg-amber",
     text: "text-amber",
     badge: "bg-amber-soft",
@@ -99,7 +99,7 @@ export function SourceHealth() {
             {formatUtcDateTime(data.generatedAt)}
           </span>{" "}
           · {data.providers.filter((provider) => provider.status === "operational").length}{" "}
-          of {data.providers.length} providers responding
+          of {data.providers.length} sources responding
         </p>
         <button
           type="button"
@@ -141,7 +141,7 @@ export function SourceHealth() {
                     {provider.detail}
                   </p>
                   <p className="mt-0.5 text-[10px] text-subtle">
-                    Last retrieved: {formatUtcDateTime(provider.lastRetrievedAt)}
+                    Last checked: {formatUtcDateTime(provider.lastRetrievedAt)}
                   </p>
                 </div>
               </div>

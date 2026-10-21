@@ -12,7 +12,7 @@ type SourceStatus = "operational" | "degraded" | "unavailable" | "linked";
 
 const STATUS_CONFIG: Record<SourceStatus, { dot: string; label: string; text: string }> = {
   operational: { dot: "bg-brand", label: "Responding", text: "text-brand-strong" },
-  degraded: { dot: "bg-amber", label: "Degraded", text: "text-amber" },
+  degraded: { dot: "bg-amber", label: "Limited", text: "text-amber" },
   unavailable: { dot: "bg-danger", label: "Unavailable", text: "text-danger" },
   linked: { dot: "bg-subtle", label: "Official link", text: "text-muted" },
 };
@@ -56,13 +56,13 @@ export function SourceSummary({
       href: "https://data.worldbank.org/country/bangladesh",
     },
     {
-      name: "Open ER-API",
-      role: "Third-party FX reference",
+      name: "ExchangeRate-API",
+      role: "Daily currency reference",
       status: currencyStatus,
       detail:
         currency.status === "ok"
-          ? "Daily USD feed responding"
-          : "Reference feed unavailable",
+          ? "Dollar–taka reference available"
+          : "Daily reference unavailable",
       href: currency.source.homepageUrl,
     },
     {
@@ -78,7 +78,7 @@ export function SourceSummary({
       name: "Bangladesh Bank",
       role: "Official monetary data",
       status: "linked",
-      detail: "Manual official source",
+      detail: "Official website link",
       href: "https://www.bb.org.bd/econdata/nsdp/nsdp_bb.php",
     },
     {
@@ -94,7 +94,7 @@ export function SourceSummary({
     <Panel className="flex h-full flex-col">
       <PanelHeader
         title="Data sources"
-        description="Three integrations, plus official sources linked for manual access."
+        description="Three connected sources, plus official sources linked for manual reference."
       />
       <ul className="divide-y divide-line">
         {rows.map((row) => {
@@ -136,7 +136,7 @@ export function SourceSummary({
       </ul>
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-line px-5 py-3 sm:px-6">
         <p className="text-[10px] text-subtle">
-          No real-time feeds are claimed.
+          No real-time data is claimed.
         </p>
         <Link
           href="/sources"
