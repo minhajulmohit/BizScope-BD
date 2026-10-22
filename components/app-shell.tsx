@@ -13,6 +13,7 @@ import {
   Database,
   LayoutDashboard,
   Menu,
+  Sigma,
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -28,6 +29,7 @@ type NavKey =
   | "economy"
   | "trade"
   | "currency"
+  | "math"
   | "data"
   | "sources";
 
@@ -42,6 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/economy", key: "economy", icon: ChartNoAxesCombined },
   { href: "/trade", key: "trade", icon: ArrowLeftRight },
   { href: "/currency", key: "currency", icon: CircleDollarSign },
+  { href: "/math", key: "math", icon: Sigma },
   { href: "/data", key: "data", icon: Database },
   { href: "/sources", key: "sources", icon: BookOpenText },
 ];
@@ -51,6 +54,7 @@ const PAGE_KEYS: Record<string, NavKey> = {
   "/economy": "economy",
   "/trade": "trade",
   "/currency": "currency",
+  "/math": "math",
   "/data": "data",
   "/sources": "sources",
 };
@@ -63,6 +67,7 @@ const COPY = {
       economy: "Economy",
       trade: "Trade",
       currency: "Dollar rate",
+      math: "Econ Math",
       data: "Datasets",
       sources: "Sources",
     },
@@ -85,6 +90,7 @@ const COPY = {
       economy: "অর্থনীতি",
       trade: "বাণিজ্য",
       currency: "ডলার রেট",
+      math: "অর্থনীতির গণিত",
       data: "ডেটাসেট",
       sources: "উৎস",
     },

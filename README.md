@@ -1,6 +1,6 @@
 # BizScope BD
 
-**See Bangladesh Through Data.** A production-minded business intelligence dashboard for Bangladesh's economy, trade, currency reference rates, and public dataset catalog.
+**See Bangladesh Through Data.** A production-minded business intelligence dashboard for Bangladesh's economy, trade, currency reference rates, public datasets, and browser-based economics and statistics calculators.
 
 BizScope BD is built around a simple rule: **every number must carry its source, unit, observation period, and honest freshness.** Annual statistics are never relabelled as current, and a daily third-party currency reference is never presented as an official Bangladesh Bank rate or a live market quote.
 
@@ -16,6 +16,7 @@ BizScope BD is built around a simple rule: **every number must carry its source,
 - **Economic analytics** (`/economy`) — seven World Bank series with a metric selector, year-range filters, line/bar views, definitions, gap reporting, and an annual data table. GDP is shown in BDT using the current reference rate.
 - **Trade analytics** (`/trade`) — exports and imports of goods and services in BDT, a derived trade balance, export coverage, comparison charts, and methodology panels.
 - **Currency & rates** (`/currency`) — dollar–taka reference rate, a currency converter, a searchable taka-per-unit rate table, timestamps, attribution, and separate official Bangladesh Bank links.
+- **Econ Math** (`/math`) — 41 bilingual economics and statistics calculators with editable tables, Excel/Google Sheets paste, formulas, substituted values, step-by-step solutions, and plain-language interpretations. All calculations run in the browser.
 - **Data explorer** (`/data`) — live OpenDataBD catalog with stats, debounced search, category filtering, pagination, dataset metadata, and source links. Dataset files are not proxied.
 - **Sources & methodology** (`/sources`) — plain-language source register, live checks, the seven indicators, update frequency, licensing, and limitations.
 
@@ -32,9 +33,10 @@ Every page, chart label, table, notice, empty/error state, metadata title, and m
 | Framework | Next.js 16.4.2 (App Router, Turbopack) |
 | UI | React 19.3, TypeScript 5 (strict), Tailwind CSS v4 |
 | Charts | Recharts 3.10 |
+| Math engine | Custom TypeScript for distributions, hypothesis tests, economics, and finance; browser-only, with no external math package |
 | Icons | Lucide React |
 | Data access | Native `fetch` in server components and Route Handlers |
-| Storage | None required; no database, no API keys for this release |
+| Storage | None required; no database, no API keys. Econ Math inputs stay in browser memory only. |
 | Languages | English and Bangla, cookie-backed server rendering |
 | Lint | ESLint 9 with `eslint-config-next` |
 
@@ -67,6 +69,35 @@ npm run lint
 npx tsc --noEmit
 npm run build
 ```
+
+---
+
+## Econ Math
+
+`/math` is a bilingual economics and statistics workbench with **41 calculators** in seven categories:
+
+| Category | Covered methods |
+| --- | --- |
+| Descriptive statistics | Summary statistics, grouped frequency tables |
+| Hypothesis testing | One-sample Z and t tests, two-sample t test (Welch or pooled), paired t test, two-proportion Z test, variance F test, χ² goodness-of-fit and independence tests, one-way ANOVA |
+| Regression & correlation | Pearson correlation, Spearman rank correlation, simple OLS |
+| Microeconomics | Market equilibrium, price/income/cross elasticity, cost analysis, monopoly profit, consumer and producer surplus |
+| Macroeconomics | GDP expenditure approach, GDP deflator, CPI inflation, CAGR, GDP per capita, unemployment, money and expenditure multipliers, Fisher equation |
+| Finance | Compound interest, effective annual rate, present/future value, annuities, NPV, IRR, payback, break-even, loan EMI, depreciation |
+| Index numbers | Simple and weighted price index |
+
+Calculators use editable parameter fields and data tables:
+
+- Add or remove rows; ANOVA and contingency tables support dynamic numeric columns.
+- Paste a block from Excel or Google Sheets (tab- or comma-separated) into any cell.
+- Load bilingual example data, clear the current draft, or type values directly.
+- Validate values inline instead of failing silently.
+
+Each result shows the formula, substituted values, numbered working, a plain-language decision or interpretation, warnings, and the assumptions behind the method. The **Formula guide** tab collects every formula, symbol, use case, and assumption. All calculator labels, help text, examples, and interpretations are available in English and Bangla.
+
+**Statistical conventions:** α defaults to 0.05; the two-sample t test defaults to Welch's approximation with a pooled-variance toggle; p-values below 0.0001 display as `p < 0.0001`; rates are entered as decimals (8% = 0.08).
+
+**Privacy and limits:** calculations run entirely in your browser from the values you enter. Nothing is uploaded, stored, logged, or sent to an API, and reloading the page discards the work. Econ Math is an educational aid, not financial advice or a replacement for R, Stata, SPSS, or a reviewed statistical workflow.
 
 ---
 
@@ -123,6 +154,8 @@ The Sources page distinguishes these integrations clearly. Official sources are 
 - **Sanitised errors:** upstream error bodies and headers are never forwarded to the browser.
 - **Observation periods:** every KPI, chart, and table states the observation year or period. A source's "last updated" date is shown separately from the observation year.
 - **No real-time claims:** the dashboard describes annual statistics and a daily third-party reference accurately. Nothing is presented as a live ticker.
+- **Client-side math:** Econ Math computes from user-entered values in the browser. Input tables, drafts, and results are never posted to a Route Handler or third-party service.
+- **Statistical transparency:** hypothesis tests require an explicit α and alternative-hypothesis choice, and report the test statistic, degrees of freedom, p-value, decision, assumptions, and warnings. A calculator result is not presented as a substitute for reviewed statistical software.
 
 ---
 
@@ -153,7 +186,7 @@ All endpoints are public GET routes on the same deployment.
 | `/api/datasets` | OpenDataBD catalog proxy | `q` (≤80 chars), `category`, `page` (1–1000), `limit` (1–24, default 12); `502` on provider failure |
 | `/api/status` | Provider health snapshot | Always `200`, with per-provider states |
 
-Responses include `X-Data-Status` and an `X-Data-Cadence` header where relevant. The in-app Sources page uses plain-language explanations; implementation details for the Route Handlers live in `app/api/`.
+Responses include `X-Data-Status` and an `X-Data-Cadence` header where relevant. The in-app Sources page uses plain-language explanations; implementation details for the Route Handlers live in `app/api/`. There is no Econ Math API endpoint: all calculations happen in the client bundle.
 
 ---
 
@@ -165,6 +198,7 @@ app/
   economy/page.tsx         Economic analytics
   trade/page.tsx           Trade analytics
   currency/page.tsx        Currency & rates
+  math/page.tsx            Econ Math calculators and formula guide
   data/page.tsx            OpenDataBD explorer
   sources/page.tsx         Sources, health, methodology
   api/                     Analytics, currency, datasets, status handlers
@@ -177,12 +211,14 @@ components/
   charts/                  Recharts wrappers, tooltip, legend, empty state
   ui/                      Panels, badges, KPIs, notices, states, skeletons
   economy/ trade/ currency/ data/ overview/ sources/
+  math/                    Calculator picker, input tables, results, formula guide
 lib/
   api/                     Typed provider clients, validation, cache, status
   i18n.ts                  Shared UI copy and language types
   i18n-server.ts           Server cookie reader for layouts and pages
   indicator-catalog.ts     Bilingual indicator definitions and codes
   sources.ts               Bilingual source registry and integration status
+  econ-math/               Client-side statistics, economics, finance, and index engine
   utils/                   Formatting, metrics, BDT conversion, trade derivations
 ```
 
@@ -194,6 +230,7 @@ lib/
 - Charts have accessible group labels and visible companion tables (economy and trade).
 - Mobile drawer closes on navigation, supports Escape, traps focus, restores focus, and locks body scroll.
 - Visible focus rings, reduced-motion support, and `aria-live` regions for async updates.
+- Econ Math supports spreadsheet-style block paste, add/remove rows and columns, keyboard data entry, inline validation, horizontally scrollable input and result tables, and `aria-live` result updates.
 - Light/dark themes with system preference on first visit and a persisted manual choice.
 - English/Bangla toggle with a persisted cookie, correct `<html lang>`, localized page titles, and a font stack that covers Bengali glyphs.
 - No horizontal page scrolling at tested widths (360, 390, 414, 768, 1440 px) in either language; wide tables scroll within keyboard-focusable panels.
@@ -208,20 +245,22 @@ lib/
 - Unemployment is an ILO modelled estimate.
 - Trade values are nominal and cover goods and services, not merchandise-only customs data. They are converted to BDT at the current reference rate, not the exchange rate from each historical year.
 - The OpenDataBD catalog is broad; dataset subjects, formats, licences, and access conditions vary. Files may require authentication and are never proxied by BizScope BD.
+- Econ Math is an educational calculator. Results depend on the entered data and the selected method's assumptions; critical results should be verified independently. Drafts and results are not saved, and reloading the page clears them.
 - ExchangeRate-API rates are third-party references, not Bangladesh Bank buying/selling rates and not transaction quotes.
-- The app intentionally has no database. All data is fetched and cached at the server layer for this release.
+- The app intentionally has no database. Server data is fetched and cached for each release; Econ Math inputs remain in browser memory only.
 
 ---
 
 ## Verification
 
-Run against the live providers on **21 October 2026**:
+Run against the live providers on **21 October 2026**, with Econ Math checks on **22 October 2026**:
 
 - `npm run lint` — passed with no errors or warnings.
 - `npx tsc --noEmit` — passed.
 - `npm run build` — passed (Next.js production build, all routes compiled; content routes are dynamic because the root layout reads the language cookie).
 - Live endpoint checks — `/api/analytics` returned all 7 indicators, `/api/currency` returned a valid dollar–taka reference feed, `/api/datasets` returned catalog pages plus validated search/filter/pagination, and `/api/status` reported all three providers operational.
 - Page checks — `/`, `/economy`, `/trade`, `/currency`, `/data`, and `/sources` all returned `200`; an unknown route correctly returned `404`.
+- Econ Math checks (22 October 2026) — `npm run lint`, `npx tsc --noEmit`, and `npm run build` passed with all 41 calculators registered. `/math` returned `200` for the default view and for `?calc=z-test-mean&tab=formulas`, with the calculator count, formula guide, and privacy notice present in the server-rendered HTML. The browser/axe pass below covers the six data pages and predates Econ Math; a dedicated `/math` browser pass is still pending.
 - Browser checks - Playwright on the production build: no application console or page errors (the Cloudflare beacon's localhost CORS rejection is external and expected), axe reported zero WCAG A/AA violations on all six pages in English and Bangla, theme persistence and system-dark preference worked, the mobile drawer trapped focus and restored it on Escape, and the converter, economy filters, and dataset search all worked. A standard 390 px context reported a 390 px layout and document width; all six routes stayed at the viewport width with no horizontal panning at 360, 390, 414, and 768 px in both languages.
 - Bilingual checks - the header toggle changed server-rendered content, page title, and `<html lang>`; the cookie survived reloads and new tabs; English and Bangla copy objects had matching keys and array lengths; no English dashboard UI phrases appeared in Bangla mode; and every route was checked for localized headings, titles, empty/error copy, and accessible names.
 - BDT display checks — overview, economy, and trade showed taka values with the conversion rate and update date; the currency rate table showed taka per unit; the Sources page contained no internal endpoint or cache table.
